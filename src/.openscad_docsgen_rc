@@ -1,0 +1,27 @@
+#DocsDirectory: wiki/
+DocsDirectory: ../wiki
+TargetProfile: githubwiki
+#TargetProfile: wiki
+ProjectName: Kalpana Archi Openscad Library
+GenerateDocs: Files, TOC, Index, Topics, CheatSheet, Sidebar
+SidebarHeader:
+  ## Indices
+  .
+  Kalpana Archi list of module files : 
+  .
+SidebarMiddle:
+  [Tutorials](Tutorials)
+DefineHeader(BulletList): Side Effects
+DefineHeader(Table;Headers=Anchor&nbsp;Name|Position): Extra Anchors
+PrioritizeFiles:
+  project.scad
+  spaces.scad
+  stairs.scad
+DefineHeader(BulletList): Side Effects
+DefineHeader(Table;Headers=Anchor Name|Position): Named Anchors
+DefineHeader(Table;Headers=Anchor Type|What it is): Anchor Types
+DefineHeader(Table;Headers=Name|Definition): Terminology
+DefineHeader(Text): Returns
+DefineHeader(Text): Context Variables
+DefineHeader(BulletList): Requirements
+

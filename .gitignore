@@ -1,0 +1,29 @@
+.DS_Store
+*.swp
+*.bak
+
+
+# exported format
+*.3mf
+*.3dm
+*.amf
+
+docgen
+src/*.png
+src/*.gif
+src/test*
+
+docs/.source_hashes
+books 
+
+inspiration
+
+
+# Generated docs
+
+docs/src/
+wiki/
+tests/*.json
+
+
+tmp_*.scad
