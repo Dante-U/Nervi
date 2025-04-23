@@ -57,10 +57,10 @@ tutorials_docgen() {
     fi
     echo "Running openscad-docsgen..."
    echo "Generate tutorials documentations...."
-   cd ./tutorials
+   cd ./docs/tutorials
    openscad-mdimggen 
 	
-   cd ..
+   cd ../..
 
 }
 
