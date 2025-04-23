@@ -152,10 +152,10 @@ module space(
 //    placement = Attachment placement ("inside", "outside", or "both") [default: "outside"].
 //    force     = Ignore $space_except exclusions [default: false].
 // Side Effects:
-//    `$wall_orient` is set to define the wall orientation
-//    `$wall_inside` is set to true if it's inside walls
 //    `$wall_length` is set to the length of the wall 
 //    `$wall_height` is set to the height of the wall 
+//    `$wall_inside` is set to true if it's inside walls
+//    `$wall_orient` is set to define the wall orientation
 // Context Variables:
 //    $space_except = List of excluded sides from space module. Optional.
 //    $space_length = Space length (m). Required.
@@ -190,6 +190,8 @@ module attachWalls( faces = SIDES , child, placement = "outside", force = false 
 		}	
 	}	
 }
+
+//echo ("wallAnchor",wallAnchor(FRONT,true));
 
 // Function: wallAnchor()
 // Synopsis: Generates a wall anchor name.
@@ -425,15 +427,6 @@ module divider(
 		children();
 	}
 }
-/*
-space(4,3,2.2,debug=true,except=[FRONT,LEFT]){
-	addGround();
-	align(BACK+BOT,inside=true)
-		divider( l=2, h=1.5, wall=200,spin=-90,material="Brick" );
-}
-*/
-	
-//divider( l=1.5, h=2, wall=200 );
 
 // Function: roomBound()
 // 

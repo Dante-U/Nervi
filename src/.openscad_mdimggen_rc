@@ -1,1 +1,3 @@
-ColorScheme=BeforeDawn
+#ColorScheme=BeforeDawn
+ColorScheme=cornfield
+source_files: "docs/tutorials/*.md"

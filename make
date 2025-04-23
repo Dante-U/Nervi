@@ -46,13 +46,18 @@ run_docsgen() {
 
 # Function to generate tutorial documentation
 tutorials_docgen() {
+    local force=${1:-false}
     clear
     activate_docgen_env || return 1
 
     echo -e "${CYAN}Running openscad-mdimggen...${NC}"
     echo -e "${CYAN}Generating tutorials documentation...${NC}"
     cd ./docs/tutorials
-    openscad-mdimggen 
+    if [ "$force" = true ]; then
+        openscad-mdimggen -f
+    else    
+        openscad-mdimggen -f
+    fi    
     cd ../.. || { echo -e "${RED}Error: Failed to return to parent directory${NC}" >&2; return 1; }
 }
 
@@ -259,9 +264,9 @@ display_menu() {
     echo -e "${YELLOW}Verbose: $( [ "$verbose_state" = true ] && echo "ON" || echo "OFF" )${NC}"
     echo -e "${BLUE}--------------------------------------${NC}"
     echo -e "${GREEN}1. Run Doc Generation${NC}"
-    echo -e "${GREEN}2. Toggle Force Mode${NC}"
-    echo -e "${GREEN}3. Toggle Verbose Mode${NC}"
-    echo -e "${GREEN}4. Generate Tutorials${NC}"
+    echo -e "${GREEN}2. Generate Tutorials${NC}"
+    echo -e "${GREEN}3. Toggle Force Mode${NC}"
+    echo -e "${GREEN}4. Toggle Verbose Mode${NC}"
     echo -e "${GREEN}5. Install Docgen${NC}"
     echo -e "${GREEN}6. Uninstall Docgen${NC}"
     echo -e "${GREEN}7. Open Docgen Session${NC}"
@@ -285,15 +290,15 @@ while true; do
             read -r
             ;;
         2)
-            force=$([ "$force" = true ] && echo false || echo true)
-            ;;
-        3)
-            verbose=$([ "$verbose" = true ] && echo false || echo true)
-            ;;
-        4)
             tutorials_docgen
             echo -e "${YELLOW}Press Enter to continue...${NC}"
             read -r
+            ;;
+        3)
+            force=$([ "$force" = true ] && echo false || echo true)
+            ;;
+        4)
+            verbose=$([ "$verbose" = true ] && echo false || echo true)
             ;;
         5)
             install_docgen

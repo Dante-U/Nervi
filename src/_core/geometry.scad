@@ -24,7 +24,7 @@ include <constants.scad>
 // See Also: boundingSize()
 // Usage:
 //    centered_path = centerPath([[0, 0], [10, 0], [10, 10]]);  // Centers a 2D triangle
-// Example(Flat,NoAxes): 2D path centering
+// Example(NORENDER,NoAxes): 2D path centering
 //    path = [[0, 0], [10, 0], [10, 10], [0, 10]];
 //    centered = centerPath(path);
 //    echo(centered);  // Outputs: [[-5, -5], [5, -5], [5, 5], [-5, 5]]
@@ -32,9 +32,14 @@ include <constants.scad>
 //    path = [[0, 0, 0], [10, 0, 0], [5, 10, 5]];
 //    centered = centerPath(path);
 //    echo(centered);  // Outputs: shifted to center at [0, 0, 0]
+// Example(2D,NoAxes): Centering red square and green triangle
+//    triangle_path 	= [[5, 5], [15, 5], [10, 15]];       // Green triangle offset
+//    triangle_centered 	= centerPath(triangle_path);
+//    %stroke(triangle_path, $color="red", $ls="--",closed=true);
+//    stroke(triangle_centered, $color="green", $lw=2,closed=true);
 function centerPath( path ) = 
+	assert(is_def(path),"[centerPath] : Path argument not defined in centerPath")
 	let(
-		//assert(is_def(path),"ERROR : Path argument not defined in centerPath"),
 		bounds = is_path(path,[2,3]) ?  pointlist_bounds( path ) : undef,
 		x = is_def(bounds) ? (bounds[0][X]+bounds[1][X]) /2 : 0,
 		y = is_def(bounds) ? (bounds[0][Y]+bounds[1][Y]) /2 : 0,
@@ -58,10 +63,17 @@ function centerPath( path ) =
 //    second element is the height (Y axis size), and the third element 
 //    is the depth (Z axis size) of the bounding box. If a 2D path is provided 
 // 	  then the Z axis size will be 0. 	
+// Usage:
+//    size = boundingSize(path,z); // Total size
 // Example: 
 //    path = [[1, 2, 3], [4, 5, 6], [-1, -2, -3]];
 //    size = boundingSize(path);
 //    echo("Bounding Size: ", size);
+// Example(2D,NoAxes): Centering red square and green triangle
+//    triangle_path 	= [[5, 5], [15, 5], [10, 15]];       // Green triangle offset
+//    triangle_centered 	= centerPath(triangle_path);
+//    %stroke(triangle_path, $color="red", $ls="--",closed=true);
+//    stroke(triangle_centered, $color="green", $lw=2,closed=true);
 function boundingSize( path, z ) = 
 	let( b = pointlist_bounds(is_path ( path,dim=2 ) ? path3d(path) : path ) )
 	[
