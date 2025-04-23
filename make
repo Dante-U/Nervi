@@ -1,200 +1,238 @@
 #!/bin/bash
 
+# ANSI color codes
+BLUE='\033[1;34m'
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+RED='\033[1;31m'
+CYAN='\033[1;36m'
+NC='\033[0m' # No Color
 
-# Function to run openscad-docsgen with your specified options
+# Function to activate the docgen virtual environment
+activate_docgen_env() {
+    if [ -z "$VIRTUAL_ENV" ] || [ ! "$(basename "$VIRTUAL_ENV")" == "docgen" ]; then
+        echo -e "${YELLOW}Activating docgen virtual environment...${NC}"
+        source docgen/bin/activate || {
+            echo -e "${RED}Error: Failed to activate virtual environment. Make sure 'docgen' exists.${NC}" >&2
+            return 1
+        }
+    fi
+    return 0
+}
+
+# Function to run openscad-docsgen with optional force and verbose flags
 run_docsgen() {
-    local force=${1:-false}  # Default to false if not provided
+    local force=${1:-false}
+    local verbose=${2:-false}
 
     clear
-    # Activate virtual environment
     activate_docgen_env || return 1
 
-    # echo "Running openscad-docsgen${force && " with force flag"}..."
-    echo "Running openscad-docsgen${force:+ with force flag}..."
+    echo -e "${CYAN}Running openscad-docsgen${force:+ with force flag}...${NC}"
     cd ./src
     if [ "$force" = true ]; then
         openscad-docsgen -f -P "$project_name" ./*.scad ./_core/*.scad
     else
         openscad-docsgen -P "$project_name" ./*.scad ./_core/*.scad
     fi
-    cd .. || { echo "Error: Failed to return to parent directory"; return 1; }
+    cd .. || { echo -e "${RED}Error: Failed to return to parent directory${NC}" >&2; return 1; }
 
-    echo "Documentation generation completed."
+    echo -e "${GREEN}Documentation generation completed.${NC}"
     compose_template
-    echo "Documentation composition completed"
+    echo -e "${GREEN}Documentation composition completed${NC}"
     pwd
-    flatten_wiki_structure "./wiki/_core" "./wiki"
+    flatten_wiki_structure "./wiki/_core" "./wiki" "$verbose"
 }
 
+# Function to generate tutorial documentation
 tutorials_docgen() {
     clear
-    # Activate virtual environment
     activate_docgen_env || return 1
-    echo "Running openscad-docsgen..."
-    echo "Generate tutorials documentations...."
+
+    echo -e "${CYAN}Running openscad-mdimggen...${NC}"
+    echo -e "${CYAN}Generating tutorials documentation...${NC}"
     cd ./docs/tutorials
     openscad-mdimggen 
-    cd ../..
+    cd ../.. || { echo -e "${RED}Error: Failed to return to parent directory${NC}" >&2; return 1; }
 }
 
 # Function to install docgen
 install_docgen() {
-    echo "Creating virtual environment..."
+    clear
+    echo -e "${YELLOW}Creating virtual environment...${NC}"
     python3 -m venv docgen
     source docgen/bin/activate
-    echo "Installing openscad_docsgen..."
+    echo -e "${YELLOW}Installing openscad_docsgen...${NC}"
     pip install openscad_docsgen
-    echo "Installation completed."
-}
-
-open_docgen_session() {
-    echo "Open docgen virtual environment..."
-    source docgen/bin/activate
+    echo -e "${GREEN}Installation completed.${NC}"
 }
 
 # Function to uninstall (deactivate the virtual environment)
 uninstall_docgen() {
-    echo "Deactivating virtual environment..."
+    clear
+    echo -e "${YELLOW}Deactivating virtual environment...${NC}"
     deactivate
-    echo "Virtual environment deactivated."
+    echo -e "${GREEN}Virtual environment deactivated.${NC}"
+}
+
+# Function to open a docgen session
+open_docgen_session() {
+    clear
+    echo -e "${YELLOW}Opening docgen virtual environment...${NC}"
+    source docgen/bin/activate
 }
 
 # INI Parser
 parse_ini() {
-    # Check if file exists and is readable
     local ini_file="$1"
     if [[ ! -f "$ini_file" ]] || [[ ! -r "$ini_file" ]]; then
-        echo "Error: Cannot read file $ini_file" >&2
+        echo -e "${RED}Error: Cannot read file $ini_file${NC}" >&2
         return 1
-    fi  # Changed this brace from } to fi
+    fi
 
-    # Initialize section variable
     local current_section=""
-
-    # Read the file line by line
     while IFS= read -r line || [[ -n "$line" ]]; do
-        # Trim whitespace
         line="${line##*( )}"
         line="${line%%*( )}"
-
-        # Skip empty lines and comments
         [[ -z "$line" ]] || [[ "$line" == \#* ]] && continue
-
-        # Check if it's a section
         if [[ "$line" =~ ^\[(.*)\]$ ]]; then
             current_section="${BASH_REMATCH[1]}"
             continue
         fi
-
-        # Parse key-value pairs
         if [[ "$line" =~ ^([^=]+)=(.*)$ ]]; then
             local key="${BASH_REMATCH[1]}"
             local value="${BASH_REMATCH[2]}"
-
-            # Trim whitespace from key and value
             key="${key##*( )}"
             key="${key%%*( )}"
             value="${value##*( )}"
             value="${value%%*( )}"
-
-            # Remove quotes if present
             value="${value#\"}"
             value="${value%\"}"
             value="${value#\'}"
             value="${value%\'}"
-
-            # Create variable name
             local var_name
             if [[ -n "$current_section" ]]; then
-                # If in a section, prefix variable with section name
                 var_name="${current_section}_${key}"
             else
                 var_name="$key"
             fi
-
-            # Make variable name safe for bash
             var_name=$(echo "$var_name" | sed 's/[^a-zA-Z0-9_]/_/g')
-
-            # Export the variable
-            #declare -g "$var_name=$value"
             eval "export $var_name='$value'"
         fi
     done < "$ini_file"
 }
+
 # Parse config.ini
 parse_ini config.ini
 
-# Debug: Print all variables in the environment
-echo "Environment variables after parsing:"
-printenv | grep -E "project_name|template|doc_folder|version"
+# Function to flatten a nested wiki structure into a flat layout
+flatten_wiki_structure() {
+    local source_dir="$1"
+    local target_dir="$2"
+    local verbose=${3:-false}
 
+    verbose_echo() {
+        if [ "$verbose" = true ]; then
+            echo -e "$@"
+        fi
+    }
+
+    if [ ! -d "$source_dir" ]; then
+        echo -e "${RED}Error: Source directory $source_dir does not exist${NC}" >&2
+        return 1
+    fi
+
+    if [ ! -d "$target_dir" ]; then
+        mkdir -p "$target_dir" || {
+            echo -e "${RED}Error: Failed to create target directory $target_dir${NC}" >&2
+            return 1
+        }
+        verbose_echo "${GREEN}Created target directory $target_dir${NC}"
+    fi
+
+    shopt -s dotglob
+    verbose_echo "${CYAN}Flattening $source_dir into $target_dir...${NC}"
+
+    if [ -d "$source_dir/images" ]; then
+        mkdir -p "$target_dir/images" || {
+            echo -e "${RED}Error: Failed to create $target_dir/images${NC}" >&2
+            return 1
+        }
+        if command -v rsync >/dev/null 2>&1; then
+            rsync -a --remove-source-files "$source_dir/images/" "$target_dir/images/" || {
+                echo -e "${RED}Error: Failed to merge $source_dir/images into $target_dir/images${NC}" >&2
+                return 1
+            }
+            verbose_echo "${GREEN}Merged $source_dir/images into $target_dir/images using rsync${NC}"
+        else
+            find "$source_dir/images" -type f -exec cp -f {} "$target_dir/images/" \; || {
+                echo -e "${RED}Error: Failed to copy files from $source_dir/images to $target_dir/images${NC}" >&2
+                return 1
+            }
+            verbose_echo "${GREEN}Copied files from $source_dir/images to $target_dir/images using cp${NC}"
+        fi
+        find "$source_dir/images" -type d -empty -delete 2>/dev/null
+        rmdir "$source_dir/images" 2>/dev/null || verbose_echo "${YELLOW}Note: $source_dir/images retained (not empty)${NC}" >&2
+    fi
+
+    find "$source_dir" -type f -not -path "$source_dir/images/*" -exec mv -f {} "$target_dir/" \; || {
+        echo -e "${RED}Error: Failed to move remaining files from $source_dir to $target_dir${NC}" >&2
+        return 1
+    }
+    verbose_echo "${GREEN}Moved remaining files from $source_dir to $target_dir${NC}"
+
+    find "$source_dir" -type d -empty -delete 2>/dev/null
+    rmdir "$source_dir" 2>/dev/null || verbose_echo "${YELLOW}Note: $source_dir retained (not empty)${NC}" >&2
+    verbose_echo "${GREEN}Successfully flattened $source_dir into $target_dir${NC}"
+    return 0
+}
 
 compose_template() {
-	echo "Composing templates..."
-	# Define variables
-	template=".template.md"
-	#doc_folder="docs"
-	doc_folder=$project_doc_folder
+    echo -e "${CYAN}Composing templates...${NC}"
+    template=".template.md"
+    doc_folder=$project_doc_folder
 
-	# Create temp files
-	tmp_overview=$(mktemp)
-	tmp_dependencies=$(mktemp)
-	tmp_usage=$(mktemp)
-	tmp_installation=$(mktemp)
-	tmp_toc=$(mktemp)
-	tmp_main=$(mktemp)
-	tmp_table_of_contents=$(mktemp)
-	tmp_topics=$(mktemp)
-	tmp_alpha_index=$(mktemp)
-	tmp_sidebar=$(mktemp)
+    tmp_overview=$(mktemp)
+    tmp_dependencies=$(mktemp)
+    tmp_usage=$(mktemp)
+    tmp_installation=$(mktemp)
+    tmp_toc=$(mktemp)
+    tmp_main=$(mktemp)
+    tmp_table_of_contents=$(mktemp)
+    tmp_topics=$(mktemp)
+    tmp_alpha_index=$(mktemp)
+    tmp_sidebar=$(mktemp)
 
+    process_md "Overview" "$tmp_overview"
+    process_md "Dependencies" "$tmp_dependencies"
+    process_md "Usage" "$tmp_usage"
+    process_md "Installation" "$tmp_usage"
+    if [ -f "$doc_folder/${project_main}.md" ]; then
+        cat "$doc_folder/${project_main}.md" | sed 's|images/|docs/images/|g' > "$tmp_main"
+    fi
+    process_md "TOC" "$tmp_toc"
+    process_md "Topics" "$tmp_topics"
+    process_md "AlphaIndex" "$tmp_alpha_index"
 
-	# Read content into temp files
+    sed -e "s|{{project_name}}|$project_name|g" \
+        -e "s|{{project_version}}|$project_version|g" \
+        -e "/{{overview}}/r $tmp_overview" -e "/{{overview}}/d" \
+        -e "/{{dependencies}}/r $tmp_dependencies" -e "/{{dependencies}}/d" \
+        -e "/{{usage}}/r $tmp_usage" -e "/{{usage}}/d" \
+        -e "/{{installation}}/r $tmp_usage" -e "/{{installation}}/d" \
+        -e "/{{main}}/r $tmp_main" -e "/{{main}}/d" \
+        -e "/{{toc}}/r $tmp_toc" -e "/{{toc}}/d" \
+        -e "/{{table_of_contents}}/r $tmp_table_of_contents" -e "/{{table_of_contents}}/d" \
+        -e "/{{topics}}/r $tmp_topics" -e "/{{topics}}/d" \
+        -e "/{{alpha_index}}/r $tmp_alpha_index" -e "/{{alpha_index}}/d" \
+        -e "/{{sidebar}}/r $tmp_sidebar" -e "/{{sidebar}}/d" \
+        "$template" > "$doc_folder/Home.md"
 
-
-	process_md "Overview" "$tmp_overview"
-	process_md "Dependencies" "$tmp_dependencies"
-	process_md "Usage" "$tmp_usage"
-	process_md "Installation" "$tmp_usage"
-	# process_md "$project_main" "$tmp_main"
-
-	# cat "$doc_folder/shelf.scad.md" > "$tmp_main"
-
-	# Replace image links in main
-	# sed -i 's|images/|docs/images/|g' "$tmp_main"
-	if [ -f "$doc_folder/${project_main}.md" ]; then
-		cat "$doc_folder/${project_main}.md" | sed 's|images/|docs/images/|g' > "$tmp_main"
-	fi
-	process_md "TOC" "$tmp_toc"
-	#process_md "_Sidebar" "$tmp_table_of_contents"
-	process_md "Topics" "$tmp_topics"
-	process_md "AlphaIndex" "$tmp_alpha_index"
-	#process_md "_Sidebar" "$tmp_sidebar"
-
-	# Use sed with file reads
-	sed -e "s|{{project_name}}|$project_name|g" \
-	    -e "s|{{project_version}}|$project_version|g" \
-	    -e "/{{overview}}/r $tmp_overview" -e "/{{overview}}/d" \
-	    -e "/{{dependencies}}/r $tmp_dependencies" -e "/{{dependencies}}/d" \
-	    -e "/{{usage}}/r $tmp_usage" -e "/{{usage}}/d" \
-	    -e "/{{installation}}/r $tmp_usage" -e "/{{installation}}/d" \
-	    -e "/{{main}}/r $tmp_main" -e "/{{main}}/d" \
-	    -e "/{{toc}}/r $tmp_toc" -e "/{{toc}}/d" \
-	    -e "/{{table_of_contents}}/r $tmp_table_of_contents" -e "/{{table_of_contents}}/d" \
-	    -e "/{{topics}}/r $tmp_topics" -e "/{{topics}}/d" \
-	    -e "/{{alpha_index}}/r $tmp_alpha_index" -e "/{{alpha_index}}/d" \
-	    -e "/{{sidebar}}/r $tmp_sidebar" -e "/{{sidebar}}/d" \
-	    "$template" > "$doc_folder/Home.md"
-
-	# Clean up temp files
-	rm -f "$tmp_overview" "$tmp_dependencies" "$tmp_usage" "$tmp_toc" "$tmp_table_of_contents" "$tmp_topics" "$tmp_alpha_index" "$tmp_sidebar"
-
-	echo "README.md has been generated."
+    rm -f "$tmp_overview" "$tmp_dependencies" "$tmp_usage" "$tmp_toc" "$tmp_table_of_contents" "$tmp_topics" "$tmp_alpha_index" "$tmp_sidebar"
+    echo -e "${GREEN}README.md has been generated.${NC}"
 }
 
 process_md() {
-    #local src_file="$doc_folder/$1.md"
-    #local dest_file="$2"
     local src_file="./docs/$1.md"
     local dest_file="$2"
     if [ -f "$src_file" ]; then
@@ -206,194 +244,80 @@ process_md() {
     fi
 }
 
-move_core_to_wiki_with_image_merge() {
-    # Check if source directory exists
-    if [ ! -d "./wiki/_core" ]; then
-        echo "Error: Source directory ./wiki/_core does not exist" >&2
-        return 1
-    fi
+# Main menu function
+display_menu() {
+    local force_state=$1
+    local verbose_state=$2
 
-    # Ensure target directory exists
-    if [ ! -d "./wiki" ]; then
-        mkdir -p ./wiki || {
-            echo "Error: Failed to create target directory ./wiki/" >&2
-            return 1
-        }
-        echo "Created target directory ./wiki/"
-    fi
-
-    # Enable dotglob to include hidden files
-    shopt -s dotglob
-
-    # Handle the images directory merge first
-    if [ -d "./wiki/_core/images" ]; then
-        # Ensure ./wiki/images exists
-        if [ ! -d "./wiki/images" ]; then
-            mv -f ./wiki/_core/images ./wiki/ || {
-                echo "Error: Failed to move ./wiki/_core/images to ./wiki/images" >&2
-                return 1
-            }
-            echo "Moved ./wiki/_core/images to ./wiki/images"
-        else
-            # Merge contents of ./wiki/_core/images into ./wiki/images
-            mv -f ./wiki/_core/images/* ./wiki/images/ || {
-                echo "Error: Failed to merge contents of ./wiki/_core/images into ./wiki/images" >&2
-                return 1
-            }
-            echo "Merged contents of ./wiki/_core/images into ./wiki/images"
-            # Remove the now-empty images dir in _core
-            rmdir ./wiki/_core/images 2>/dev/null || echo "Warning: ./wiki/_core/images not empty" >&2
-        fi
-    fi
-
-    # Move remaining contents from ./wiki/_core/ to ./wiki/
-    contents=(./wiki/_core/*)
-    if [ ${#contents[@]} -gt 0 ] && [ "$(ls -A ./wiki/_core)" != "" ]; then
-        mv -f ./wiki/_core/* ./wiki/ || {
-            echo "Error: Failed to move remaining contents from ./wiki/_core/ to ./wiki/" >&2
-            echo "Check: ls -la ./wiki/_core/ and ls -la ./wiki/" >&2
-            return 1
-        }
-        echo "Moved remaining contents from ./wiki/_core/ to ./wiki/"
-    else
-        echo "No remaining contents to move from ./wiki/_core/ (after images merge)"
-    fi
-
-    # Remove _core if empty
-    rmdir ./wiki/_core 2>/dev/null || echo "Note: ./wiki/_core retained (not empty)" >&2
-    echo "Successfully completed move and merge from ./wiki/_core/ to ./wiki/"
-    return 0
-}
-
-
-# Function to activate the docgen virtual environment
-activate_docgen_env() {
-    if [ -z "$VIRTUAL_ENV" ] || [ ! "$(basename "$VIRTUAL_ENV")" == "docgen" ]; then
-        echo "Activating docgen virtual environment..."
-        source docgen/bin/activate || {
-            echo "Error: Failed to activate virtual environment. Make sure 'docgen' exists." >&2
-            return 1
-        }
-    fi
-    return 0
-}
-
-# Function to flatten a nested wiki structure into a flat layout
-flatten_wiki_structure() {
-    local source_dir="$1"  # e.g., ./wiki/_core
-    local target_dir="$2"  # e.g., ./wiki
-    local verbose=${3:-false}  # Default to false (silent) if not provided
-
-    # Helper function to print messages only if verbose is true
-    verbose_echo() {
-        if [ "$verbose" = true ]; then
-            echo "$@"
-        fi
-    }
-
-    # Check if source directory exists
-    if [ ! -d "$source_dir" ]; then
-        echo "Error: Source directory $source_dir does not exist" >&2
-        return 1
-    fi
-
-    # Ensure target directory exists
-    if [ ! -d "$target_dir" ]; then
-        mkdir -p "$target_dir" || {
-            echo "Error: Failed to create target directory $target_dir" >&2
-            return 1
-        }
-        verbose_echo "Created target directory $target_dir"
-    fi
-
-    # Enable dotglob to include hidden files
-    shopt -s dotglob
-
-    # Move files and directories from source_dir to target_dir
-    verbose_echo "Flattening $source_dir into $target_dir..."
-
-    # Handle images directory separately to merge subdirectories
-    if [ -d "$source_dir/images" ]; then
-        # Ensure target images directory exists
-        mkdir -p "$target_dir/images" || {
-            echo "Error: Failed to create $target_dir/images" >&2
-            return 1
-        }
-
-        # Recursively copy all files from source images to target images
-        if command -v rsync >/dev/null 2>&1; then
-            rsync -a --remove-source-files "$source_dir/images/" "$target_dir/images/" || {
-                echo "Error: Failed to merge $source_dir/images into $target_dir/images" >&2
-                return 1
-            }
-            verbose_echo "Merged $source_dir/images into $target_dir/images using rsync"
-        else
-            find "$source_dir/images" -type f -exec cp -f {} "$target_dir/images/" \; || {
-                echo "Error: Failed to copy files from $source_dir/images to $target_dir/images" >&2
-                return 1
-            }
-            verbose_echo "Copied files from $source_dir/images to $target_dir/images using cp"
-        fi
-
-        # Remove empty directories in source images
-        find "$source_dir/images" -type d -empty -delete 2>/dev/null
-        rmdir "$source_dir/images" 2>/dev/null || verbose_echo "Note: $source_dir/images retained (not empty)" >&2
-    fi
-
-    # Move remaining files (e.g., .md) from source_dir to target_dir
-    find "$source_dir" -type f -not -path "$source_dir/images/*" -exec mv -f {} "$target_dir/" \; || {
-        echo "Error: Failed to move remaining files from $source_dir to $target_dir" >&2
-        return 1
-    }
-    verbose_echo "Moved remaining files from $source_dir to $target_dir"
-
-    # Remove empty directories in source_dir
-    find "$source_dir" -type d -empty -delete 2>/dev/null
-    rmdir "$source_dir" 2>/dev/null || verbose_echo "Note: $source_dir retained (not empty)" >&2
-
-    verbose_echo "Successfully flattened $source_dir into $target_dir"
-    return 0
+    clear
+    echo -e "${BLUE}======================================${NC}"
+    echo -e "${BLUE}      Nervi Make Script Menu          ${NC}"
+    echo -e "${BLUE}======================================${NC}"
+    echo -e "${CYAN}Project: $project_name${NC}"
+    echo -e "${CYAN}Version: $project_version${NC}"
+    echo -e "${YELLOW}Force: $( [ "$force_state" = true ] && echo "ON" || echo "OFF" )${NC}"
+    echo -e "${YELLOW}Verbose: $( [ "$verbose_state" = true ] && echo "ON" || echo "OFF" )${NC}"
+    echo -e "${BLUE}--------------------------------------${NC}"
+    echo -e "${GREEN}1. Run Doc Generation${NC}"
+    echo -e "${GREEN}2. Toggle Force Mode${NC}"
+    echo -e "${GREEN}3. Toggle Verbose Mode${NC}"
+    echo -e "${GREEN}4. Generate Tutorials${NC}"
+    echo -e "${GREEN}5. Install Docgen${NC}"
+    echo -e "${GREEN}6. Uninstall Docgen${NC}"
+    echo -e "${GREEN}7. Open Docgen Session${NC}"
+    echo -e "${RED}q. Exit${NC}"
+    echo -e "${BLUE}--------------------------------------${NC}"
+    echo -e "${CYAN}Select an option (1-7, q):${NC} \c"
 }
 
 # Main script logic
-echo "Nervi make script"
-echo "----------------------"
-echo "1. Doc Generation"
-echo "2. Install docgen"
-echo "3. Uninstall docgen"
-echo "4. Open Docgen session"
-echo "5. Doc Generation with force regeneration"
-echo "6. Tutorials generation"
-echo "q. Exit"
+force=false
+verbose=false
 
 while true; do
-    read -p "Choose an option (1/2/3/4/5/6/q): " choice
-    
+    display_menu "$force" "$verbose"
+    read -r choice
+
     case $choice in
         1)
-            run_docsgen false
+            run_docsgen "$force" "$verbose"
+            echo -e "${YELLOW}Press Enter to continue...${NC}"
+            read -r
             ;;
         2)
-            install_docgen
+            force=$([ "$force" = true ] && echo false || echo true)
             ;;
         3)
-            uninstall_docgen
+            verbose=$([ "$verbose" = true ] && echo false || echo true)
             ;;
         4)
-            open_docgen_session
+            tutorials_docgen
+            echo -e "${YELLOW}Press Enter to continue...${NC}"
+            read -r
             ;;
         5)
-            run_docsgen true
+            install_docgen
+            echo -e "${YELLOW}Press Enter to continue...${NC}"
+            read -r
             ;;
         6)
-            tutorials_docgen
+            uninstall_docgen
+            echo -e "${YELLOW}Press Enter to continue...${NC}"
+            read -r
             ;;
-        q)
-            echo "Exiting script. Goodbye!"
+        7)
+            open_docgen_session
+            echo -e "${YELLOW}Press Enter to continue...${NC}"
+            read -r
+            ;;
+        q|Q)
+            echo -e "${RED}Exiting script. Goodbye!${NC}"
             exit 0
             ;;
         *)
-            echo "Invalid option. Please try again."
+            echo -e "${RED}Invalid option. Please try again.${NC}"
+            echo -e "${YELLOW}Press Enter to continue...${NC}"
+            read -r
             ;;
     esac
 done
