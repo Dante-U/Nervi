@@ -1,6 +1,10 @@
 # Nervi - OpenSCAD Architectural Modeling Library
 
-Work in Progress Warning
+![](https://raw.githubusercontent.com/wiki/Dante-U/Nervi/images/logo/nervi-logo-1024-416.jpg)
+
+
+> [!CAUTION]
+> Work in Progress
 
 Nervi is an OpenSCAD library for parametric architectural modeling, inspired by the innovative designs of Italian engineer-architect Pier Luigi Nervi. Built on top of the BOSL2 library, Nervi provides a modular, efficient framework for creating 3D spaces, walls, openings, and dividers, ideal for architects, designers, and makers.
  Work in Progress Warning 
@@ -116,4 +120,4 @@ Named after Pier Luigi Nervi, whose innovative concrete structures (e.g., Palazz
 - Community: Join the OpenSCAD community on Reddit or Discord (#) to discuss Nervi.
 - Author: Sébastien Ursini - [sursini@gmail.com (mailto:sursini@gmail.com)]
 
-
+
