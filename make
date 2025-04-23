@@ -31,9 +31,9 @@ run_docsgen() {
     echo -e "${CYAN}Running openscad-docsgen${force:+ with force flag}...${NC}"
     cd ./src
     if [ "$force" = true ]; then
-        openscad-docsgen -f -P "$project_name" ./*.scad ./_core/*.scad
+        openscad-docsgen -f -P "$project_name" ./*.scad ./_core/*.scad ./_materials/*.scad
     else
-        openscad-docsgen -P "$project_name" ./*.scad ./_core/*.scad
+        openscad-docsgen -P "$project_name" ./*.scad ./_core/*.scad ./_materials/*.scad
     fi
     cd .. || { echo -e "${RED}Error: Failed to return to parent directory${NC}" >&2; return 1; }
 
@@ -42,6 +42,7 @@ run_docsgen() {
     echo -e "${GREEN}Documentation composition completed${NC}"
     pwd
     flatten_wiki_structure "./wiki/_core" "./wiki" "$verbose"
+    flatten_wiki_structure "./wiki/_materials" "./wiki" "$verbose"
 }
 
 # Function to generate tutorial documentation
@@ -56,7 +57,7 @@ tutorials_docgen() {
     if [ "$force" = true ]; then
         openscad-mdimggen -f
     else    
-        openscad-mdimggen -f
+        openscad-mdimggen 
     fi    
     cd ../.. || { echo -e "${RED}Error: Failed to return to parent directory${NC}" >&2; return 1; }
 }
