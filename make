@@ -6,11 +6,8 @@ run_docsgen() {
     local force=${1:-false}  # Default to false if not provided
 
     clear
-    # Check if we are in the virtual environment
-    if [ -z "$VIRTUAL_ENV" ] || [ ! "$(basename "$VIRTUAL_ENV")" == "docgen" ]; then
-        echo "Activating docgen virtual environment..."
-        source docgen/bin/activate || { echo "Failed to activate virtual environment. Make sure 'docgen' exists."; return 1; }
-    fi
+    # Activate virtual environment
+    activate_docgen_env || return 1
 
     # echo "Running openscad-docsgen${force && " with force flag"}..."
     echo "Running openscad-docsgen${force:+ with force flag}..."
@@ -29,57 +26,15 @@ run_docsgen() {
     flatten_wiki_structure "./wiki/_core" "./wiki"
 }
 
-run_docsgen_old() {
-    clear
-    # Check if we are in the virtual environment
-    if [ -z "$VIRTUAL_ENV" ] || [ ! "$(basename "$VIRTUAL_ENV")" == "docgen" ]; then
-        echo "Activating docgen virtual environment..."
-        source docgen/bin/activate || { echo "Failed to activate virtual environment. Make sure 'docgen' exists."; return 1; }
-    fi
-    echo "Running openscad-docsgen..."
-    cd ./src
-    openscad-docsgen -P "$project_name" ./*.scad ./_core/*.scad
-    cd ..
-    echo "Documentation generation completed."
-    compose_template
-    echo "Documentation composition completed"
-	pwd
-   # move_core_to_wiki_with_image_merge
-   flatten_wiki_structure "./wiki/_core" "./wiki"
-}
-
-# Function to run openscad-docsgen with your specified options
-run_docsgen_with_force_old() {
-    clear
-    # Check if we are in the virtual environment
-    if [ -z "$VIRTUAL_ENV" ] || [ ! "$(basename "$VIRTUAL_ENV")" == "docgen" ]; then
-        echo "Activating docgen virtual environment..."
-        source docgen/bin/activate || { echo "Failed to activate virtual environment. Make sure 'docgen' exists."; return 1; }
-    fi
-    echo "Running openscad-docsgen..."
-    cd ./src
-    openscad-docsgen -f -P "$project_name" ./*.scad ./_core/*.scad
-    cd ..
-    echo "Documentation generation completed."
-    compose_template
-    echo "Documentation composition completed"
-   flatten_wiki_structure "./wiki/_core" "./wiki"
-}
-
 tutorials_docgen() {
     clear
-    # Check if we are in the virtual environment
-    if [ -z "$VIRTUAL_ENV" ] || [ ! "$(basename "$VIRTUAL_ENV")" == "docgen" ]; then
-        echo "Activating docgen virtual environment..."
-        source docgen/bin/activate || { echo "Failed to activate virtual environment. Make sure 'docgen' exists."; return 1; }
-    fi
+    # Activate virtual environment
+    activate_docgen_env || return 1
     echo "Running openscad-docsgen..."
-   echo "Generate tutorials documentations...."
-   cd ./docs/tutorials
-   openscad-mdimggen 
-	
-   cd ../..
-
+    echo "Generate tutorials documentations...."
+    cd ./docs/tutorials
+    openscad-mdimggen 
+    cd ../..
 }
 
 # Function to install docgen
@@ -307,6 +262,19 @@ move_core_to_wiki_with_image_merge() {
     # Remove _core if empty
     rmdir ./wiki/_core 2>/dev/null || echo "Note: ./wiki/_core retained (not empty)" >&2
     echo "Successfully completed move and merge from ./wiki/_core/ to ./wiki/"
+    return 0
+}
+
+
+# Function to activate the docgen virtual environment
+activate_docgen_env() {
+    if [ -z "$VIRTUAL_ENV" ] || [ ! "$(basename "$VIRTUAL_ENV")" == "docgen" ]; then
+        echo "Activating docgen virtual environment..."
+        source docgen/bin/activate || {
+            echo "Error: Failed to activate virtual environment. Make sure 'docgen' exists." >&2
+            return 1
+        }
+    fi
     return 0
 }
 
