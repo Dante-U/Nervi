@@ -11,19 +11,14 @@ run_docsgen() {
     fi
     echo "Running openscad-docsgen..."
     cd ./src
-    #openscad-docsgen -f -P "$project_name" ./*.scad
     openscad-docsgen -P "$project_name" ./*.scad ./_core/*.scad
     cd ..
-
-#    cd ./src/_core
-#    openscad-docsgen -f -P "$project_name" ./*.scad
-#    cd ../..
-
     echo "Documentation generation completed."
     compose_template
     echo "Documentation composition completed"
 	pwd
-   move_core_to_wiki_with_image_merge
+   # move_core_to_wiki_with_image_merge
+   flatten_wiki_structure "./wiki/_core" "./wiki"
 }
 
 # Function to run openscad-docsgen with your specified options
@@ -38,14 +33,10 @@ run_docsgen_with_force() {
     cd ./src
     openscad-docsgen -f -P "$project_name" ./*.scad ./_core/*.scad
     cd ..
-
-#    cd ./src/_core
-#    openscad-docsgen -f -P "$project_name" ./*.scad
-#    cd ../..
     echo "Documentation generation completed."
     compose_template
     echo "Documentation composition completed"
-   move_core_to_wiki_with_image_merge
+   flatten_wiki_structure "./wiki/_core" "./wiki"
 }
 
 tutorials_docgen() {
@@ -289,6 +280,78 @@ move_core_to_wiki_with_image_merge() {
     # Remove _core if empty
     rmdir ./wiki/_core 2>/dev/null || echo "Note: ./wiki/_core retained (not empty)" >&2
     echo "Successfully completed move and merge from ./wiki/_core/ to ./wiki/"
+    return 0
+}
+
+# Function to flatten a nested wiki structure into a flat layout
+flatten_wiki_structure() {
+    local source_dir="$1"  # e.g., ./wiki/_core
+    local target_dir="$2"  # e.g., ./wiki
+
+    # Check if source directory exists
+    if [ ! -d "$source_dir" ]; then
+        echo "Error: Source directory $source_dir does not exist" >&2
+        return 1
+    fi
+
+    # Ensure target directory exists
+    if [ ! -d "$target_dir" ]; then
+        mkdir -p "$target_dir" || {
+            echo "Error: Failed to create target directory $target_dir" >&2
+            return 1
+        }
+        echo "Created target directory $target_dir"
+    fi
+
+    # Enable dotglob to include hidden files
+    shopt -s dotglob
+
+    # Move files and directories from source_dir to target_dir
+    echo "Flattening $source_dir into $target_dir..."
+
+    # Handle images directory separately to merge subdirectories
+    if [ -d "$source_dir/images" ]; then
+        # Ensure target images directory exists
+        mkdir -p "$target_dir/images" || {
+            echo "Error: Failed to create $target_dir/images" >&2
+            return 1
+        }
+
+        # Recursively copy all files from source images to target images
+        # Use rsync to merge directories and overwrite duplicates
+        if command -v rsync >/dev/null 2>&1; then
+            rsync -a --remove-source-files "$source_dir/images/" "$target_dir/images/" || {
+                echo "Error: Failed to merge $source_dir/images into $target_dir/images" >&2
+                return 1
+            }
+            echo "Merged $source_dir/images into $target_dir/images using rsync"
+        else
+            # Fallback to cp if rsync is not available
+            find "$source_dir/images" -type f -exec cp -f {} "$target_dir/images/" \; || {
+                echo "Error: Failed to copy files from $source_dir/images to $target_dir/images" >&2
+                return 1
+            }
+            echo "Copied files from $source_dir/images to $target_dir/images using cp"
+        fi
+
+        # Remove empty directories in source images
+        find "$source_dir/images" -type d -empty -delete 2>/dev/null
+        rmdir "$source_dir/images" 2>/dev/null || echo "Note: $source_dir/images retained (not empty)" >&2
+    fi
+
+    # Move remaining files (e.g., .md) from source_dir to target_dir
+    # Use find to handle files only, excluding images directory
+    find "$source_dir" -type f -not -path "$source_dir/images/*" -exec mv -f {} "$target_dir/" \; || {
+        echo "Error: Failed to move remaining files from $source_dir to $target_dir" >&2
+        return 1
+    }
+    echo "Moved remaining files from $source_dir to $target_dir"
+
+    # Remove empty directories in source_dir
+    find "$source_dir" -type d -empty -delete 2>/dev/null
+    rmdir "$source_dir" 2>/dev/null || echo "Note: $source_dir retained (not empty)" >&2
+
+    echo "Successfully flattened $source_dir into $target_dir"
     return 0
 }
 
