@@ -1,9 +1,9 @@
 include <_core/main.scad>;
 
 //////////////////////////////////////////////////////////////////////
-// LibFile: spaces.scad
+// LibFile: space.scad
 // Includes:
-//   include <spaces.scad>
+//   include <Nervi/space.scad>
 // FileGroup: Architecture
 // FileSummary: Architecture, Building, Furniture, BIM
 //////////////////////////////////////////////////////////////////////
@@ -40,8 +40,7 @@ WALL_DEFAULT 	= 180;
 //    $space_height = Default height (m). Optional.
 //    $space_wall   = Default wall thickness (m). Optional.
 // Example(3D,ColorScheme=Nature):
-//    space(l=3, w=2, h=2.5, wall=0.2, name="Room", except=["FRONT"])
-//        cube([1, 1, 1], anchor=BOTTOM);
+//    space(l=3, w=2, h=2.5, wall=200, name="Room", except=["FRONT"],debug=true);
 // See Also: wallGeometry()
 module space( 
 		l       = first_defined([is_undef(l) 	? undef : l ,$space_length]),
@@ -155,6 +154,8 @@ module space(
 // Side Effects:
 //    `$wall_orient` is set to define the wall orientation
 //    `$wall_inside` is set to true if it's inside walls
+//    `$wall_length` is set to the length of the wall 
+//    `$wall_height` is set to the height of the wall 
 // Context Variables:
 //    $space_except = List of excluded sides from space module. Optional.
 //    $space_length = Space length (m). Required.
@@ -162,15 +163,14 @@ module space(
 //    $space_height = Space height (m). Required.
 //    $space_wall   = Wall thickness (m). Required.
 // Example(3D,ColorScheme=Nature):
-//    $space_length = 3;
-//    $space_width  = 2;
-//    $space_height = 2.5;
-//    $space_wall   = 0.2;
-//    $space_except = [FORWARD];
-//    space() attachWalls(faces=[BACK, LEFT], placement="inside")
-//        cuboid([1000, 200, 1000], anchor=FORWARD);
+//    space(3,2,2.5,debug=true)
+//       attachWalls(faces=[LEFT,FRONT], placement="outside")
+//          material("Brick") cuboid(500,anchor=DOWN);
+// Example(3D,ColorScheme=Nature):
+//    space(3,2,2.5,debug=true,except=[FRONT,LEFT]) 
+//       attachWalls(faces=[BACK,RIGHT], placement="inside")
+//          material("Brick") cuboid(500,anchor=DOWN);
 // See Also: space(), wallAnchor()
-
 module attachWalls( faces = SIDES , child, placement = "outside", force = false ) {
 	sides = placement == "outside" ? [false] : placement == "inside" ? [true] : [false,true];
 	_anchors = is_vector(faces) || is_string(faces) ? [faces] : faces;
@@ -178,7 +178,7 @@ module attachWalls( faces = SIDES , child, placement = "outside", force = false 
 	for ( anchor = anchors ) for (inside = sides) {
 		$wall_inside 	= inside; 
 		$wall_orient	= ($wall_inside ? -1 : 1) * anchor;
-		attach( wallAnchor( anchor, inside) ) 
+		attach( wallAnchor( anchor, inside)/*,align=[LEFT]*/ ) 
 		let( 
 			size  			= boundingSize(anchorInfo("geom")),
 			$wall_length 	= size.x / 1000, 
@@ -220,14 +220,6 @@ function wallAnchor(anchor, inside ) = str(dirAsName(anchor), "_", inside ? "INS
 //    $space_height = Space height (m). Required.
 //    $space_wall   = Wall thickness (m). Required.
 //    $space_except = List of excluded sides [default: []].
-// Example(2D,ColorScheme=Nature):
-//    $space_length = 3;
-//    $space_width  = 2;
-//    $space_height = 2.5;
-//    $space_wall   = 0.2;
-//    $space_except = [FORWARD];
-//    points = wallGeometry(BACK, inside=true);
-//    polygon(points);
 // See Also: space(), wallAnchor()
 function wallGeometry(side, inside = false) =
     let (
@@ -281,7 +273,6 @@ function wallGeometry(side, inside = false) =
 //    $space_width  = Space width (m). Required.
 //    $space_height = Space height (m). Required.
 // See Also: space(), attachWalls(), wallAnchor()
-
 module spaceWrapper() {
     assert(is_num($space_length), 	"Missing $space_length");
     assert(is_num($space_width), 	"Missing $space_width");
@@ -316,17 +307,12 @@ module spaceWrapper() {
 //    $wall_length = Wall length (m). Required.
 //    $wall_height = Wall height (m). Required.
 //    $wall_orient = Wall orientation vector. Required.
-// Example(3D,ColorScheme=Nature):
-//    $space_length = 3;
-//    $space_width  = 2;
-//    $space_height = 2.5;
-//    $space_wall   = 0.2;
-//    space(except=[FORWARD]) 
-//       attachWalls(faces=[BACK], placement="inside")
-//          placeOpening(anchors=[CENTER], w=1.2, h=2, opening=0.5)
-//              cuboid([1200, 200, 2000], anchor=FORWARD);
+// Example(3D,ColorScheme=Nature,NoAxis):
+//    space(3,3,2.3,debug=true) 
+//       attachWalls(faces=[FRONT], placement="both") 
+//          cuboid(meters([$wall_length,$wall_height,0.10]))
+//             placeOpening(anchors=[CENTER], w=1.2, h=1.8, opening=0.5);
 // See Also: space(), attachWalls(), wallAnchor()
-
 module placeOpening(anchors,w,h,inset=[ 0,0 ],debug = false, opening = 1) {
     assert(is_def(anchors), 	"[placeOpening] anchors must be defined (vector, string, or list)");
     assert(is_num(w) && w > 0, 	"[placeOpening] w must be a positive number (meters)");
@@ -379,8 +365,8 @@ module placeOpening(anchors,w,h,inset=[ 0,0 ],debug = false, opening = 1) {
 //
 // See Also: addGround()
 // Example(3D,ColorScheme=Nature): Simple Ground
-//   ground( length = 2, width = 2,thickness=300);
-
+//   space(3,3,2,debug=true,except=[FRONT,RIGHT])
+//   	position(BOT) ground(anchor=TOP,material="Brick");
 module ground( 
 		length 		= is_undef( $space_length ) ? undef : $space_length, 
 		width 		= is_undef( $space_width ) 	? undef : $space_width, 
@@ -411,35 +397,43 @@ module ground(
 //    context for wall thickness and supports BOSL2-style attachments. Applies a material
 //    tag for rendering and positions the divider relative to a specified anchor.
 // Arguments:
-//    length    = Divider length (mm) [default: 1000].
-//    thickness = Divider thickness (mm) [default: $space_wall or WALL_DEFAULT].
-//    height    = Divider height (mm) [default: 2000].
+//    l    		= Divider length (mm).
+//    h    		= Divider height (mm).
+//    wall 		= Divider thickness (mm) [default: $space_wall or WALL_DEFAULT].
 //    anchor    = Anchor point for positioning [default: BOTTOM].
 //    spin      = Rotation angle (degrees) [default: 0].
-//    orient    = Orientation vector [default: UP].
 // Context Variables:
 //    $space_wall = Wall thickness (mm) from space module. Optional.
-// Example(3D,ColorScheme=Nature):
-//    $space_length = 3;
-//    $space_width  = 2;
-//    $space_height = 2.5;
-//    $space_wall   = 200;
-//    space() divider(length=1500, thickness=200, height=2000, anchor=CENTER);
+// Example(3D,ColorScheme=Nature,NoAxis):
+//    space(4,3,2.2,debug=true,except=[FRONT,LEFT]){
+//       addGround();
+//       align(BACK+BOT,inside=true)
+//          divider( l=2, h=1.5, wall=200,spin=-90,material="Brick" );
+//    }
 module divider( 
-		length 		= 1000, 
-		thickness	= is_undef( $space_wall ) ? WALL_DEFAULT : $space_wall,
-		height 		= 2000, 
-		anchor		= BOTTOM,
-		spin		= 0,
-		orient 
+		l, 		
+		h,
+		wall	= is_undef( $space_wall ) ? WALL_DEFAULT : $space_wall,
+		anchor	= BOT,
+		material = "plaster",
+		spin
 	) {
-	bounding_size = [length,thickness, height ]; 
-	tag("keep") attachable(anchor, spin, orient = orient , size = bounding_size ,cp = [0,0,height/2] ) {
-		material("Plaster")
-			cuboid([length,thickness,height] ,anchor=BOTTOM+BACK);
+	size = meters([l,wall/1000, h ]); 
+	tag("keep") attachable( size = size/* ,cp = [0,0,size.z/2*0]*/, spin = spin, anchor = anchor ) {
+		material(material)
+			cuboid([size.x,size.y,size.z]/* ,anchor=BOT*/);
 		children();
 	}
 }
+/*
+space(4,3,2.2,debug=true,except=[FRONT,LEFT]){
+	addGround();
+	align(BACK+BOT,inside=true)
+		divider( l=2, h=1.5, wall=200,spin=-90,material="Brick" );
+}
+*/
+	
+//divider( l=1.5, h=2, wall=200 );
 
 // Function: roomBound()
 // 
@@ -522,4 +516,3 @@ module addGround() {
 	dummy1=assert($parent_geom != undef, "[addGround] No space object to position relative to.");
 	position( BOT ) ground();
 }
-

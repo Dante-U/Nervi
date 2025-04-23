@@ -1,3 +1,5 @@
+include <BOSL2/std.scad>
+
 //////////////////////////////////////////////////////////////////////
 // LibFile: constants.scad
 // Includes:
@@ -45,12 +47,17 @@ MM3_TO_M3 = 1e-9;  // Conversion factor: 1 mm³ = 1e-9 m³
 
 // Constant: OFFSET
 // Description: Minimum offset 
-
 OFFSET=0.02;
 
 // Constant: CLEARANCE
 // Description: Boolean operation clearance
 CLEARANCE 		= 0.201;
+
+// Constant: EPSILON
+// Synopsis: A tiny value to compare floating point values.  `1e-9`
+// Topics: Constants, Math
+// Description: A really small value useful in comparing floating point numbers.  ie: abs(a-b)<EPSILON  `1e-9`
+//EPSILON = 1e-9;
 
 // Function: meters()
 // 
