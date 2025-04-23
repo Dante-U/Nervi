@@ -3,6 +3,33 @@
 
 # Function to run openscad-docsgen with your specified options
 run_docsgen() {
+    local force=${1:-false}  # Default to false if not provided
+
+    clear
+    # Check if we are in the virtual environment
+    if [ -z "$VIRTUAL_ENV" ] || [ ! "$(basename "$VIRTUAL_ENV")" == "docgen" ]; then
+        echo "Activating docgen virtual environment..."
+        source docgen/bin/activate || { echo "Failed to activate virtual environment. Make sure 'docgen' exists."; return 1; }
+    fi
+
+    # echo "Running openscad-docsgen${force && " with force flag"}..."
+    echo "Running openscad-docsgen${force:+ with force flag}..."
+    cd ./src
+    if [ "$force" = true ]; then
+        openscad-docsgen -f -P "$project_name" ./*.scad ./_core/*.scad
+    else
+        openscad-docsgen -P "$project_name" ./*.scad ./_core/*.scad
+    fi
+    cd .. || { echo "Error: Failed to return to parent directory"; return 1; }
+
+    echo "Documentation generation completed."
+    compose_template
+    echo "Documentation composition completed"
+    pwd
+    flatten_wiki_structure "./wiki/_core" "./wiki"
+}
+
+run_docsgen_old() {
     clear
     # Check if we are in the virtual environment
     if [ -z "$VIRTUAL_ENV" ] || [ ! "$(basename "$VIRTUAL_ENV")" == "docgen" ]; then
@@ -22,7 +49,7 @@ run_docsgen() {
 }
 
 # Function to run openscad-docsgen with your specified options
-run_docsgen_with_force() {
+run_docsgen_with_force_old() {
     clear
     # Check if we are in the virtual environment
     if [ -z "$VIRTUAL_ENV" ] || [ ! "$(basename "$VIRTUAL_ENV")" == "docgen" ]; then
@@ -373,7 +400,7 @@ while true; do
     
     case $choice in
         1)
-            run_docsgen
+            run_docsgen false
             ;;
         2)
             install_docgen
@@ -385,7 +412,7 @@ while true; do
             open_docgen_session
             ;;
         5)
-            run_docsgen_with_force
+            run_docsgen true
             ;;
         6)
             tutorials_docgen
