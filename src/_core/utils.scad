@@ -84,6 +84,25 @@ module booleanDiff(remove="remove", keep="keep") {
     show_int(keep) children();
 }	
 
+// Function&Module: unMutable()
+//
+// Synopsis: Checks if rendering is in single-pass mode for immutable objects.
+// Topics: Rendering, Tagging
+// Usage: As a Module
+//   unMutable() { ...  };
+// Usage: As a Function
+//   if (unMutable) { ...};
+// Description:
+//   When called as function returns true if the rendering context is in single-pass mode (i.e., `$multi_pass` is
+//   undefined or false). Identical to `singlePass()` but semantically distinct for objects
+//   that are explicitly immutable (not subject to boolean operations).
+//   When called as function renders children only if the rendering context is in single-pass mode, as determined
+//   by the `unMutable()` function. Designed for objects that should remain unaffected by
+//   boolean operations, ensuring they are rendered as-is.
+function unMutable() = is_undef($multi_pass) || $multi_pass == false ;
+module unMutable() { if (unMutable()) children(); }
+
+
 // Function: anchorInfo()
 //
 // Synopsis: Retrieves a property or sub-property from $attach_anchor.
@@ -112,3 +131,27 @@ function anchorInfo( property , sub_property ) =
 		sub_struct 	= sub_property ? struct_set([], flatten(result)) : undef
 	)
 	is_undef(sub_property) ? struct_val(struct,property) : struct_val(sub_struct,sub_property);
+
+	
+// Module: stack()
+// 
+// Synopsis: Stacks a child geometry on top of a parent, centered in x-y.
+// Topics: Geometry, Alignment, Architecture
+// Description:
+//    Positions a child geometry on top of a parent geometry, aligning the
+//    child’s center to the parent’s top face center. This is useful for
+//    stacking layers, such as cladding or additional wall sections, in
+//    architectural models. The module relies on BOSL2’s alignment system
+//    and requires a parent geometry to be defined.
+// Arguments:
+//    ---
+//    No arguments are required; the module operates on the parent and child
+//    geometries directly.
+// Usage:
+//    parent_geometry() stack() child_geometry();
+// Example(3D,ColorScheme=Nature)
+//    cuboid([20, 20, 10], anchor=CENTER);
+//    	stack() cuboid([10, 10, 5], anchor=CENTER);
+module stack() {
+	align(TOP, CENTER) children();
+}	

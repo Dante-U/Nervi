@@ -81,3 +81,13 @@ function boundingSize( path, z ) =
 		abs(b[0][Y]) + abs(b[1][Y]),
 		is_undef(z) ? abs(b[0][Z]) + abs(b[1][Z]) : z
 	];		
+	
+	
+// Function: circleArea() 	
+// Synopsis: Computes circle area using  radius or diameter
+function circleArea(r,d) = 
+	assert(r != undef || d != undef,"[circleArea] r or d should be defined")
+	let (r = is_undef(r) ? d/2 : r) pow(r,2) * PI ;
+
+	
+	

@@ -12,6 +12,7 @@ docgen
 src/*.png
 src/*.gif
 src/test*
+_various/
 
 docs/.source_hashes
 books 

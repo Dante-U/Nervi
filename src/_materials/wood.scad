@@ -1,4 +1,5 @@
 include <BOSL2/std.scad>
+include <_common.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: wood.scad
 //   Wood specs
@@ -36,30 +37,6 @@ function woodSpecs( wood_name, property ) =
 	)
 	assert(is_def(spec), str("[woodSpecs] Unknown wood type: ", wood_name))
 	is_def(property) ? spec[property] : spec;
-	
-	
-// Constant: WOOD_DENSITY
-// Description: Index for wood density value (kg/m³)
-WOOD_DENSITY 				= 0;
-// Constant: WOOD_COMPRESSIVE_STRENGTH
-// Description: Index for wood compressive strength (MPa)
-WOOD_COMPRESSIVE_STRENGTH = 1;
-
-// Constant: WOOD_ELASTICITY
-// Description: Index for wood elasticity/modulus of elasticity (GPa)
-WOOD_ELASTICITY = 2;
-
-// Constant: WOOD_STRENGTH_CLASS
-// Description: Index for wood strength classification
-WOOD_STRENGTH_CLASS = 3;
-
-// Constant: WOOD_APPLICATION
-// Description: Index for recommended applications
-WOOD_APPLICATION = 4;
-
-// Constant: WOOD_DESCRIPTION
-// Description: Index for general description of the wood
-WOOD_DESCRIPTION = 5;
 
 
 wood_specs = struct_set([], [

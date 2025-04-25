@@ -116,17 +116,6 @@ space(debug=true,except=[FRONT,RIGHT])
 		linear_extrude(200)	polygon(anchorInfo("geom"));
 ```
 
-
-
- 
-
-
-
-
-
-
-
-
 Technicaly localization of walls are defined using anchors. 
 
 |Side|placement|Name|   
@@ -141,7 +130,40 @@ Technicaly localization of walls are defined using anchors.
 ||Outside|BACK_OUTSIDE|
 
 
+## Slab 
 
+Creates a monolithic [`slab()`](./space.scad#module-slab) with dimensions derived from the parent `space()` (./space.scad#module-space) or specified parameters. Automatically aligns to the bottom of a space when a direct child, with an optional vertical offset. Uses `masonrySpecs()` (./masonry.scad#function-masonrySpecs) for material properties and calculates cost as volume * unit_price. Metadata supports IFC export as IfcSlab.
+
+### Example 1: Slab with Cost Estimation
+
+Create a slab under a space with cost informations.
+
+```openscad-3D;Huge
+include <Nervi/space.scad>
+space(l=3, w=3, h=2, debug=true, except=[FRONT, RIGHT]) {
+    slab(thickness=200, material="Concrete", unit_price=120,info=true);
+}
+```
+
+
+### IFC Mapping
+
+Maps to IfcSlab with PredefinedType=BASESLAB. Material properties (e.g., "Concrete") are assigned via IfcMaterial, with $meta providing volume, weight, and cost for BIM cost analysis.
+
+> [! IMPORTANT]  
+> Use "Concrete" from `masonrySpecs()` (./masonry.scad#function-masonrySpecs) for slabs, not "Concrete Block", which is for modular walls.
+
+### Notes
+
+> [!TIP]
+> Adjust __unit_price__ based on local concrete costs (e.g., $120/m³) for accurate estimates.
+
+
+> [!NOTE]  
+> Highlights information that users should take into account, even when skimming.
+
+> [!IMPORTANT]  
+> Ensure material matches a key in `masonrySpecs()` (./masonry.scad#function-masonrySpecs) (e.g., "Concrete") to avoid density lookup errors.
 
 
 

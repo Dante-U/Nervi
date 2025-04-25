@@ -1,4 +1,7 @@
 include <constants.scad>
+include <strings.scad>
+include <currency.scad>
+
 
 //////////////////////////////////////////////////////////////////////
 // LibFile: metadata.scad
@@ -19,11 +22,12 @@ meta_specs = struct_set([], [
 	
     "volume",        [ "Volume"		, function(v) format_volume(v)		],
 	"unit_price",    [ "Unit Price"	, function(v) format_currency(v) 	],
-	"weight",    	 [ "Weight"		, function(v) format_weight(v)		],
+	"weight",    	 [ "Weight"		, function(v) formatWeight(v)		],
 	"area",    	 	 [ "Area"		, function(v) format_area(v)		],
 	"perimeter",     [ "Perimeter"	, function(v) format_length(v)		],
 	"section",     	 [ "Section"	, function(v) format_section(v)		],
-	"value",    	 [ "Value"		, function(v) format_currency(v)    ],
+	"value",    	 [ "Value(Deprecated use cost) "		, function(v) format_currency(v)    ],
+	"cost",    	 	 [ "Cost"		, function(v) format_currency(v)    ],
 	"orientation", 	 [ "Orientation"									],
 	"qty",        	 [ "Quantity"	, "Unit"							],
 	"units",         [ "Units"		, "pce"								],
@@ -60,6 +64,42 @@ function metaSpec( property ) =
 	assert(property, "Meta spec property cannot be undefined")
 	struct_val(meta_specs, property);
 
+// Function: materialSpecs()
+// 
+// Synopsis: Defines a material specification with properties like price and quantity.
+// Topics: Materials, Cost Estimation, Architectural Modeling
+// Description:
+//    Creates a material specification for use in architectural modeling, associating a material
+//    name with properties such as unit price, quantity, total value, material type, and units.
+//    This function is useful for defining materials in the context of the space module, such as
+//    specifying concrete for walls or glass for windows in a masterSuite setup. Returns a list
+//    with the material name and a sublist of properties, including calculated values like total
+//    cost (price * quantity) when applicable.
+// Arguments:
+//    name  = The name of the material (required).
+//    price = The unit price of the material (optional, must be a number if defined).
+//    qty   = The quantity of the material (optional).
+//    type  = The type of material (optional).
+//    units = The units of measurement (optional).
+// Returns:
+//    A list of the form [name, [properties]], where properties include key-value pairs like
+//    ["unit_price", price], ["qty", qty], ["value", price * qty], ["material", type], and
+//    ["units", units], depending on which parameters are defined.	
+function materialSpecs ( name, price, qty,type, units ) = 
+	assert(name,								"Material spec name should be defined")
+	assert(is_undef(price ) || is_num(price),	"Material spec price should be a number if defined")
+	[
+		name , 
+		[
+			if (is_def(price) ) 				["unit_price"	,price			],
+			if (is_def(qty) ) 					["qty"			,qty			],
+			if (is_def(qty) && is_def(price))	["cost"		,price * qty	],
+			if (is_def(type))					["material"		,type			],
+			if (is_def(units) ) 				["units"		,units			],
+		]
+	
+	];	
+	
 
 // Function: retrieveInfo()
 //
@@ -193,7 +233,7 @@ function provideMeta( enabled ) =
 module printData(title,data) {
     assert(is_def(title), "title must be defined");
     assert(is_string(title), "title must be a string");
-	cols = 20;
+	cols = 40;
     header = [
 		str_pad("",cols,"*"),
 		str_center_pad (title,cols),

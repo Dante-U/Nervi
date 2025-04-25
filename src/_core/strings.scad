@@ -7,7 +7,7 @@ use <math.scad>
 //   String handling
 // Includes:
 //   include <_core/strings.scad>
-// FileGroup: Strings
+// FileGroup: Utils
 // FileSummary: String utilities
 //////////////////////////////////////////////////////////////////////
 
@@ -561,16 +561,32 @@ function format_section( value ) =
 	str(value[0]/10, " cm x ",value[1]/10," cm" );
 	
 
-function format_weight( value ) =
-	is_undef(value) ? "N/A" :  
-	let (
-		decimals = 
-				value < 1  ? 3 :
-				value < 20 ? 2 : 
-				0,
-		value = decRound(value,decimals)
-	)
-	str(value," Kg"); 
+// Function: formatWeight()
+//
+// Synopsis: Formats a weight in kilograms or tons with appropriate units.
+// Topics: Utilities, Formatting, Weight
+// Usage:
+//   weight_str = formatWeight(value);
+// Description:
+//   Formats a weight value, displaying in kilograms (Kg) for values up to 1000 kg
+//   and in metric tons (t) for values above 1000 kg. Applies decimal precision based
+//   on magnitude: 3 decimals (< 1 kg), 2 decimals (1–20 kg), 0 decimals (> 20 kg),
+//   or 2 decimals (in tons).
+// Arguments:
+//   value = Weight in kilograms (scalar).
+// Returns: String with formatted weight and unit (Kg or t).
+function formatWeight(value) =
+    is_undef(value) ? "N/A" :
+    let (
+        is_tons = value > 1000,
+        display_value = is_tons ? value / 1000 : value,
+        decimals = is_tons ? 2 :
+                   display_value < 1 ? 3 :
+                   display_value < 20 ? 2 : 0,
+        rounded_value = decRound(display_value, decimals),
+        unit = is_tons ? "t" : "Kg"
+    )
+    str(rounded_value, " ", unit);	
 	
 
 function format_volume( value ) =

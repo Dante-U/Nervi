@@ -12,7 +12,6 @@ xdistribute(meters(6)) {
 	test_wall_geometry();
 }
 
-
 module test_space_with_variables() {
 	
 	$space_length 	= 4;

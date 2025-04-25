@@ -1,10 +1,10 @@
-include <_core/main.scad>;
-
+include <_core/main.scad>
+include <_materials/masonry.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: space.scad
 // Includes:
 //   include <Nervi/space.scad>
-// FileGroup: Architecture
+// FileGroup: Superstructure
 // FileSummary: Architecture, Building, Furniture, BIM
 //////////////////////////////////////////////////////////////////////
 
@@ -352,42 +352,89 @@ module placeOpening(anchors,w,h,inset=[ 0,0 ],debug = false, opening = 1) {
 	}
 }
 
-// Module: ground()
-// Synopsis: Creates a parametric ground with customizable dimensions 
-// Topics: Architecture, Rooms, Ground, Interior Design  
-// Description:  
-//    Generates a room ground
-// Arguments:  
-//    length    = Internal length of the room in meters (required).  
-//    width     = Internal width of the room in meters (required).  
-//    wall      = Wall thickness in mm [default: undef].  
-//    thickness = Ground thickness in mm [default: 180].  
-//    anchor    = Attachment anchor point [default: BOTTOM].  
-//    spin      = Rotation in degrees (default: 0).  
+// Module: slab()
 //
-// See Also: addGround()
-// Example(3D,ColorScheme=Nature): Simple Ground
+// Synopsis: Creates a parametric slab with customizable dimensions 
+// Topics: Architecture, Rooms, Ground, Slab, Interior Design, IFC  
+// Usage:
+//   slab(length, width, wall, thickness, material, unit_price, anchor, spin, info, ifc_guid);
+// Description:
+//   Generates a concrete slab with dimensions matching the parent space’s footprint, auto-positioned
+//   at the bottom (anchor=TOP) when a direct child of the space module. Calculates volume, weight,
+//   and cost using material properties from masonrySpecs and unit_price (cost per m³). Stores
+//   metadata in $meta for BIM integration. In IFC, maps to IfcSlab with PredefinedType=BASESLAB.
+//
+// Arguments:
+//   length 	= Length in meters (default: $space_length or 1).
+//   width 		= Width in meters (default: $space_width or 1).
+//   wall 		= Wall thickness in mm (default: $space_wall or 0).
+//   thickness 	= Slab thickness in mm (default: 180).
+//   material 	= Material name from masonry.scad (default: "Concrete").
+//   unit_price = Cost per cubic meter in currency units (default: 100).
+//   anchor 	= Anchor point (default: TOP if child of space, else BOTTOM).
+//   spin 		= Rotation around Z-axis in degrees (optional).
+//   info 		= If true, generates metadata (default: true).
+//   ifc_guid 	= IFC global unique identifier (optional).
+//
+// Example(3D,ColorScheme=Nature): Automatic sizing slab with parent space
 //   space(3,3,2,debug=true,except=[FRONT,RIGHT])
-//   	position(BOT) ground(anchor=TOP,material="Brick");
-module ground( 
+//		color("IndianRed") slab();
+module slab( 
 		length 		= is_undef( $space_length ) ? undef : $space_length, 
 		width 		= is_undef( $space_width ) 	? undef : $space_width, 
 		wall		= is_undef( $space_wall )  	? 0 	: $space_wall,
 		thickness 	= 180, 
 		material	= "Concrete",	
+		unit_price 	= 100,
 		anchor		, 
-		spin
+		spin		,
+		info
 	) {
 	_length	 	= (length 	? meters(length)	: 1000 ) + 2 * wall;
 	_width	 	= (width 	? meters(width) 	: 1000 ) + 2 * wall;
 	_thickness	= thickness ? thickness	: 200;
 	
-	bounding_size = [_length, _width , _thickness]; 
-	attachable(anchor = anchor, spin = spin, orient = UP, size = bounding_size ){ 
-		material(material)  cuboid(bounding_size);
+	// Auto-position at TOP if direct child of space
+    _anchor = is_undef(anchor) && hasSpaceParent() ? TOP : first_defined([anchor, BOTTOM]);
+	size = [_length, _width , _thickness]; 
+	zOffset = hasSpaceParent() ? meters( $space_height / 2 ) : 0;
+	down (zOffset)
+	attachable(anchor = _anchor, spin = spin, orient = UP, size = size ){ 
+		material(material) cuboid(size);
 		children();
 	}
+	if (provideMeta(info)) {
+		volume = mm3_to_m3(_length * _width * _thickness); // m³
+        density = masonrySpecs(material, MATERIAL_DENSITY); // kg/m³
+        _ifc_guid = is_undef(ifc_guid) ? generate_guid() : ifc_guid;	
+		$meta = [	
+			["name", 		str("Ground slab(", material, ")")],
+            ["volume", 		volume				],
+            ["weight", 		volume * density	],
+            ["unit_price", 	unit_price			],
+            ["cost", 		volume * unit_price	],
+            ["ifc_class", 	"IfcSlab"			],
+            ["ifc_type", 	"BASESLAB"			],
+            ["ifc_guid", 	_ifc_guid			]			
+		];	
+		info();
+	}
 }
+	
+		
+// Function: hasSpaceParent()
+//
+// Synopsis: Checks if the space module is a direct parent in the call stack.
+// Topics: Architecture, Utilities
+// Description:
+//   Returns true if the space module is the parent module 6 levels up in the call stack.
+//   Useful for context-aware behavior in modules nested within a space.
+// Returns: Boolean indicating if space is the parent.
+// Example(3D,Big,ColorScheme=Nature):
+//   space(l=3, w=3, h=2, debug=true, except=[FRONT, RIGHT]) {
+//     if (hasSpaceParent()) cuboid([1000, 1000, 100], anchor=BOT);
+//   }
+function hasSpaceParent()  = $parent_modules > 6 && parent_module(6) == "space";
 
 // Module: divider()
 // 
@@ -496,16 +543,4 @@ module graduatedWall(h, l, mark =170, thickness = 200) {
 		up(count*mark)
 			cuboid([_l,thickness,remain],anchor=BOT,$color = color );
 	}
-}
-
-// Module: addGround()
-// 
-// Synopsis: Add ground module to space object  
-// Description:  
-//    Add a ground to a parent space module using dimensions inherited from the parent
-//
-// See Also: ground()
-module addGround() {
-	dummy1=assert($parent_geom != undef, "[addGround] No space object to position relative to.");
-	position( BOT ) ground();
 }

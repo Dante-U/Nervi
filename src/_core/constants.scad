@@ -99,6 +99,27 @@ function millimeters(value) =
     is_list(value) ? [for (v = value) millimeters(v)] : is_def(value) ? value / 1000 : undef;	
 
 
+// Function: mm3_to_m3()
+// Synopsis: Converts volume from cubic millimeters to cubic meters.
+// Topics: Utilities, Units, Volume
+// Usage:
+//   volume_m3 = mm3_to_m3(volume_mm3);
+// Description:
+//   Converts a volume from cubic millimeters (mm³) to cubic meters (m³) by dividing by 1,000,000,000.
+//   Useful for calculating material volumes in cost and weight estimations.
+// Arguments:
+//   volume_mm3 = Volume in cubic millimeters (scalar).
+// Returns: Volume in cubic meters.
+// Example(3D,Big,ColorScheme=Nature):
+//   volume_mm3 = 3000 * 3000 * 200; // 3m x 3m x 200mm slab
+//   volume_m3 = mm3_to_m3(volume_mm3);
+//   echo("Volume:", volume_m3, "m³"); // Outputs: Volume: 1.8 m³
+//   cuboid([3000, 3000, 200]); // Visualize slab
+function mm3_to_m3(volume_mm3) =
+    assert(is_num(volume_mm3) && volume_mm3 >= 0, "[mm3_to_m3] volume_mm3 must be a non-negative number")
+	volume_mm3 * MM3_TO_M3;
+
+
 GRAVITY=9.81;
 
 
