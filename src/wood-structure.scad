@@ -4,7 +4,7 @@ include <_core/main.scad>
 // Includes:
 //   include <wood-structure.scad>
 // FileGroup: Superstructure
-// FileSummary: Architecture, Building, Project
+// FileSummary: Architecture, Building, Project, Wood
 //////////////////////////////////////////////////////////////////////
 //use <_core/3D.scad>
 include <_materials/wood.scad>
