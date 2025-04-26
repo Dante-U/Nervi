@@ -1,1 +1,3 @@
 ColorScheme=Nature
+PrioritizeFiles:
+   space.scad

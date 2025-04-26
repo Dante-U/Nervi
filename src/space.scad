@@ -378,7 +378,7 @@ module placeOpening(anchors,w,h,inset=[ 0,0 ],debug = false, opening = 1) {
 //
 // Example(3D,ColorScheme=Nature): Automatic sizing slab with parent space
 //   space(3,3,2,debug=true,except=[FRONT,RIGHT])
-//		color("IndianRed") slab();
+//      color("IndianRed") slab();
 module slab( 
 		length 		= is_undef( $space_length ) ? undef : $space_length, 
 		width 		= is_undef( $space_width ) 	? undef : $space_width, 
@@ -455,7 +455,7 @@ function hasSpaceParent()  = $parent_modules > 6 && parent_module(6) == "space";
 //    $space_wall = Wall thickness (mm) from space module. Optional.
 // Example(3D,ColorScheme=Nature,NoAxis):
 //    space(4,3,2.2,debug=true,except=[FRONT,LEFT]){
-//       addGround();
+//       slab();
 //       align(BACK+BOT,inside=true)
 //          divider( l=2, h=1.5, wall=200,spin=-90,material="Brick" );
 //    }

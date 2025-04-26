@@ -29,7 +29,7 @@ include <_materials/wood.scad>
 // Example(3D,ColorScheme=Nature)
 //    studWallFrame(l=4, h=2.438, stud_spacing=406.4);
 // Example(3D,ColorScheme=Nature)
-//	  include <spaces.scad>	
+//	  include <space.scad>	
 //    space (3,1,2,debug=true)
 //       attachWalls([FWD],placement="outside") 
 //           studWallFrame( stud_spacing=406.4); 
@@ -395,11 +395,11 @@ module deck(
 //    debug 		= If true, renders ghost geometry [default: false].
 // See Also: stack()
 // Example(3D,NoAxes): Space with front cladding
-//   include <spaces.scad>
+//   include <space.scad>
 //   space(3,2,2.4,debug=true)
-//   	attachWalls([FWD],inside=false) 
+//   	attachWalls([FWD],placement="outside") 
 //         cladding();
-//   include <spaces.scad>
+//   include <space.scad>
 //   space(3,1,2.4,debug=true)
 //      attachWalls([FWD])
 //         studWallFrame() 

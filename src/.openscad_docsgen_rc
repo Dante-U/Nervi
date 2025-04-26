@@ -19,7 +19,7 @@ DefineHeader(BulletList): Context Variables Old
 DefineHeader(Table;Headers=Variables|Definition): Context Variables
 DefineHeader(BulletList): Requirements
 PrioritizeFiles:
+  space.scad
   project.scad
-  spaces.scad
   stairs.scad
 
