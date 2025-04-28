@@ -235,9 +235,81 @@ function anchorInfo( property , sub_property ) =
 //    geometries directly.
 // Usage:
 //    parent_geometry() stack() child_geometry();
-// Example(3D,ColorScheme=Nature)
-//    cuboid([20, 20, 10], anchor=CENTER);
-//    	stack() cuboid([10, 10, 5], anchor=CENTER);
+// Example(3D,ColorScheme=Nature):
+//    cuboid([20, 20, 10], anchor=CENTER)
+//       stack() cuboid([10, 10, 5], anchor=CENTER);
 module stack() {
 	align(TOP, CENTER) children();
 }	
+
+
+// Module: miterCut()
+//
+// Synopsis: Creates a miter cut for profiles,tubes or any geometry using BOSL2 attach
+// Topics: Geometry
+// Description:
+//   Generates a miter cut at a specified angle for use in profiles or tubes.
+//   Positive angle start the cut from the bottom while negative start by the top    
+//   
+// Arguments:
+//   section 	= Height and depth of the profile/tube
+//   angle 		= Miter angle in degrees clock wize (default: 45). 
+//
+// Example(3D,ColorScheme=Nature,Small): Top angle clockwise
+//   diff() cuboid([50,20,80]) attach(TOP) miterCut([20,50],angle=+20);
+// Example(3D,ColorScheme=Nature,Small): Top angle counter clockwise
+//   diff() cuboid([50,20,80]) attach(TOP) miterCut([20,50],angle=-20);
+// Example(3D,ColorScheme=Nature,Small): Bottom angle clockwise
+//   diff() cuboid([50,20,80]) attach(BOT) miterCut([20,50],angle=+20);
+// Example(3D,ColorScheme=Nature,Small): Bottom angle counter clockwise
+//   diff() cuboid([50,20,80]) attach(BOT) miterCut([20,50],angle=-20);
+// Example(3D,ColorScheme=Nature,Small): Right angle clockwise
+//   diff() cuboid([80,20,50]) attach(RIGHT) miterCut([20,50],angle=+20);
+// Example(3D,ColorScheme=Nature,Small): Right angle counter clockwise
+//   diff() cuboid([80,20,50]) attach(RIGHT) miterCut([20,50],angle=-20);
+// Example(3D,ColorScheme=Nature,Small): Left angle clockwise
+//   diff() cuboid([80,20,50]) attach(LEFT) miterCut([20,50],angle=+20);
+// Example(3D,ColorScheme=Nature,Small): Left angle counter clockwise
+//   diff() cuboid([80,20,50]) attach(LEFT) miterCut([20,50],angle=-20);
+// Example(3D,ColorScheme=Nature,Small): Front angle clockwise
+//   diff() cuboid([20,80,50]) attach(FRONT) miterCut([20,50],angle=+20);
+// Example(3D,ColorScheme=Nature,Small): Front angle counter clockwise
+//   diff() cuboid([20,80,50]) attach(FRONT) miterCut([20,50],angle=-20);
+// Example(3D,ColorScheme=Nature,Small): Back angle clockwise
+//   diff() cuboid([20,80,50]) attach(BACK) miterCut([20,50],angle=+20);
+// Example(3D,ColorScheme=Nature,Small): Back angle counter clockwise
+//   diff() cuboid([20,80,50]) attach(BACK) miterCut([20,50],angle=-20);
+
+module miterCut( section, angle=45,debug=false) {
+	shift 	= ang_adj_to_opp(abs(angle),section.y);
+	
+	anchorSign = sum($anchor);
+	vertical =  $anchor.z != 0;
+	_orient = vertical ? -anchorSign* $anchor : FWD;
+	
+	spinV = angle  > 0 ? -90 : +90;
+	spinH = angle  > 0 ? -180 :-180 ; // ko : OK
+	
+	_spin = vertical ? spinV : spinH; 
+	_wedgeOrient = vertical? UP : BACK;
+	_wedgespin = vertical? 0 : (angle  > 0 ? 0 : 180);
+	
+	size 		= [ section.y,section.x,shift];
+	wedgeSize 	= [ section.x,section.y,shift ];
+	
+	move = v_mul(UP,-wedgeSize)/2;
+	
+	move(move)
+	tag(debug ? "keep" : "remove")
+	attachable( size=wedgeSize,orient=_orient,spin=_spin /*,cp=[0,section.x/2,section.y] */ ) {
+		union() {
+			wedge(
+				wedgeSize+4*[CLEARANCE,CLEARANCE,CLEARANCE],
+				center=true,/*,orient=orient*/
+				orient=_wedgeOrient,
+				spin=_wedgespin,
+			);		
+		}
+		children();
+	}	
+}
