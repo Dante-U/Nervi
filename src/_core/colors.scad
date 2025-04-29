@@ -3,8 +3,7 @@ include <constants.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: colors.scad
 // Includes:
-//   include <BOSL2/std.scad>;
-//   include <Nervi/_core/colors.scad>;
+//   include <_core/colors.scad>;
 // FileGroup: Core
 // FileSummary: Colors, Material
 //////////////////////////////////////////////////////////////////////
@@ -30,6 +29,7 @@ material_colors = struct_set([], [
     "DarkGlass",   ["Black", 			[0, 0, 0]				, 0.8],  // Glass typically has some transparency
     "Plastic",     ["White", 			[1, 1, 1]				, 1],
     "Concrete",    ["Gray", 			[0.502, 0.502, 0.502]	, 1],
+	"Template",    ["Gray", 			[0.502, 0.502, 0.502]	, 0.6],
     "Brick",       ["IndianRed", 		[0.804, 0.361, 0.361]	, 1],
     "Stone",       ["SlateGray", 		[0.439, 0.502, 0.565]	, 1],
     "Marble",      ["LightGray", 		[0.827, 0.827, 0.827]	, 1],
@@ -83,17 +83,23 @@ material_colors = struct_set([], [
 //   material("Ghost") cube([20,20,20]); 
 //
 module material( name, transparency, deep= true ) {
-	//req_children($children);  
-	c = matColorSpec(name);
-	newColor = flatten([c[1],c[2]]);
-	if ( deep ) {
-		$color=newColor;
-		children();	
-	}	
-	else {
-		$save_color=default($color,"default");
-		$color=newColor;
-		children();	
+	if (is_def(name)) {
+		echo ("material name is ",name);
+		c = matColorSpec(name);
+		newColor = flatten([c[1],c[2]]);
+		echo ("newColor ",newColor);
+		if ( deep ) {
+			$color=newColor;
+			children();	
+		}	
+		else {
+			$save_color=default($color,"default");
+			$color=newColor;
+			children();	
+		}	
+	} else {
+		echo ("material name is undefined");
+		children();
 	}	
 }
 
@@ -129,6 +135,35 @@ function matColor( material ) =
 function matColorSpec( material ) =
 	struct_val(material_colors, material, default = ["default",1]);	
 
+// Module: apply_color()
+//
+// Synopsis: Applies the $color special variable to geometry if defined.
+// Topics: Color, Geometry
+// See Also: color(), cuboid(), rect()
+// Usage:
+//   apply_color() { <geometry> }
+// Description:
+//   Wraps the given geometry in a color() module if $color is defined.
+//   If $color is undef, the geometry is rendered with the default color.
+//   Useful for ensuring consistent color application across BOSL2 and native OpenSCAD modules.
+//   Especially usefull with linear_extrude
+// Example(ColorScheme=Nature)
+//   $color = "Blue";
+//   apply_color() cuboid(20);  // Blue cuboid
+// Example(ColorScheme=Nature)
+//   $color = "Blue";
+//   apply_color() linear_extrude(50) rect(60);  // Blue extruded rectangle
+// Example(ColorScheme=Nature)
+//   apply_color() cuboid(20);  // Default color (no $color defined)
+module apply_color() {
+echo ("$color : ",$color);
+  if (is_def($color) && $color != "default") {
+    color($color) children();
+  } else {
+    children();
+  }
+}	
+	
 
 /**
  * Function: green_palette
