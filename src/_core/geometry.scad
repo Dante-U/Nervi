@@ -114,12 +114,21 @@ function midpoint(p1, p2=undef) = let(
 //    %stroke(triangle_path, $color="red", $ls="--",closed=true);
 //    stroke(triangle_centered, $color="green", $lw=2,closed=true);
 function boundingSize( path, z ) = 
-	let( b = pointlist_bounds(is_path ( path,dim=2 ) ? path3d(path) : path ) )
+
+//		result = is_path(region) ?  boundingSize(region) : 
+//			is_region(region) ? regionBound(region[0]) :        //"is region" : 
+//			"other",
+
+	let( 
+		b = is_region(path)	? pointlist_bounds(path3d(path[0])) : 
+			is_path(path) 	? (pointlist_bounds(is_path ( path,dim=2 ) ? path3d(path) : path )) : 
+			pointlist_bounds(path3d(path))
+	)
 	[
 		abs(b[0][X]) + abs(b[1][X]),
 		abs(b[0][Y]) + abs(b[1][Y]),
 		is_undef(z) ? abs(b[0][Z]) + abs(b[1][Z]) : z
-	];		
+	];
 	
 	
 // Function: circleArea() 	

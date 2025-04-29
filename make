@@ -38,8 +38,8 @@ run_docsgen() {
     cd .. || { echo -e "${RED}Error: Failed to return to parent directory${NC}" >&2; return 1; }
 
     echo -e "${GREEN}Documentation generation completed.${NC}"
-    compose_template
-    echo -e "${GREEN}Documentation composition completed${NC}"
+    #compose_template
+    #echo -e "${GREEN}Documentation composition completed${NC}"
     pwd
     flatten_wiki_structure "./wiki/_core" "./wiki" "$verbose"
     flatten_wiki_structure "./wiki/_materials" "./wiki" "$verbose"
