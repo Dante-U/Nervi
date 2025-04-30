@@ -24,6 +24,15 @@ Y = 1;
 //   z = anchor[Z];
 Z = 2;
 
+
+// Constant: HORIZONTAL
+// Description: Define a horizontal orientation
+HORIZONTAL 	= [1,0];
+
+// Constant: VERTICAL
+// Description: Define a vertical orientation
+VERTICAL 	= [0,1];
+
 // Constant: SIDES
 // Description: All cardinals directions
 SIDES = [BACK, RIGHT,FORWARD, LEFT ];
@@ -98,6 +107,24 @@ function millimeters(value) =
 	assert(is_num(value) || is_list(value), "[millimeters] value must be a number or list")
     is_list(value) ? [for (v = value) millimeters(v)] : is_def(value) ? value / 1000 : undef;	
 
+	
+// Function: mm2_to_m2()
+// 
+// Synopsis: Converts an area from square millimeters to square meters.
+// Topics: Construction, Unit Conversion
+// Description:
+//   Converts a given area value from square millimeters (mm²) to square meters (m²).
+//   Uses the conversion factor 1 mm² = 1e-6 m² for precision.
+// Arguments:
+//   mm2 = Area in square millimeters (mm²).
+// Example(2D,ColorScheme=Nature):
+//   area_mm2 = 1645578.24;
+//   area_m2 = mm2_to_m2(area_mm2);
+//   echo(area_m2); // Outputs: 1.64557824
+function mm2_to_m2(mm2) = 
+	//is_num( mm2 ) ?  mm2 * MM2_TO_M2 : 
+	is_vector(mm2) ?  mm2.x * mm2.y * MM2_TO_M2 : 
+	mm2 * MM2_TO_M2;	
 
 // Function: mm3_to_m3()
 // Synopsis: Converts volume from cubic millimeters to cubic meters.
@@ -115,16 +142,14 @@ function millimeters(value) =
 //   volume_m3 = mm3_to_m3(volume_mm3);
 //   echo("Volume:", volume_m3, "m³"); // Outputs: Volume: 1.8 m³
 //   cuboid([3000, 3000, 200]); // Visualize slab
-function mm3_to_m3(volume_mm3) =
-    assert(is_num(volume_mm3) && volume_mm3 >= 0, "[mm3_to_m3] volume_mm3 must be a non-negative number")
-	volume_mm3 * MM3_TO_M3;
+function mm3_to_m3(mm3) =
+	is_vector(mm3) ?  mm3.x * mm3.y * mm3.z * MM3_TO_M3 : 
+	mm3 * MM3_TO_M3;	
 
 
+// Constant: GRAVITY
+// Description: Gravity 
 GRAVITY=9.81;
-
-
-HORIZONTAL 	= [1,0];
-VERTICAL 	= [0,1];
 
 
 $align_msg = false; // remove align message from BOSL2
@@ -187,11 +212,8 @@ function isViewPlan() 		= is_undef( $viewType ) ? false : $viewType == VIEW_PLAN
 function isViewElevation() 	= is_undef( $viewType ) ? false : $viewType == VIEW_ELEVATION;
 function isView3D() 		= is_undef( $viewType ) ? true  : $viewType == VIEW_3D;
 
-
-
 function isHorizontal( dir ) 	= dir.y == 0;
 function isVertical( dir ) 		= dir.x == 0;
-
 
 
 // Function: rendering()
@@ -216,3 +238,31 @@ function isVertical( dir ) 		= dir.x == 0;
 //       sphere(r=5, $fn=100);
 //   }
 function rendering() = is_undef($RD) ? RENDER_STANDARD : $RD ;
+
+// Function: corners()
+//
+// Synopsis: Returns the four corner anchors of a specified face.
+// Topics: Geometry, Anchors, Utilities
+// Description:
+//   Given a face anchor (e.g., BOT, TOP, FWD), returns a list of four corner anchors
+//   combining directional vectors (e.g., BACK+LEFT). Useful for attaching objects to
+//   the corners of a face on a 3D object. Returns undef for invalid faces.
+// Arguments:
+//   face = The face anchor (e.g., BOT, TOP, FWD, BACK, RIGHT, LEFT). No default.
+// Usage:
+//   corners(face); // Returns bottom face corners
+// Example(3D,ColorScheme=Nature): Attaching cuboid to top corners
+//    cuboid(50) attach(TOP, BOT,align=corners(TOP)) cuboid(10,$color="Blue");
+// Example(3D,ColorScheme=Nature): Attaching cuboid to right corners
+//    cuboid(50) attach(RIGHT,LEFT, align=corners(RIGHT)) cuboid(10,$color="Red");
+// Example(3D,ColorScheme=Nature): Attaching cuboid to front corners
+//    cuboid(50) attach(FRONT,BACK, align=corners(FRONT)) cuboid(10,$color="Green");
+function corners(face) =
+    let(
+        face_map = [ // [faces, corner list]
+            [ [ BOT, 	TOP		], [ BACK+LEFT,	BACK+RIGHT,	FWD+LEFT,	FWD+RIGHT 	] ],
+            [ [ FWD, 	BACK	], [ TOP+LEFT, 	TOP+RIGHT, 	BOT+LEFT,	BOT+RIGHT 	] ],
+            [ [ RIGHT, 	LEFT	], [ BACK+TOP, 	BACK+BOT, 	FWD+TOP, 	FWD+BOT  	] ]
+        ]
+    )
+    [for (entry = face_map) if (in_list(face, entry[0])) entry[1]][0];	

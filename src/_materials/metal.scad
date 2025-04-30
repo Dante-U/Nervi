@@ -1,6 +1,6 @@
 include <BOSL2/std.scad>
-include <_common.scad>
 include <BOSL2/rounding.scad>
+include <_common.scad>
 
 //////////////////////////////////////////////////////////////////////
 // LibFile: metal.scad
@@ -87,23 +87,21 @@ function hssProfile(
 // Synopsis: Generates a 2D path for a circular pipe profile.
 // Topics: Materials, Structural, Metal Profiles
 // Usage:
-//   path = pipeProfile(diam, wall,rounding, anchor);
+//   path = pipeProfile(diameter, thickness,rounding, anchor);
 // Description:
 //   Creates a closed 2D path for a hollow circular pipe, defined by outer diameter and
 //   wall thickness. The anchor point defines the path’s origin (e.g., center, edge).
 // Arguments:
-//   diam 		= Outer diameter in mm (default: 50).
-//   wall 		= Wall thickness in mm (default: 5).
-//   anchor 	= Anchor point for the path origin (default: CENTER).
+//   diameter 		= Outer diameter in mm.
+//   thickness 		= Wall thickness in mm.
+//   anchor 		= Anchor point for the path origin (default: CENTER).
 // Returns:
 //   Closed list of 2D points forming the pipe’s cross-section.
 // Example(3D,Big,ColorScheme=Nature):
-//   region(pipeProfile(diam=50, wall=5, anchor=CENTER));	
+//   region(pipeProfile(diameter=50, thickness=5, anchor=CENTER));	
 function pipeProfile( 
 	diameter	= first_defined([is_undef(diameter) ? undef : diameter  ,	is_undef($profile_diameter)	? 0 : $profile_diameter] ), 
 	thickness	= first_defined([is_undef(thickness)? undef : thickness ,	is_undef($profile_thickness)? 0 : $profile_thickness]), 
-	//diam=50, 
-	//wall = 5, 
 	anchor=CENTER 
 ) =
 	

@@ -20,6 +20,11 @@ DefineHeader(Table;Headers=Variables|Definition): Context Variables
 DefineHeader(BulletList): Requirements
 PrioritizeFiles:
   space.scad
+  roof.scad
   project.scad
+  pilar.scad
   stairs.scad
+  wood-structure.scad
+  metal-structure.scad
+  
 

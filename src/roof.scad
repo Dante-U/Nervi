@@ -33,16 +33,16 @@ use <_core/debug.scad>
 //   gableRoof(pitch=45, axis=RIGHT) cuboid([10, 10, 5]);
 // Example(3D,ColorScheme=Nature): Gable along Y-axis
 //   include <space.scad>
-//   $space_length = 10; $space_width = 8; $space_height = 5; $space_wall = 1;
-//   gableRoof(pitch=30, axis=RIGHT, debug=true);
+//   space(10,8,5,debug=true) 
+//      gableRoof(pitch=30, axis=RIGHT, debug=true);
 // Example(3D,ColorScheme=Nature): Gable along X-axis
 //   include <space.scad>
-//   $space_length = 2; $space_width = 2; $space_height = 1.7; $space_wall = 180;
-//   space(except=[LEFT,RIGHT],debug=true)    
-//       gableRoof(pitch=25,axis=BACK, closed = false); 
+//   space(2,2,1.7,except=[LEFT,RIGHT],debug=true)    
+//      gableRoof(pitch=25,axis=BACK, closed = false); 
 // Example(3D,ColorScheme=Nature): Gable roof closed
-//   $space_length = 2; $space_width = 2; $space_height = 1.7; $space_wall = 180;
-//   gableRoof( axis=BACK, pitch=25, closed = true); 
+//   include <space.scad>
+//   space(2,2,1.7,except=[LEFT,RIGHT],debug=true)    
+//      gableRoof( axis=BACK, pitch=25, closed = true); 
 module gableRoof(
     pitch   ,
     axis    = RIGHT,
@@ -50,6 +50,7 @@ module gableRoof(
     w       = is_undef($space_width)  ? undef : $space_width,
     h       = is_undef($space_height) ? undef : $space_height,
     wall    = is_undef($space_wall)   ? undef : $space_wall,
+	material= "Brick",
 	thickness,
     debug   = false,
 	closed  = true,
@@ -60,19 +61,14 @@ module gableRoof(
 	// IFC parameters
     ifc_guid
 ) {
-    
-	dummy = 		// Input validation
-		assert(is_num(pitch)|| !is_undef(pitch),"[gableRoof] Pitch undefined. Provide value in degrees")
-		assert(is_num(l)    || !is_undef(l),    "[gableRoof] Length (l) undefined. Provide value or set $space_length.")
-		assert(is_num(w)    || !is_undef(w),    "[gableRoof] Width (w) undefined. Provide value or set $space_width.")
-		assert(is_num(h)    || !is_undef(h),    "[gableRoof] Height (h) undefined. Provide value or set $space_height.")
-		assert(is_num(wall) || !is_undef(wall), "[gableRoof] Wall thickness (wall) undefined. Provide value or set $space_wall.")
-		assert(pitch >= 0 && pitch < 90,        "[gableRoof] Pitch angle must be between 0 and 90 degrees.")
-	;
-
+	assert( is_num_positive (pitch) , "[gableRoof] Pitch undefined. Provide value in degrees");
+	assert( is_num_positive (l) 	, "[gableRoof] Length (l) undefined. Provide value or set $space_length.");
+	assert( is_num_positive (w) 	, "[gableRoof] Width (w) undefined. Provide value or set $space_width.");
+	assert( is_num_positive (h) 	, "[gableRoof] Height (h) undefined. Provide value or set $space_height.");
+	assert( is_num_positive (wall) 	, "[gableRoof] Wall thickness (wall) undefined. Provide value or set $space_wall.");
+	assert( is_between(pitch, 0, 90), "[gableRoof] Pitch angle must be between 0 and 90 degrees.");
     // Constants and calculated dimensions
-	thickness = is_def(thickness) ? thickness : 
-			is_def($space_wall) ? ang_hyp_to_opp(pitch,$space_wall) : 100;
+	thickness = is_def(thickness) ? thickness : is_def($space_wall) ? ang_hyp_to_opp(pitch,$space_wall) : 100;
 	
     base_l      = meters(l) + 2 * wall;
     base_w      = meters(w) + 2 * wall;
@@ -82,21 +78,18 @@ module gableRoof(
     roof_w      = axis == RIGHT ? adj_ang_to_hyp(base_w, pitch) : base_w;
 
     // Define bounding box for attachment
-    bounding = [roof_l, roof_w, 2];  // Thin slab for roof base
-
-	attachable(size=bounding, anchor=anchor, spin=spin, orient=orient, cp=[0,0,0]) {	
+	attachable(size=[roof_l, roof_w, 2], anchor=anchor, spin=spin, orient=orient, cp=[0,0,0]) {	
 		union() {
-			//xrot(90) cuboid([base_l,base_w,thickness]);
-			//cuboid([base_l,base_w,thickness]);
-			up(base_h)
-				gableShape(
-					length=base_l, 
-					width=base_w, 
-					pitch=pitch, 
-					thickness=thickness,
-					closed = closed,
-					anchor=BOT,
-					spin = axis[Y] * 90
+			up(base_h/2)
+				material(material)
+					gableShape(
+						length=base_l, 
+						width=base_w, 
+						pitch=pitch, 
+						thickness=thickness,
+						closed = closed,
+						anchor=BOT,
+						spin = axis[Y] * 90
 					);
 		}
 		children();
@@ -113,7 +106,6 @@ module gableRoof(
 		];	
 		info();
 	}
-
 }
 
 // Module: roofCut()
@@ -138,7 +130,6 @@ module gableRoof(
 //   roofCut(angle=30, rot_axis=RIGHT) cuboid([10, 10, 10]);
 // Example(3D,ColorScheme=Nature):
 //   include <space.scad>
-//	 $space_length = 10; $space_width = 8; $space_wall = 1; $space_height = 5;
 //   space(l=2,w=2,h=3,debug=true) 
 //       roofCut(angle=45, rot_axis=RIGHT) cuboid([10, 8, 5], chamfer=0.5);
 // Example(3D,ColorScheme=Nature):
@@ -154,12 +145,6 @@ module gableRoof(
 //   space(l=2,w=2,h=3,debug=true) {
 //      roofCut( angle = 20, rot_axis = LEFT,rot_anchor = BACK ) simpleRoof();
 //   };
-// Example(3D,ColorScheme=Nature): Axis LEFT and Anchor BACK
-//   include <space.scad>
-//	 space(l=2,w=2,h=3,debug=true) {
-//		roofCut( angle = 20, rot_axis = LEFT,rot_anchor = FWD ) simpleRoof();
-//   };
-//		
 module roofCut( 
 		angle	  	= 0,
 		rot_axis	= RIGHT,
@@ -171,68 +156,49 @@ module roofCut(
 		wall 		= is_undef( $space_wall   ) ? undef : $space_wall,
 		debug		= false
 	){
-	dummy1 = 
-		assert(!is_undef( l ) || is_num( l ),	"[RoofCut] [l] parameter is undefined. Provide length or define variable $space_length")
-		assert(!is_undef( w ) || is_num( w ),	"[RoofCut] [w] parameter is undefined. Provide length or define variable $space_width")
-		assert(!is_undef( wall ) || is_num( wall ),	"[RoofCut] [wall] parameter is undefined. Provide wall thickness or define variable $space_wall")
-	
-		assert(!is_undef( $space_height ) || is_num( $space_height ),	"[RoofCut] $space_height parameter is undefined.")
-	;
+	assert(is_num_positive(l),				"[RoofCut] [l] is undefined. Provide length or define variable $space_length");
+	assert(is_num_positive(w),				"[RoofCut] [w] is undefined. Provide length or define variable $space_width");
+	assert(is_num( wall ),					"[RoofCut] [wall] parameter is undefined. Provide thickness or variable $space_wall");
+	assert(is_num_positive($space_height),	"[RoofCut] $space_height parameter is undefined.");
 	
 	_l = meters(l) + 2 * (wall ) ;
 	_w = meters(w) + 2 * (wall ) ;
 	_h = $space_height - height_cut;
 
 	union() {
-		// x rotation 
 		if (rot_axis[X] != 0 ) { // Rotation on X
 			$roof_length 	= _l/1000;
 			$roof_width 	= adj_ang_to_hyp(w+2*wall/1000,angle);
 			z_delta 		= adj_ang_to_opp(_w,angle);
 			bounding 		= [meters($roof_length),_w,2];	
-			up(meters($space_height)-z_delta/2) xrot(-angle * rot_anchor[Y])
+			up(meters($space_height/2)-z_delta/2) xrot(-angle * rot_anchor[Y])
 			attachable( size = bounding )  {
-				union(){
-					tag("keep")
-					ghost() cuboid(bounding); 
-				}
+				tag("keep")	ghost() cuboid(bounding); 
 				children();
-			}	
-			up(meters(_h)-z_delta/2 + 5 )
-				//tag("roofCut")
-				tag("opening")
-				wedge([
-						_l++2*CLEARANCE, 
-						_w+2*CLEARANCE, 
-						z_delta
-					], 
+			}
+			tag("roofCut") up(meters(_h/2) -z_delta/2 + 5 )
+				wedge([	_l++2*CLEARANCE, _w+2*CLEARANCE, z_delta ], 
 					center=true,
 					spin= 90 + rot_anchor[Y] * 90,
 					orient=DOWN,
-					);				
+				);				
 			
 		} else if (rot_axis[Y] != 0 ) { // Rotation on Y
 			$roof_length 	= adj_ang_to_hyp(l+2*wall/1000,angle);
 			$roof_width 	= _w/1000;
 			z_delta 		= adj_ang_to_opp(_l,angle);
 			bounding 		= [meters($roof_length),_w,2];	
-			up(meters($space_height)-z_delta/2) yrot(-angle * rot_anchor[X])
+			up(meters($space_height/2)-z_delta/2) yrot(-angle * rot_anchor[X])
 			attachable( size = bounding )  {
-				union(){
-					tag("keep")
-						ghost() cuboid(bounding); 
-				}
+				tag("keep")	ghost() cuboid(bounding); 
 				children();
 			}	
-			up(meters(_h)-z_delta/2 + 5 )
-				//tag("roofCut")
-				tag("opening")
-				wedge([_w+2*CLEARANCE, _l++2*CLEARANCE, z_delta], 
+			tag("roofCut") up(meters(_h)-z_delta/2 + 5 )
+				wedge([_w+2*CLEARANCE, _l++2*CLEARANCE, z_delta ], 
 					center=true,
 					spin=90 * rot_anchor[X],
 					orient=DOWN,
-					) 
-					;
+				);
 		}
 	}
 }
@@ -256,12 +222,12 @@ module roofCut(
 //   spin       = Spin angle for orientation [default: 0].
 //   orient     = Orientation direction [default: UP].
 // Usage:
-//   hippedRoof(pitch=30) cuboid([10, 10, 5]);
+//   hippedRoof( pitch );
 // Example(3D):
-//	 include <space.scad>	
+//   include <space.scad>	
 //   space(3,2,2.4,200,debug=true) 
-//       attach(TOP)
-//           hippedRoof(pitch=30, debug=true)
+//      attach(TOP)
+//         hippedRoof(pitch=30, debug=true)
 //               attach("front-slope")
 //                   cuboid([500,500,800],anchor=BOT);
 module hippedRoof(
@@ -275,12 +241,12 @@ module hippedRoof(
     spin    = 0,
 ) {
 	dummy =     // Input validation
-        assert(is_num(pitch) || !is_undef(pitch), "[hippedRoof] Pitch undefined. Provide value in degrees")
-        assert(is_num(l)     || !is_undef(l),     "[hippedRoof] Length (l) undefined. Provide value or set $space_length.")
-        assert(is_num(w)     || !is_undef(w),     "[hippedRoof] Width (w) undefined. Provide value or set $space_width.")
-        assert(is_num(h)     || !is_undef(h),     "[hippedRoof] Height (h) undefined. Provide value or set $space_height.")
-        assert(is_num(wall)  || !is_undef(wall),  "[hippedRoof] Wall thickness (wall) undefined. Provide value or set $space_wall.")
-        assert(pitch >= 0 && pitch < 90,          "[hippedRoof] Pitch angle must be between 0 and 90 degrees.");
+        assert( is_num_positive(pitch)  , "[hippedRoof] Pitch undefined. Provide value in degrees")
+        assert( is_num_positive(l) 		, "[hippedRoof] Length (l) undefined. Provide value or set $space_length.")
+        assert( is_num_positive(w) 		, "[hippedRoof] Width (w) undefined. Provide value or set $space_width.")
+        assert( is_num_positive(h)		, "[hippedRoof] Height (h) undefined. Provide value or set $space_height.")
+        assert( is_num_positive(wall)	, "[hippedRoof] Wall thickness (wall) undefined. Provide value or set $space_wall.")
+        assert(pitch >= 0 && pitch < 90,  "[hippedRoof] Pitch angle must be between 0 and 90 degrees.");
 	$roof_type 	= "hipped";
 	$roof_pitch	= pitch;
 	
@@ -289,7 +255,6 @@ module hippedRoof(
 	base = [ 
 		meters(l) + 2 * wall + 2*extension, 
 		meters(w) + 2 * wall + 2*extension
-		
 	];
     _h      = adj_ang_to_opp(min(base.x, base.y) / 2, pitch);  // Height based on pitch
 	ridge = [
@@ -424,14 +389,13 @@ module hipsBeam(section = [ 3*INCH, 4*INCH ],material="Wood2"){
 //   visualizes the 2D mask polygon instead of the frame. The module supports
 //   architectural designs with customizable rafter placement and cost estimation.
 // Arguments:
-//   rafter_section = 2D vector [x, y] for rafter cross-section width (Y) and height (Z) [default: [2*INCH, 4*INCH]].
-//   spacing = Distance between rafter centerlines [default: 400].
-//   material = Material name (e.g., "Pine") for density and properties [default: "Pine"].
-//   debug = If true, shows 2D mask polygon instead of frame [default: false].
-//   dir = Direction of rafter alignment: VERTICAL or HORIZONTAL [default: VERTICAL].
-//   info = If true, computes and stores metadata in $meta [default: true].
-//   unit_price = Cost per linear meter of rafter [default: 100].
-
+//   rafter_section	= 2D vector [x, y] for rafter cross-section width (Y) and height (Z) [default: [2*INCH, 4*INCH]].
+//   spacing 		= Distance between rafter centerlines [default: 400].
+//   material 		= Material name (e.g., "Pine") for density and properties [default: "Pine"].
+//   debug 			= If true, shows 2D mask polygon instead of frame [default: false].
+//   dir 			= Direction of rafter alignment: VERTICAL or HORIZONTAL [default: VERTICAL].
+//   info 			= If true, computes and stores metadata in $meta [default: true].
+//   unit_price 	= Cost per linear meter of rafter [default: 100].
 /*
 // Example(3D,ColorScheme=Nature):
 //   $anchor = "roof";
@@ -455,9 +419,7 @@ module roofFrame(rafter_section = [ 2*INCH, 4*INCH ], spacing = 400 ,material="P
 )  {
 	mask = anchorInfo("geom");
 	if (debug) polygon(mask);
-
 	segments = segmentsCrossing( mask = mask, spacing = spacing,dir = dir);	
-	//render() 
 	for ( line = segments )
 		material( material )
 			alignWith( path3d(line) ) 
@@ -483,29 +445,6 @@ module roofFrame(rafter_section = [ 2*INCH, 4*INCH ], spacing = 400 ,material="P
 		info();
 	}				
 }
-
-//   $anchor = "shed";
-   
-   /*
-   $attach_anchor = ["geom",rect([800, 400])];
-   
-  // anchorInfo("geom", rect([800, 400], center=true));
-   roofFrame(spacing=150, material="Oak", unit_price=120, info=true);
-  */ 
-
-
-
-function extractEdges( geom ) = 
-	let ( count = len(geom))
-	[
-		["fascia"		,[geom[0],geom[1]]],
-		["left-hip"		,[geom[1],geom[2]]],
-		["right-hip"	,[geom[count-1],geom[0]]],
-		if (count > 3) 
-		["ridge"		,[geom[2],geom[3]]],
-	];
-
-
 
 // Module: rafter()
 //
@@ -535,7 +474,7 @@ function extractEdges( geom ) =
 //   rafter(section=[2, 4], length=8, anchor=CENTER, debug=true);
 // Example(3D,ColorScheme=Nature):
 //   rafter(section=[3, 5], length=12, pitch1=-45, spin=45);
-module rafter(section,length,pitch1 = 0,pitch2 = 0,anchor = BOT,spin,rounding = 0,debug = false) {
+module rafter(section,length,pitch1 = 0,pitch2 = 0,anchor = BOT,material = "Wood",spin,rounding = 0,debug = false) {
 	bounding = [ length ,section.x, section.y ];
 	x 	= bounding.x/2;
 	y 	= section.y/2;
@@ -548,13 +487,17 @@ module rafter(section,length,pitch1 = 0,pitch2 = 0,anchor = BOT,spin,rounding = 
 		[ +x-x2*0, -y ],
 	];		
 	attachable( size = bounding, anchor=anchor, spin=spin ) {
-		//yExtrude(section.x) polygon(round_corners(path,radius=rounding));
-		extrude(section.x,dir=FWD,center=true) polygon(round_corners(path,radius=rounding));
+		union() {
+			material(material) 
+				extrude(section.x,dir=FWD,center=true) polygon(round_corners(path,radius=rounding));
+		}
 		children();
 	}		
 }
 
-
+// Module : simpleRoof()
+//
+// Synopsis: Creates a simple roof cover for test purpose
 module simpleRoof(
 	l 		  	= is_undef( $roof_length ) ? undef : $roof_length, 
 	w 		  	= is_undef( $roof_width  ) ? undef : $roof_width,  
@@ -564,3 +507,13 @@ module simpleRoof(
 		tag("keep") cuboid([ meters(l),  meters(w), thickness ],anchor=BOT);
 	} 
 }
+
+function extractEdges( geom ) = 
+	let ( count = len(geom))
+	[
+		["fascia"		,[geom[0],geom[1]]],
+		["left-hip"		,[geom[1],geom[2]]],
+		["right-hip"	,[geom[count-1],geom[0]]],
+		if (count > 3) 
+		["ridge"		,[geom[2],geom[3]]],
+	];

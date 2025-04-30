@@ -6,7 +6,6 @@ include <_core/main.scad>
 // FileGroup: Superstructure
 // FileSummary: Architecture, Building, Project, Wood
 //////////////////////////////////////////////////////////////////////
-//use <_core/3D.scad>
 include <_materials/wood.scad>
 
 // Module: studWallFrame()
@@ -26,13 +25,13 @@ include <_materials/wood.scad>
 //    plate_size  	= Plate dimensions [width, depth] in mm [default: [38.1, 88.9] (2x4)].
 //
 // See Also: stack()
-// Example(3D,ColorScheme=Nature)
-//    studWallFrame(l=4, h=2.438, stud_spacing=406.4);
-// Example(3D,ColorScheme=Nature)
-//	  include <space.scad>	
+// Example(3D,ColorScheme=Nature): 
+//    studWallFrame(l=4, h=2.438, stud_spacing=16*INCH);
+// Example(3D,ColorScheme=Nature): Wood framed attached to space wall
+//    include <space.scad>	
 //    space (3,1,2,debug=true)
 //       attachWalls([FWD],placement="outside") 
-//           studWallFrame( stud_spacing=406.4); 
+//           studWallFrame(); 
 module studWallFrame(
 	l       		= first_defined([is_undef(l) ? undef: l ,$wall_length]),
 	h       		= first_defined([is_undef(h) ? undef: w ,$wall_height]),
@@ -51,11 +50,9 @@ module studWallFrame(
 	spin	
 ) {
 
-	dummy1 = 
-		assert(!is_undef( l ) || is_num( l ),	"[studWallFrame] [l] parameter is undefined. You should provide length or define variable $space_length")
-		assert(!is_undef( h ) || is_num( h ),	"[studWallFrame] [h] parameter is undefined. You should provide height or define variable $space_height");
-
-    assert(stud_spacing > stud_size.x, "Stud spacing must exceed stud width!");
+	assert(is_num_positive(l), "[studWallFrame] [l] is undefined. Provide length or define variable $space_length");
+	assert(is_num_positive(h), "[studWallFrame] [h] is undefined. Provide height or define variable $space_height");
+	assert(is_greater_than (stud_spacing,stud_size.x), "[studWallFrame] Stud spacing must exceed stud width!");
 
 	// Extra length for LEFT+RIGHT orientation 
 	extra_length = 0;
@@ -202,8 +199,7 @@ module trunkPlatform(
 						cylinder(d=log_diam,h=_h-log_diam/2,anchor=BOT);
                     ghost() cylinder( d = log_diam, h = burial_depth , anchor=TOP);
                 }
-            // Beams
-			material("Wood") beams( beam_dir );    
+			material("Wood") beams( beam_dir );  // Beams
         }
         children();
     }
@@ -394,17 +390,11 @@ module deck(
 //    spin 			= Rotation angle in degrees (BOSL2 style) [default: undef].
 //    debug 		= If true, renders ghost geometry [default: false].
 // See Also: stack()
-// Example(3D,NoAxes): Space with front cladding
+// Example(3D,NoAxes,Huge): Space with front cladding
 //   include <space.scad>
 //   space(3,2,2.4,debug=true)
 //   	attachWalls([FWD],placement="outside") 
 //         cladding();
-//   include <space.scad>
-//   space(3,1,2.4,debug=true)
-//      attachWalls([FWD])
-//         studWallFrame() 
-//            attach(CENTER)
-//               cladding();
 module cladding( 
 		l          		= is_def($wall_length) ? $wall_length : undef,    
 		h		        = is_undef( $wall_height ) ? 0.5 : $wall_height, 
@@ -422,13 +412,13 @@ module cladding(
 		
 	){
     // Constants and validation
-    assert(is_list(section) && (len(section) == 2 || is_path(section, 2)),
-           "section must be a 2D vector [width, depth] or a 2D path");
-    assert(is_num(spacing) && spacing >= 0, "spacing must be a non-negative number");
-	assert(is_num(h) && h >= 0, "h must be a non-negative number");
-    assert(is_vector(batten, 2) && all([for (v = batten) is_num(v) && v > 0]),
-           "batten must be a 2D vector [width, depth] with positive values");
-    assert(direction == RIGHT || direction == UP, "direction must be RIGHT or UP");    
+	assert(is_num_positive(l), 				"[cladding] l for length must be a non-negative number");
+	assert(is_num_positive(h), 				"[cladding] h for height must be a non-negative number");
+    assert(is_dim_pair(section),   			"[cladding] section must be a 2D vector [width, depth] or a 2D path");
+    assert(is_num_positive(spacing), 		"[cladding] spacing must be a non-negative number");
+	
+    assert(is_dim_pair(batten),         	"[cladding] batten must be a 2D vector [width, depth] with positive values");
+	assert(in_list(direction, [RIGHT,UP]),	"[cladding] direction must be RIGHT or UP");    
 	
 	_l= meters(l);
 	_h= meters(h);
@@ -439,11 +429,9 @@ module cladding(
     depth = batten[1] + blade_depth;
 	bounding_size = [_l,_h,depth];    	
     _dir = abs(direction[0]) == 1 ? RIGHT : abs(direction[2]) == 1 ? UP : undef;
-	// Main geometry		
 	attachable( anchor = anchor, spin=spin, orient = orient,size = bounding_size,cp=[0,_h/2*0,depth/2])  {
 		xrot(-90) down(_h/2)
 		union() {
-			//ghost() cuboid( size = bounding_size , anchor=BOTTOM );
             // Determine direction and generate cladding
             if (_dir == RIGHT) {
                 batten_count = floor(_l/battens_spacing) +1;
@@ -463,19 +451,14 @@ module cladding(
                     xcopies(l=_l-blade_width,n=blade_count,sp=[-l/2+blade_width,0,+spacing])
                         render() blade(l=_h,dir=UP,anchor=BACK+BOT);
             
-            } else {
-                assert(false,"Direction not supported");
-            }
+            } 
 		}
-		up(section.y+batten.y)
-		children();
+		up(section.y+batten.y) children();
 	}
-	// Nested module for battens
-    module batten(l,dir,anchor) {
+    module batten(l,dir,anchor) {	// Nested module for battens
 		material( batten_material ) cuboid([batten[0],batten[1],l],orient=dir,anchor=anchor);
     }
-    // Nested module for blades
-    module blade( l, dir, anchor ) {
+    module blade( l, dir, anchor ) {    // Nested module for blades
 		material( blade_material )
         if (len(section) == 2)
             cuboid([batten[0],batten[1],l],orient=dir,anchor=anchor);
@@ -495,17 +478,15 @@ module cladding(
 		$meta = [
 			["ifc_class",   "IfcCovering"   ],
 		];
+		info();
 	}	
 }
-
-
-
 
 
 // Module: vPanels()
 // 
 // Synopsis: Creates a grid of V-shaped panels between horizontal beams.
-// Topics: Structures, Patterns
+// Topics: Structures, Patterns, Decorative
 // Description:
 //   Constructs a series of horizontal beams with V-shaped cross-braces between them,
 //   arranged in a grid pattern. Each V is formed by two slanted parallelepipeds.
@@ -522,7 +503,7 @@ module cladding(
 //   anchor = Anchor point for positioning. [default: BOT]
 //   orient = Orientation of the structure. [default: UP]
 //   spin = Rotation around the orientation axis. [default: 0]
-// Example(3D,ColorScheme=Nature)
+// Example(3D,ColorScheme=Nature): 
 //   vPanels(l=6, h=4, grid=[5,3]);
 module vPanels( 
 		l          		= is_def($wall_length) ? $wall_length : undef,    
@@ -537,6 +518,8 @@ module vPanels(
 		orient,			
 		spin
 	){
+	assert(is_num_positive(l), 				"[vPanels] l for length must be a non-negative number");
+	assert(is_num_positive(h), 				"[vPanels] h for height must be a non-negative number");
 	_l= meters(l);
 	_h= meters(h);		
 	
@@ -566,49 +549,80 @@ module vPanels(
 	}
 }	
 
-
-
-
-
+// Module: woodSheathing()
+//
+// Synopsis: Creates a wall sheathing with oriented panels and optional metadata.
+// Topics: Geometry, Construction, Costing
+// See Also: plank(),isSheetOrientedBest()
+// Usage:
+//   woodSheathing([l], [h], [wall], [panel=[2440,1220]], [thickness=18], [direction=LEFT], [material="OSB"], [info=false], [square_price], [unit_price], [anchor=BOT], [numbering=true], [indexed=false], [orient], [spin]);
+// Description:
+//   Generates a wall sheathing composed of oriented panels (e.g., 4x8 ft) arranged to cover a wall of
+//   specified length and height. Panels are created using the plank module, with optional numbering or
+//   indexing. The material color is applied via apply_color, falling back to $color or the default color.
+//   Supports metadata output (e.g., cost, volume, weight) if info is true. Length, height, and thickness
+//   default to $wall_length, $wall_height, and $plank_thickness if defined. All dimensions must be positive
+//   numbers, and panel must be a valid [width, height] pair. Spacing between panels is configurable.
+//   Orientation of panels is optimized to reduce material waste
+// Arguments:
+//   l 				= Wall length (meters). Default: $wall_length or 2.440
+//   h 				= Wall height (meters). Default: $wall_height or 1.220
+//   wall 			= Wall identifier or spacing. Default: $space_wall or 0
+//   panel 			= Panel dimensions [width, height] (mm). Default: [2440, 1220] (8x4 ft)
+//   thickness 		= Panel thickness (mm). Default: 18
+//   direction 		= Panel orientation direction (e.g., LEFT). Default: LEFT
+//   material 		= Material or color name (e.g., "OSB"). Default: "OSB"
+//   info 			= If true, outputs metadata (cost, volume, etc.). Default: false
+//   square_price 	= Price per square meter ($/m²). Default: undef
+//   unit_price = Price per panel ($/unit). Default: undef
+//   anchor = Anchor point for positioning. Default: BOT
+//   numbering = If true, numbers panels sequentially. Default: true
+//   indexed = If true, uses unique indices for panels. Default: false
+//   orient = Orientation of the sheathing. Default: undef
+//   spin = Rotation of the sheathing. Default: undef
+// Example(ColorScheme=Nature): Sheathing with indexed panels
+//   woodSheathing(l=3, h=2, indexed=true);  
+// Example(ColorScheme=Nature): Plywood with panels of 1x1m
+//   woodSheathing(l=2, h=1.220,panel=[1000,1000], material="Plywood"); 
+// Example(ColorScheme=Nature): Sheathing with metadata output
+//   woodSheathing(l=2, h=1.5, info=true);  
 module woodSheathing(
 	l       		= first_defined([is_undef(l) ? undef: l ,$wall_length]),
 	h       		= first_defined([is_undef(h) ? undef: w ,$wall_height]),
 	wall			= is_undef( $space_wall   ) ? 0 : $space_wall,
     panel 			= [ 8*FEET, 4*FEET ], // 4x8 ft (1220x2440 mm)
     thickness		= 18,
+	direction       = LEFT,
 	material  		= "OSB",
 	info 			= false,	
 	square_price	= 55,
 	unit_price		,//= 160,
-	direction       = LEFT,
 	anchor	        = BOT,
 	numbering 		= true, 
-	//density			= 640,
+	indexed			= false,
 	orient,			
 	spin	
 ) {
 
-	dummy1 = 
-		assert(!is_undef( l ) || is_num( l ),	"[studWallFrame] [l] parameter is undefined. You should provide length or define variable $space_length")
-		assert(!is_undef( h ) || is_num( h ),	"[studWallFrame] [h] parameter is undefined. You should provide height or define variable $space_height");
+	assert(is_meters(l),	"[studWallFrame] [l] is undefined. Provide length or define variable $wall_length");
+	assert(is_meters(h),	"[studWallFrame] [h] is undefined. Provide height or define variable $wall_height");
 		
 	_l 		= meters(l) ;
 	_h 		= meters(h);
 	_dir 	= sign( direction.x );
-	_panel 	= is_sheet_oriented_best ([_l,_h],panel) ? panel : [panel.y,panel.x];
+	_panel 	= isSheetOrientedBest ([_l,_h],panel) ? panel : [panel.y,panel.x];
+	$plank_thickness = thickness;
 	
 	sheet_count = sheet_count([_l,_h],_panel);
 	rows = sheet_count.x;
 	cols = sheet_count.y;
-	spacing = 10; //Sheet spacing 
+	spacing = 10; //Sheet joint spacing 
 	
 	num_planks = _l / panel.y ;
 	bounding_size = [_l,_h,thickness];  
 	
 	shortened_length = _panel.x - ( _panel.x * rows - _l );
 	shortened_height = _panel.y - ( _panel.y * cols - _h );
-	
-	
 	
 	attachable( anchor = anchor, spin=spin, orient = orient,size = bounding_size /*,cp=[0,_h/2,thickness/2] */)  {
 		material( material ) for (u = [0:rows-1]) 
@@ -622,7 +636,7 @@ module woodSheathing(
 				idx 	= numbering ? u+1 : undef
 			)
 			translate([ x, y0, thickness ]) { // Horizontal Sheathing
-				plank(length-spacing, _panel.y-spacing, thickness,index = idx);
+				plank(length-spacing, _panel.y-spacing, index = indexed ? idx : undef);
 				for (v = [ 1 : cols - 1 ]) 
 					let (
 						lastY  = v == cols-1,
@@ -635,7 +649,7 @@ module woodSheathing(
 								v * _panel.y - ( !lastY ? 0 : (_panel.y-height)/2  ), 
 						idx = v * rows + u +1		
 					)
-				back( y ) plank(length-spacing,height-spacing, thickness,index = idx);
+				back( y ) plank(length-spacing,height-spacing,index = indexed ? idx : undef);
 			}
 		children();
 	}
@@ -647,21 +661,16 @@ module woodSheathing(
 		qty 	= is_def( unit_price ) ? planks : mm2_to_m2(panel) * planks;
 		value 	= price * qty;
 		volume  = mm3_to_m3( [panel.x,panel.y,thickness]) * planks; 
-		
 		nails_distance = 600;
 		perimeters = 
 			(cols-1) * (rows -1) * perimeter(_panel)
 			+ rows * perimeter([_panel.x,shortened_height])
 			+ cols * perimeter([shortened_length,_panel.y])
 			;
-			
-		echo ("perimeters",perimeters);	
 		nails = ceil(perimeters / nails_distance);
-		
-		
 		$meta = [
 			["name"				, "Wood Sheating"],
-			["orientation"		, dirAsName($wall_orient)],
+			["orientation"		, is_undef ($wall_orient) ? "N/A" : dirAsName($wall_orient)],
 			["Materials"		,
 				[
 					materialSpecs( 
@@ -686,21 +695,68 @@ module woodSheathing(
 
 }
 
-
-module plank( length,height,thickness,index, rounding = 5 ,material, textSize = 200,textColor = "White" ) {
-	cuboid([ length, height, thickness], anchor=CENTER, rounding = rounding );
-	if (index)
-		color( textColor ) linear_extrude (textSize/10) text (str(index),size = textSize ,valign="center" );
+// Module: plank()
+//
+// Synopsis: Creates a rounded cuboid plank with optional indexed text.
+// Topics: Geometry, Text, Construction
+// Usage:
+//   plank(length, width, thickness, [index], [rounding=5], [material], [textSize], [textDepth=1], [textColor="White"]);
+// Description:
+//   Generates a cuboid plank with specified dimensions and optional rounded edges, using BOSL2's cuboid().
+//   If index is provided, centered text is extruded on the top face. The plank's color is set by
+//   the material parameter, falling back to $color or the default color. Text color is set by textColor.
+//   Dimensions default to special variables $plank_length, $plank_width, $plank_thickness, and
+//   $plank_rounding if not provided. All dimensions must be positive numbers, and rounding must be
+//   non-negative and smaller than half the smallest dimension. If textSize is not provided, it defaults
+//   to 0.75 * width.
+// Arguments:
+//   length 	= The length of the plank (x-axis). Default: $plank_length or 100
+//   width 		= The width of the plank (y-axis). Default: $plank_width or 20
+//   thickness 	= The thickness of the plank (z-axis). Default: $plank_thickness or 10
+//   index 		= The index number or string to display as text. Default: undef (no text)
+//   rounding 	= The radius for edge rounding. Default: $ JHplank_rounding or 5
+//   material 	= The color or material name for the plank (e.g., "Wood"). Default: undef (uses $color or default)
+//   textSize 	= The size of the text. Default: 0.75 * width
+//   textDepth 	= The extrusion depth of the text. Default: 1
+//   textColor 	= The color of the text. Default: "White"
+// Example(ColorScheme=Nature): 
+//   plank(100, 20, 10, index=1);  // Plank with rounded edges and text "1"
+// Example(ColorScheme=Nature): 
+//   $color = "Blue";
+//   plank(80, 15, 8, material="Wood", index="A");  // Wood-colored plank with text "A"
+// Example(ColorScheme=Nature):
+//   plank(60, 10, 5, rounding=0);  // Plank without rounding or text
+// Example(ColorScheme=Nature): Using scope variables
+//   $plank_length 	= 1000;
+//   $plank_width 	= 200;
+//   $plank_thickness = 29;
+//   $plank_rounding = 2;
+//   plank();  
+module plank( 
+	length		= first_defined([is_undef(length) 	 ? undef: length, 	is_undef($plank_length) 	? undef : $plank_length]),
+	width		= first_defined([is_undef(width) 	 ? undef: width, 	is_undef($plank_width) 		? undef : $plank_width]),
+	thickness	= first_defined([is_undef(thickness) ? undef: thickness,is_undef($plank_thickness) 	? undef : $plank_thickness]),
+	rounding 	= first_defined([is_undef(rounding)  ? undef: rounding,	is_undef($plank_rounding) 	? 0 	: $plank_rounding]),
+	index, 	
+	material, 
+	textSize 	 ,
+	textColor 	= "White" 
+) {
+	assert(is_num_positive(length), 	"[plank] length must be a positive number");
+	assert(is_num_positive(width), 		"[plank] width must be a positive number");
+	assert(is_num_positive(thickness), 	"[plank] thickness must be a positive number");	
+	
+	material(material)
+		cuboid([ length, width, thickness], anchor=CENTER, rounding = rounding );
+	if (index) {
+		_textSize = clamp(      
+				is_undef(textSize) ? 0.75 * width : textSize,
+				10,
+				300
+				);
+		color( textColor ) 
+			up(thickness/2)
+			linear_extrude (_textSize/10) text (str(index),size = _textSize ,valign="center" );
+	}	
 		
 }
-
-
-
-
-
-
-
-
-
-
-	

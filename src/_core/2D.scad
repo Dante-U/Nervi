@@ -1,5 +1,6 @@
 include <constants.scad>
 use <curves.scad>
+use <assert.scad>
 
 include <BOSL2/rounding.scad>
 //////////////////////////////////////////////////////////////////////
@@ -310,7 +311,7 @@ function radiusFromChord(L, h) =
 //    sagitta = Distance from the chord to the circle's perimeter.
 // Returns: 
 //    The computed radius of the circle.
-// Example(3D,ColorScheme=Nature)
+// Example(3D,ColorScheme=Nature):
 //    radius = radiusFromLineDistance(10, 3);
 //    echo("Radius: ", radius);
 function radiusFromLineDistance (chord,sagitta) = 
@@ -330,7 +331,7 @@ function radiusFromLineDistance (chord,sagitta) =
 // Arguments:
 //   area = Vector [width, height] of the area to cover (in mm).
 //   sheet = Vector [width, height] of a single sheet (in mm).
-// Example(2D,ColorScheme=Nature)
+// Example(2D,ColorScheme=Nature):
 //   area = [4000, 3000];
 //   sheet = [4 * FEET, 8 * FEET];
 //   count = sheet_count(area, sheet);
@@ -342,7 +343,7 @@ function sheet_count( area, sheet ) =
     )
     [x_count, y_count];
 
-// Function: sheet_waste_area_by_axis()
+// Function: sheetWasteAreaByAxis()
 // 
 // Synopsis: Calculates the effective edge waste when covering an area with sheets.
 // Topics: Construction, Material Efficiency
@@ -353,12 +354,14 @@ function sheet_count( area, sheet ) =
 // Arguments:
 //   area = Vector [width, height] of the area to cover (in mm).
 //   sheet = Vector [width, height] of a single sheet (in mm).
-// Example(2D,ColorScheme=Nature)
+// Example(2D,ColorScheme=Nature):
 //   area = [4000, 3000];
 //   sheet = [4 * FEET, 8 * FEET];
-//   waste = sheet_waste_area_by_axis(area, sheet);
+//   waste = sheetWasteAreaByAxis(area, sheet);
 //   echo(waste / (1000 * 1000)); // Outputs waste in square meters
-function sheet_waste_area_by_axis(area, sheet) =
+function sheetWasteAreaByAxis(area, sheet) =
+	assert(is_dim_pair(area),	"[sheetWasteAreaByAxis] area dimensions missing")
+	assert(is_dim_pair(sheet),	"[sheetWasteAreaByAxis] sheet dimensions missing") 
     let (
         x_remains = ceil(area.x / sheet.x) - area.x / sheet.x,
         y_remains = ceil(area.y / sheet.y) - area.y / sheet.y,
@@ -368,7 +371,7 @@ function sheet_waste_area_by_axis(area, sheet) =
     x_waste * y_waste;
 	
 	
-// Function: is_sheet_oriented_best()
+// Function: isSheetOrientedBest()
 // 
 // Synopsis: Determines if the sheet orientation minimizes waste.
 // Topics: Construction, Material Optimization
@@ -378,15 +381,17 @@ function sheet_waste_area_by_axis(area, sheet) =
 // Arguments:
 //   area = Vector [width, height] of the area to cover (in mm).
 //   sheet = Vector [width, height] of a single sheet (in mm).
-// Example(2D,ColorScheme=Nature)
+// Example(2D,ColorScheme=Nature):
 //   area = [4000, 3000];
 //   sheet = [8 * FEET, 4 * FEET];
-//   is_best = is_sheet_oriented_best(area, sheet);
+//   is_best = isSheetOrientedBest(area, sheet);
 //   echo(is_best); // Outputs: true
-function is_sheet_oriented_best(area, sheet) =
+function isSheetOrientedBest(area, sheet) =
+	assert(is_dim_pair(area),	"[isSheetOrientedBest] area dimensions missing")
+	assert(is_dim_pair(sheet),	"[isSheetOrientedBest] sheet dimensions missing") 
     let (
-        current_waste = sheet_waste_area_by_axis(area, sheet),
-        flipped_waste = sheet_waste_area_by_axis(area, [sheet.y, sheet.x])
+        current_waste = sheetWasteAreaByAxis(area, sheet),
+        flipped_waste = sheetWasteAreaByAxis(area, [sheet.y, sheet.x])
     )
     current_waste <= flipped_waste;	
 	
@@ -400,7 +405,7 @@ function is_sheet_oriented_best(area, sheet) =
 //   across the Y-axis and concatenating them to the original path in reverse order.
 // Arguments:
 //   path = List of 2D points, where each point is a vector [x, y].
-// Example(2D,ColorScheme=Nature)
+// Example(2D,ColorScheme=Nature):
 //   path = [[1, 0], [2, 1], [1, 2], [0, 1]];
 //   mirrored = yMirrorPath(path);
 //   echo(mirrored); // Outputs: [[1, 0], [2, 1], [1, 2], [0, 1], [-1, 2], [-2, 1], [-1, 0]]
@@ -422,7 +427,7 @@ function yMirrorPath( path ) =
 //   The perimeter is calculated as 2 * width + 2 * height.
 // Arguments:
 //   size = Vector [x, y] representing the width (x) and height (y) of the rectangle (in mm).
-// Example
+// Example:
 //   size = [10, 5];
 //   peri = perimeter(size);
 //   echo(peri); // Outputs: 30

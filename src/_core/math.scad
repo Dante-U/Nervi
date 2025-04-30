@@ -129,7 +129,44 @@ function is_odd(n) =
 //   value_false = bipolar(false); // Returns -1
 function bipolar(b) = b ? 1 : -1;	
 
-
+// Function: clamp()
+//
+// Synopsis: Clamps a value to a specified range.
+// Topics: Validation, Numbers
+// Usage:
+//   result = clamp(value, min_val, max_val);
+// Description:
+//   Clamps the input value to the range [min_val, max_val], returning min_val if value is below
+//   the range, max_val if above, or value if within the range. Returns undef if any input is
+//   non-numeric or undef. Relies on BOSL2's is_num() for number validation. Ensures min_val
+//   does not exceed max_val.
+// Arguments:
+//   value = The value to clamp. No default.
+//   min_val = The minimum value of the range. No default.
+//   max_val = The maximum value of the range. No default.
+// Returns:
+//   Number or undef: The clamped value if inputs are valid, undef if any input is non-numeric or undef.
+// Example(ColorScheme=Nature)
+//   // Clamp value to [0, 10]
+//   value = 15;
+//   clamped = clamp(value, 0, 10);
+//   if (is_num(clamped)) {
+//     cuboid([clamped, 5, 5]);  // Creates cuboid with width=10
+//   }
+// Example(ColorScheme=Nature)
+//   // Clamp negative value
+//   value = -5;
+//   clamped = clamp(value, 0, 10);
+//   if (is_num(clamped)) {
+//     cuboid([clamped, 5, 5]);  // Creates cuboid with width=0
+//   }
+// Example(ColorScheme=Nature)
+//   // Undefined input
+//   value = undef;
+//   clamped = clamp(value, 0, 10);
+//   if (is_num(clamped)) {
+//     cuboid([10, 5, 5]);  // No cuboid created since clamped is undef
+//   }
 function clamp(value, min_val, max_val) =
     value < min_val ? min_val :
     value > max_val ? max_val :

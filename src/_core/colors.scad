@@ -84,10 +84,8 @@ material_colors = struct_set([], [
 //
 module material( name, transparency, deep= true ) {
 	if (is_def(name)) {
-		echo ("material name is ",name);
 		c = matColorSpec(name);
 		newColor = flatten([c[1],c[2]]);
-		echo ("newColor ",newColor);
 		if ( deep ) {
 			$color=newColor;
 			children();	
@@ -98,7 +96,6 @@ module material( name, transparency, deep= true ) {
 			children();	
 		}	
 	} else {
-		echo ("material name is undefined");
 		children();
 	}	
 }
@@ -139,7 +136,6 @@ function matColorSpec( material ) =
 //
 // Synopsis: Applies the $color special variable to geometry if defined.
 // Topics: Color, Geometry
-// See Also: color(), cuboid(), rect()
 // Usage:
 //   apply_color() { <geometry> }
 // Description:
@@ -156,7 +152,6 @@ function matColorSpec( material ) =
 // Example(ColorScheme=Nature)
 //   apply_color() cuboid(20);  // Default color (no $color defined)
 module apply_color() {
-echo ("$color : ",$color);
   if (is_def($color) && $color != "default") {
     color($color) children();
   } else {

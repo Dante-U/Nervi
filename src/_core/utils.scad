@@ -5,7 +5,7 @@ include <geometry.scad>
 // LibFile: utils.scad
 //   Utility core libraries
 // Includes:
-//   include <Nervi/_core/utils.scad>
+//   include <_core/utils.scad>
 // FileGroup: Core
 // FileSummary: Architecture, Clearing zone
 //////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ module extrude(length, dir=UP, path=undef,center = false) {
 		CENTER ;
 	centering = center ? -_dir * length /2 : CENTER;
 	move(centering)
-	rotate( rot ) linear_extrude( height=length, center=false ) {
+	rotate( rot ) apply_color() linear_extrude( height=length, center=false ) {
 		if (!is_undef(path)) {
 			polygon(path);
 		} else {
@@ -241,7 +241,6 @@ function anchorInfo( property , sub_property ) =
 module stack() {
 	align(TOP, CENTER) children();
 }	
-
 
 // Module: miterCut()
 //

@@ -3,7 +3,7 @@ include <constants.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: geometry.scad
 // Includes:
-//   include <Nervi/_core/geometry.scad>
+//   include <_core/geometry.scad>
 // FileGroup: Geometry
 // FileSummary: Geometry,3D,2D
 //////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ include <constants.scad>
 //    path = [[0, 0, 0], [10, 0, 0], [5, 10, 5]];
 //    centered = centerPath(path);
 //    echo(centered);  // Outputs: shifted to center at [0, 0, 0]
-// Example(2D,NoAxes): Centering red square and green triangle
+// Example(2D,ColorScheme=Nature): Centering red square and green triangle
 //    triangle_path 	= [[5, 5], [15, 5], [10, 15]];       // Green triangle offset
 //    triangle_centered 	= centerPath(triangle_path);
 //    %stroke(triangle_path, $color="red", $ls="--",closed=true);
@@ -108,17 +108,12 @@ function midpoint(p1, p2=undef) = let(
 //    path = [[1, 2, 3], [4, 5, 6], [-1, -2, -3]];
 //    size = boundingSize(path);
 //    echo("Bounding Size: ", size);
-// Example(2D): Centering red square and green triangle
+// Example(2D,ColorScheme=Nature): Centering triangle
 //    triangle_path 	= [[5, 5], [15, 5], [10, 15]];       // Green triangle offset
 //    triangle_centered 	= centerPath(triangle_path);
 //    %stroke(triangle_path, $color="red", $ls="--",closed=true);
 //    stroke(triangle_centered, $color="green", $lw=2,closed=true);
 function boundingSize( path, z ) = 
-
-//		result = is_path(region) ?  boundingSize(region) : 
-//			is_region(region) ? regionBound(region[0]) :        //"is region" : 
-//			"other",
-
 	let( 
 		b = is_region(path)	? pointlist_bounds(path3d(path[0])) : 
 			is_path(path) 	? (pointlist_bounds(is_path ( path,dim=2 ) ? path3d(path) : path )) : 
@@ -132,7 +127,12 @@ function boundingSize( path, z ) =
 	
 	
 // Function: circleArea() 	
+//
 // Synopsis: Computes circle area using  radius or diameter
+// Example(2D,ColorScheme=Nature):
+//   r=50;	   
+//   stroke(circle(r=r),closed=true);
+//   text(str(circleArea(r=r)," mm2"),halign ="center");	   
 function circleArea(r,d) = 
 	assert(r != undef || d != undef,"[circleArea] r or d should be defined")
 	let (r = is_undef(r) ? d/2 : r) pow(r,2) * PI ;

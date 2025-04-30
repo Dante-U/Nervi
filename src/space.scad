@@ -56,12 +56,10 @@ module space(
 		name,
         ifc_guid	// IFC parameters	
 	){
-	dummy1 = 
-		assert(!is_undef( l ) || is_num( l ),	"Room [l] is undefined. You should provide length or define variable $space_length")
-		assert(!is_undef( w ) || is_num( w ),	"Room [w] is undefined. You should provide length or define variable $space_width")
-		assert(!is_undef( h ) || is_num( h ),	"Room [h] is undefined. You should provide height or define variable $space_height")
-		assert(!is_undef( wall ) || is_num( wall ),	"Room [wall] parameter is undefined. You should provide wall thickness or define variable $space_wall")
-		;
+	assert(is_meters(l),			"[space] [l] is undefined. Provide length or define variable $space_length");
+	assert(is_meters(w),			"[space] [w] is undefined. Provide length or define variable $space_width");
+	assert(is_meters(h),			"[space] [h] is undefined. You should provide height or define variable $space_height");
+	assert(is_num_positive(wall),	"[space] [wall] parameter is undefined. Provide wall thickness or define variable $space_wall");
 
 	$space_length	= l;
 	$space_width 	= w;
@@ -117,7 +115,10 @@ module space(
 			if ( isView3D()) {
 				if (debug) 
 					for ( s = sides) if (!in_list(s[0], except)) 
-						translate(s[1]) %cuboid(s[2]);
+						translate(s[1]) 
+							//ghost() 
+							material("Template")
+							cuboid(s[2]);
 			}	
 			else if (isViewPlan()) {
 				down(_height/2) {
@@ -316,10 +317,9 @@ module spaceWrapper() {
 //             placeOpening(anchors=[CENTER], w=1.2, h=1.8, opening=0.5);
 // See Also: space(), attachWalls(), wallAnchor()
 module placeOpening(anchors,w,h,inset=[ 0,0 ],debug = false, opening = 1) {
-    assert(is_def(anchors), 	"[placeOpening] anchors must be defined (vector, string, or list)");
-    assert(is_num(w) && w > 0, 	"[placeOpening] w must be a positive number (meters)");
-    assert(is_num(h) && h > 0, 	"[placeOpening] h must be a positive number (meters)");
-
+    assert(is_def(anchors),	"[placeOpening] anchors must be defined (vector, string, or list)");
+    assert(is_meters(w), 	"[placeOpening] w must be a positive number (meters)");
+    assert(is_meters(h), 	"[placeOpening] h must be a positive number (meters)");
     // Restrict anchors to LEFT, RIGHT, CENTER
     valid_anchors 	= [LEFT, RIGHT, CENTER];
     anchor_list 	= is_list(anchors) ? anchors : [anchors];
@@ -380,9 +380,9 @@ module placeOpening(anchors,w,h,inset=[ 0,0 ],debug = false, opening = 1) {
 //   space(3,3,2,debug=true,except=[FRONT,RIGHT])
 //      color("IndianRed") slab();
 module slab( 
-		length 		= is_undef( $space_length ) ? undef : $space_length, 
-		width 		= is_undef( $space_width ) 	? undef : $space_width, 
-		wall		= is_undef( $space_wall )  	? 0 	: $space_wall,
+		l 			= first_defined([is_undef(l) 	? undef : l ,$space_length]),
+		w 			= first_defined([is_undef(w) 	? undef : w ,$space_width]),
+		wall		= first_defined([is_undef(wall) ? undef : w ,is_undef($space_wall) ? undef : $space_wall ,WALL_DEFAULT ]),
 		thickness 	= 180, 
 		material	= "Concrete",	
 		unit_price 	= 100,
@@ -390,10 +390,12 @@ module slab(
 		spin		,
 		info
 	) {
-	_length	 	= (length 	? meters(length)	: 1000 ) + 2 * wall;
-	_width	 	= (width 	? meters(width) 	: 1000 ) + 2 * wall;
-	_thickness	= thickness ? thickness	: 200;
+	assert(is_meters(l),			"[slab] [l] is undefined. Provide length or define variable $space_length");
+	assert(is_meters(w),			"[slab] [w] is undefined. Provide length or define variable $space_width");
 	
+	_length	 	= (l 	? meters(l)		: 1000 ) + 2 * wall;
+	_width	 	= (w 	? meters(w) 	: 1000 ) + 2 * wall;
+	_thickness	= thickness ? thickness	: 200;
 	// Auto-position at TOP if direct child of space
     _anchor = is_undef(anchor) && hasSpaceParent() ? TOP : first_defined([anchor, BOTTOM]);
 	size = [_length, _width , _thickness]; 
@@ -420,7 +422,6 @@ module slab(
 		info();
 	}
 }
-	
 		
 // Function: hasSpaceParent()
 //
