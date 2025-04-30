@@ -720,12 +720,12 @@ module woodSheathing(
 //   textDepth 	= The extrusion depth of the text. Default: 1
 //   textColor 	= The color of the text. Default: "White"
 // Example(ColorScheme=Nature): 
-//   plank(100, 20, 10, index=1);  // Plank with rounded edges and text "1"
+//   plank(1000, 200, 10, index=1);  // Plank with rounded edges and text "1"
 // Example(ColorScheme=Nature): 
 //   $color = "Blue";
-//   plank(80, 15, 8, material="Wood", index="A");  // Wood-colored plank with text "A"
+//   plank(800, 150, 8, material="Plywood", index="A");  // Plywood-colored plank with text "A"
 // Example(ColorScheme=Nature):
-//   plank(60, 10, 5, rounding=0);  // Plank without rounding or text
+//   plank(600, 100, 5, rounding=0);  // Plank without rounding or text
 // Example(ColorScheme=Nature): Using scope variables
 //   $plank_length 	= 1000;
 //   $plank_width 	= 200;
@@ -738,7 +738,7 @@ module plank(
 	thickness	= first_defined([is_undef(thickness) ? undef: thickness,is_undef($plank_thickness) 	? undef : $plank_thickness]),
 	rounding 	= first_defined([is_undef(rounding)  ? undef: rounding,	is_undef($plank_rounding) 	? 0 	: $plank_rounding]),
 	index, 	
-	material, 
+	material    = "Wood", 
 	textSize 	 ,
 	textColor 	= "White" 
 ) {
@@ -756,7 +756,7 @@ module plank(
 				);
 		color( textColor ) 
 			up(thickness/2)
-			linear_extrude (_textSize/10) text (str(index),size = _textSize ,valign="center" );
+			linear_extrude (_textSize/10) text (str(index),size = _textSize ,valign="center",halign="center" );
 	}	
 		
 }
