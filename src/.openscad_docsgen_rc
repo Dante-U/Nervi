@@ -26,5 +26,10 @@ PrioritizeFiles:
   stairs.scad
   wood-structure.scad
   metal-structure.scad
-  
+DefineSynTags:
+  Geom = Can return geometry.  
+  Path = Can return a Path.
+  VNF = Can return a VNF.
+  Attachable = Can be attached.
+  BIM = Can return Building Information Modeling
 

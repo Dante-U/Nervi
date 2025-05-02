@@ -320,9 +320,9 @@ module joist(
 // See Also: trunkPlatform()
 // Usage:
 //    deck(l=1, w=1.5, section=[100, 10], gap=10, dir=BACK);
-// Example(3D): Deck with planks along length
+// Example(3D,ColorScheme=Nature): Deck with planks along length
 //    deck(l=0.6, w=0.3, section=[120, 15], gap=25, dir=BACK, material="Wood");
-// Example(3D,NoAxes): Deck with planks along width
+// Example(3D,ColorScheme=Nature,NoAxes): Deck with planks along width
 //    deck(l=0.6, w=0.3, section=[150, 20], gap=20, dir=RIGHT);
 module deck(
     l 		= is_undef( $floor_length ) ? undef : $floor_length,
@@ -335,11 +335,11 @@ module deck(
     spin
 ) {
     // Validate inputs
-    assert( is_num(l) && l > 0, "length must be a positive number");
-    assert( is_num(w) && w > 0, "width must be a positive number");
-    assert( is_vector(section, 2) && section[0] > 0 && section[1] > 0, "section must be a [width, height] vector with positive values");
-    assert( gap >= 0, "gap must be non-negative");
-    assert( dir == BACK || dir == RIGHT, "dir must be BACK or RIGHT");
+    assert( is_meters(l), 				"[deck] l length must be a positive number");
+    assert( is_meters(w), 				"[deck] w width must be a positive number");
+    assert( is_dim_pair(section), 		"[deck] section must be a [width, height] vector with positive values");
+    assert( is_num_positive(gap), 		"[deck] gap must be non-negative");
+	assert( in_list(dir,[BACK,RIGHT]),	"[deck] dir must be BACK or RIGHT");
 
 	_l = meters( l );
 	_w = meters( w );
@@ -374,6 +374,7 @@ module deck(
 //
 // Synopsis: Generates a cladding structure with battens and blades.
 // Topics: Construction, Cladding, Geometry
+// See Also: stack()
 // Description:
 //    Creates a cladding system with horizontal or vertical battens and blades,
 //    supporting rectangular or custom blade sections. Utilizes BOSL2 for
@@ -389,8 +390,8 @@ module deck(
 //    anchor 		= Anchor point (BOSL2 style) [default: BOT].
 //    spin 			= Rotation angle in degrees (BOSL2 style) [default: undef].
 //    debug 		= If true, renders ghost geometry [default: false].
-// See Also: stack()
-// Example(3D,NoAxes,Huge): Space with front cladding
+
+// Example(3D,ColorScheme=Nature,NoAxes,Huge): Space with front cladding
 //   include <space.scad>
 //   space(3,2,2.4,debug=true)
 //   	attachWalls([FWD],placement="outside") 
@@ -487,22 +488,24 @@ module cladding(
 // 
 // Synopsis: Creates a grid of V-shaped panels between horizontal beams.
 // Topics: Structures, Patterns, Decorative
+// Usage:
+//   vPanels( l, h, beam_section, cross_section, grid ); 
 // Description:
 //   Constructs a series of horizontal beams with V-shaped cross-braces between them,
 //   arranged in a grid pattern. Each V is formed by two slanted parallelepipeds.
 //   The structure is customizable in size, grid density, and material.
 // Arguments:
-//   length = The total length of the panel structure (in meters). [default: 6]
-//   height = The total height of the panel structure (in meters). [default: 3]
-//   beam_section = The cross-section [width, depth] of the horizontal beams. [default: [100, 100]]
-//   cross_section = The cross-section [width, depth] of the V-shaped cross-braces. [default: [120, 30]]
-//   grid = The number of V units in [x, y] directions. [default: [5, 3]]
-//   beam_material = Material for the horizontal beams. [default: "Wood2"]
-//   blade_material = Material for the V-shaped cross-braces. [default: "Wood"]
-//   direction = Direction to orient the structure. [default: RIGHT]
-//   anchor = Anchor point for positioning. [default: BOT]
-//   orient = Orientation of the structure. [default: UP]
-//   spin = Rotation around the orientation axis. [default: 0]
+//   length 		= The total length of the panel structure (in meters). [default: 6]
+//   height 		= The total height of the panel structure (in meters). [default: 3]
+//   beam_section 	= The cross-section [width, depth] of the horizontal beams. [default: [100, 100]]
+//   cross_section 	= The cross-section [width, depth] of the V-shaped cross-braces. [default: [120, 30]]
+//   grid 			= The number of V units in [x, y] directions. [default: [5, 3]]
+//   beam_material 	= Material for the horizontal beams. [default: "Wood2"]
+//   blade_material	= Material for the V-shaped cross-braces. [default: "Wood"]
+//   direction 		= Direction to orient the structure. [default: RIGHT]
+//   anchor 		= Anchor point for positioning. [default: BOT]
+//   orient 		= Orientation of the structure. [default: UP]
+//   spin 			= Rotation around the orientation axis. [default: 0]
 // Example(3D,ColorScheme=Nature): 
 //   vPanels(l=6, h=4, grid=[5,3]);
 module vPanels( 
@@ -574,12 +577,12 @@ module vPanels(
 //   material 		= Material or color name (e.g., "OSB"). Default: "OSB"
 //   info 			= If true, outputs metadata (cost, volume, etc.). Default: false
 //   square_price 	= Price per square meter ($/m²). Default: undef
-//   unit_price = Price per panel ($/unit). Default: undef
-//   anchor = Anchor point for positioning. Default: BOT
-//   numbering = If true, numbers panels sequentially. Default: true
-//   indexed = If true, uses unique indices for panels. Default: false
-//   orient = Orientation of the sheathing. Default: undef
-//   spin = Rotation of the sheathing. Default: undef
+//   unit_price 	= Price per panel ($/unit). Default: undef
+//   anchor 		= Anchor point for positioning. Default: BOT
+//   numbering 		= If true, numbers panels sequentially. Default: true
+//   indexed 		= If true, uses unique indices for panels. Default: false
+//   orient 		= Orientation of the sheathing. Default: undef
+//   spin 			= Rotation of the sheathing. Default: undef
 // Example(ColorScheme=Nature): Sheathing with indexed panels
 //   woodSheathing(l=3, h=2, indexed=true);  
 // Example(ColorScheme=Nature): Plywood with panels of 1x1m
@@ -686,7 +689,7 @@ module woodSheathing(
 						)						
 				]	
 			],
-			["value"	, value ],
+			["cost"	, value ],
 			["volume"	, volume ],
 			["weight"	, volume * density ]
 		];
@@ -698,65 +701,332 @@ module woodSheathing(
 // Module: plank()
 //
 // Synopsis: Creates a rounded cuboid plank with optional indexed text.
-// Topics: Geometry, Text, Construction
+// Topics: Geometry, Text, Construction, IFC
 // Usage:
-//   plank(length, width, thickness, [index], [rounding=5], [material], [textSize], [textDepth=1], [textColor="White"]);
+//   plank(length, width, thickness, index, rounding, material, textSize, textDepth, textColor, info, anchor, spin, orient);
 // Description:
-//   Generates a cuboid plank with specified dimensions and optional rounded edges, using BOSL2's cuboid().
-//   If index is provided, centered text is extruded on the top face. The plank's color is set by
-//   the material parameter, falling back to $color or the default color. Text color is set by textColor.
-//   Dimensions default to special variables $plank_length, $plank_width, $plank_thickness, and
-//   $plank_rounding if not provided. All dimensions must be positive numbers, and rounding must be
-//   non-negative and smaller than half the smallest dimension. If textSize is not provided, it defaults
-//   to 0.75 * width.
+//   Generates a cuboid plank with specified dimensions and optional rounded edges using BOSL2's cuboid().
+//   If index is provided, centered text is extruded on the top face. The plank's color is set by material,
+//   falling back to $color or "SaddleBrown". Text color is set by textColor. Dimensions default to special
+//   variables ($plank_length, $plank_width, $plank_thickness, $plank_rounding) if not provided. All
+//   dimensions must be positive, and rounding must be non-negative and less than half the smallest dimension.
+//   Metadata is stored in $meta for BIM integration, mapping to IfcMember with PredefinedType=USERDEFINED
+//   and ObjectType=Plank.
 // Arguments:
-//   length 	= The length of the plank (x-axis). Default: $plank_length or 100
-//   width 		= The width of the plank (y-axis). Default: $plank_width or 20
-//   thickness 	= The thickness of the plank (z-axis). Default: $plank_thickness or 10
-//   index 		= The index number or string to display as text. Default: undef (no text)
-//   rounding 	= The radius for edge rounding. Default: $ JHplank_rounding or 5
-//   material 	= The color or material name for the plank (e.g., "Wood"). Default: undef (uses $color or default)
-//   textSize 	= The size of the text. Default: 0.75 * width
-//   textDepth 	= The extrusion depth of the text. Default: 1
-//   textColor 	= The color of the text. Default: "White"
-// Example(ColorScheme=Nature): 
-//   plank(1000, 200, 10, index=1);  // Plank with rounded edges and text "1"
-// Example(ColorScheme=Nature): 
-//   $color = "Blue";
-//   plank(800, 150, 8, material="Plywood", index="A");  // Plywood-colored plank with text "A"
-// Example(ColorScheme=Nature):
-//   plank(600, 100, 5, rounding=0);  // Plank without rounding or text
-// Example(ColorScheme=Nature): Using scope variables
-//   $plank_length 	= 1000;
-//   $plank_width 	= 200;
-//   $plank_thickness = 29;
-//   $plank_rounding = 2;
-//   plank();  
-module plank( 
+//   length     = Length of the plank (x-axis) in mm. Default: $plank_length or 1000
+//   width      = Width of the plank (y-axis) in mm. Default: $plank_width or 200
+//   thickness  = Thickness of the plank (z-axis) in mm. Default: $plank_thickness or 20
+//   index      = Index number or string to display as text. Default: undef (no text)
+//   rounding   = Radius for edge rounding in mm. Default: $plank_rounding or 5
+//   material   = Color or material name (e.g., "Pine"). Default: undef (uses $color or "SaddleBrown")
+//   textSize   = Size of the text in mm. Default: 0.75 * width
+//   textDepth  = Extrusion depth of the text in mm. Default: 1
+//   textColor  = Color of the text. Default: "White"
+//   info       = If true, generates metadata. Default: false
+//   anchor     = Anchor point for positioning. Default: BOTTOM
+//   spin       = Rotation around Z-axis in degrees. Default: 0
+//   orient     = Orientation vector. Default: UP
+//
+// Example(3D,Big,ColorScheme=Nature):
+//   plank(length=1000, width=200, thickness=30, material="Pine");
+// Example(3D,Big,ColorScheme=Nature): Provide Tnfo  
+//   plank(length=1000, width=200, thickness=20, material="Pine", info = true,cubic_price=600  );
+module plank(
 	length		= first_defined([is_undef(length) 	 ? undef: length, 	is_undef($plank_length) 	? undef : $plank_length]),
 	width		= first_defined([is_undef(width) 	 ? undef: width, 	is_undef($plank_width) 		? undef : $plank_width]),
 	thickness	= first_defined([is_undef(thickness) ? undef: thickness,is_undef($plank_thickness) 	? undef : $plank_thickness]),
 	rounding 	= first_defined([is_undef(rounding)  ? undef: rounding,	is_undef($plank_rounding) 	? 0 	: $plank_rounding]),
-	index, 	
-	material    = "Wood", 
-	textSize 	 ,
-	textColor 	= "White" 
-) {
-	assert(is_num_positive(length), 	"[plank] length must be a positive number");
-	assert(is_num_positive(width), 		"[plank] width must be a positive number");
-	assert(is_num_positive(thickness), 	"[plank] thickness must be a positive number");	
+    index       = undef,
+    material    = undef,
+    textSize    = undef,
+    textDepth   = 1,
+    textColor   = "White",
+    info        ,
+	cubic_price,
+	ifc_type	= "FLOORING",
+    anchor      = BOTTOM,
+    spin        = 0,
+    orient      = UP
 	
-	material(material)
-		cuboid([ length, width, thickness], anchor=CENTER, rounding = rounding );
-	if (index) {
-		_textSize = clamp(      
-				is_undef(textSize) ? 0.75 * width : textSize,
-				10,
-				300
-				);
-		color( textColor ) 
-			up(thickness/2)
-			linear_extrude (_textSize/10) text (str(index),size = _textSize ,valign="center",halign="center" );
-	}	
-		
+) {
+    assert(is_num_positive(length), 			"[plank] length must be a positive number");
+    assert(is_num_positive(width), 				"[plank] width must be a positive number");
+    assert(is_num_positive(thickness), 			"[plank] thickness must be a positive number");
+    assert(rounding <= min(length, width, thickness) / 2, "[plank] rounding too large for plank dimensions");
+    assert(is_undef(index) || is_string(index) || is_num(index), "[plank] index must be a string or number");
+    assert(is_num_positive(textSize) || is_undef(textSize), "[plank] textSize must be positive");
+    assert(is_num_positive(textDepth), "[plank] textDepth must be positive");
+
+    size = [length, width, thickness];
+    _material = first_defined([material, $color, "SaddleBrown"]);
+    _textSize = clamp(
+        is_undef(textSize) ? 0.75 * width : textSize,
+        0.1 * width,
+        0.9 * width
+    );
+
+    if (provideMeta(info)) {
+        volume 	= mm3_to_m3(length * width * thickness);
+        density = woodSpecs(_material, MATERIAL_DENSITY);
+		cost = is_def(cubic_price) ? cubic_price * volume : undef;
+        _ifc_guid = generate_guid();
+        $meta = [
+            ["name", str("Plank (", _material, ")")	],
+            ["volume", volume						],
+            ["weight", volume * density				],
+			if (cost) ["cost", cost					],
+            ["ifc_class", "IfcCovering"				],
+            ["ifc_type", ifc_type					],
+            ["ifc_guid", _ifc_guid					],
+        ];
+        info();
+    }
+
+    attachable(size=size, anchor=anchor, spin=spin, orient=orient) {
+		union(){
+			material(_material,default="Wood")
+				cuboid(size, rounding=rounding);
+			if (index)
+				color(textColor)
+					up(thickness/2)
+					linear_extrude(textDepth)
+						text(str(index), size=_textSize, valign="center", halign="center", $fn=32);
+		}			
+        children();
+    }
 }
+
+// Module: rectPillar()
+//
+// Synopsis: Creates a rectangular pillar with customizable section and material.
+// Topics: Structures, Superstructure
+// See Also: obliquePillar()
+// Status: DEPRECATED use pillar
+// Description:
+//   Generates a vertical rectangular pillar with a specified length and cross-section.
+//   Supports material assignment, corner rounding, and attachment of child geometry.
+// Arguments:
+//   l          = Length of the pillar (in meters). No default.
+//   section    = [width, depth] of the pillar’s cross-section. No default.
+//   material   = Material name for rendering. [default: "Wood"]
+//   rounding   = Corner rounding radius. [default: 0]
+//   anchor     = Anchor point for attachment. [default: CENTER]
+//   spin       = Rotation around Z-axis (degrees). [default: 0]
+// DefineHeader(Generic):Children:
+//   Objects to attach to the pillar.
+// Usage:
+//   rectPillar(l,section); 
+// Example(3D,ColorScheme=Nature): Simple pillar with rounding
+//   rectPillar(l=1, section=[150, 200], rounding=5);
+module rectPillar(l,section,material= "Wood",rounding = 0,anchor,spin) {
+	assert( is_meters(l),			"[rectPillar] [l] is undefined.");
+	assert( is_dim_pair(section),	"[rectPillar] [section] is undefined.");
+	echo ("WARNING rectPillat is deprecated use pillar() instead");
+	bounding_size = [section[X],section[Y],meters(l)];
+	attachable( size = bounding_size,cp=[0,0,meters(l)/2],anchor, spin)  {
+		union() {
+			material( material ) cuboid( size = bounding_size , anchor=BOTTOM );
+		}
+		children();
+	}	
+}  
+
+
+// Module: pillar()
+//
+// Synopsis: Creates a parametric pillar with rectangular or circular cross-section.
+// Topics: Architecture, Structural, IFC
+// Usage:
+//   pillar(l, section, diameter, path, material, linear_price, volume_price, rounding, info, anchor, spin);
+// Description:
+//   Generates a pillar with a rectangular or circular cross-section, defined by length (l) or a path.
+//   Supports material properties from woods.scad and cost calculation (linear or volumetric).
+//   Stores metadata in $meta for BIM integration, mapping to IfcColumn with PredefinedType=COLUMN.
+// Arguments:
+//   l 				= Length in meters (alternative to path).
+//   section 		= [width, height] for rectangular cross-section in mm.
+//   diameter 		= Diameter for circular cross-section in mm.
+//   path 			= 2D or 3D line segment defining pillar orientation.
+//   material 		= Material name from woods.scad (default: "Pine").
+//   linear_price 	= Cost per meter in currency units.
+//   volume_price 	= Cost per cubic meter in currency units.
+//   rounding 		= Fillet radius for edges in mm.
+//   info 			= If true, generates metadata (default: false).
+//   anchor 		= Anchor point for positioning (default: BOTTOM).
+//   spin 			= Rotation around Z-axis in degrees (optional).
+// Example(3D,Big,ColorScheme=Nature): Rectangular section pillar
+//   pillar(l=3, section=[200, 200], info=true, volume_price=600, material="Pine");
+// Example(3D,Big,ColorScheme=Nature): Circular section pillar
+//   pillar(l=3, diameter=200, info=true, linear_price=40, material="Pine");
+// Example(3D,Big,ColorScheme=Nature): Rectangular section pillar following a path
+//   pillar(path=[[-800, 800, -1500], [800, -800, 1500]], section=[200, 300], material="Pine");
+// Example(3D,Big,ColorScheme=Nature): Circular section pillar following a path
+//   pillar(path=[[-800, 800, -1500], [800, -800, 1500]], diameter=200, material="Pine");
+module pillar(l,section,diameter,path, material="Pine",linear_price ,volume_price,rounding,info,anchor,spin) {
+	assert( (is_def(l) && is_meters(l)) || isLine(path)	, "[rectPillar] You should define [l] or [path]");
+	assert( is_dim_pair(section) || is_def(diameter)	, "[rectPillar] You should define section for rectangle section or diameter for circular pillar");
+	_l = is_def(l) ? meters(l) : lineLength( path );
+	size = [first_defined([section[X],diameter]),first_defined([section[Y],diameter]),_l];
+	attachable( size = size, anchor=anchor, spin=spin)  {
+		union() material( material ) {
+			if (is_undef(path)) 
+				if (section)
+					cuboid( size = size,rounding=rounding );
+				else
+					cyl(d=diameter,length=size.z,rounding=rounding);
+			else 
+				alignWith( path )
+						extrude(length=_l,center=true)
+							if (section) rect( section ); else circle(d=diameter, $fn=32);
+		}
+		children();
+	}
+	if ( provideMeta( info ) ) {
+		assert(num_defined([volume_price,linear_price]) == 1, "[pilar] You should define ONE volume_price or linear_price ");
+		density = woodSpecs(material,MATERIAL_DENSITY);
+		volume  = mm3_to_m3( 
+			is_def(diameter) ? circleArea( d = diameter ) * size.z	: 
+			is_def(section)  ? [size.x,size.y,size.z] 	: 
+			0
+		); 
+		price	= first_defined([ volume_price, linear_price ]);
+		value 	= is_def(linear_price) ? linear_price * _l : is_def(volume_price) ? volume_price * volume : 0;
+		$meta = [
+			["name"		, str("Pilar (",is_def(diameter) ? "Circular" : is_def(section) ? "Rectangular" : "N/A", ")")],
+			["cost"	, value	 			],
+			["volume"	, volume 			],
+			["weight"	, volume * density 	]
+		];
+		info();
+		
+	}	
+}
+
+//pillar( path = [[-500,500,-1500],[500,-500,+1500]]	, diameter=200 );
+
+
+
+
+
+
+/*	
+echo ("**** mm3_to_m3 ",mm3_to_m3([200,200,3000]));
+echo ("Glu", circleArea(d=200) * 3000);
+echo ("Glu", mm3_to_m3(circleArea(d=200) * 3000));
+*/
+
+
+
+
+// Module: obliquePillar()
+//
+// Synopsis: Creates an oblique pillar with customizable sections and tilt.
+// Topics: Pillars, Superstructure
+// See Also: rectPillar() 
+// Description:
+//   Generates a slanted pillar connecting two rectangular sections over a specified length,
+//   with optional rounding, material, and offset. The pillar tilts at an angle, adjustable via
+//   explicit offset or derived from the angle and length. Supports attachment of children.
+// Arguments:
+//   l          = Length of the pillar along its vertical axis (in meters). No default.
+//   section1   = [width, depth] of the bottom section. No default.
+//   section2   = [width, depth] of the top section. [default: section1]
+//   angle      = Angle of slant (degrees) from vertical. No default.
+//   offset     = Horizontal offset between sections. [default: derived from l and angle]
+//   spin       = Rotation around Z-axis (degrees). [default: 0]
+//   material   = Material name for rendering. [default: "Wood"]
+//   rounding   = Corner rounding radius. [default: 0]
+//   anchor     = Anchor point for attachment. [default: CENTER]
+//   debug      = If true, shows bounding box as ghost. [default: false]
+// DefineHeader(Generic):Children:
+//   Objects to attach to the pillar.
+// Usage:
+//   obliquePillar(l, section1,section2,angle,offset); 
+// Example(3D,ColorScheme=Nature): Oblique pillar using angleX
+//   obliquePillar(l=1, section1=[100, 100], angleX=20);
+// Example(3D,ColorScheme=Nature): Oblique pillar using offsetX
+//   obliquePillar(l=1, section1=[100, 100], offsetX=300);
+// Example(3D,ColorScheme=Nature): Oblique pillar using angleY and different sections
+//   obliquePillar(l=1, section1=[200, 200], section2=[150, 150],angleY=25);
+// Example(3D,ColorScheme=Nature,NoAxes): Test with TOP attachments
+//   cuboid([800,800,100])
+//      attach(TOP,BOT,align=corners(BOT))
+//         obliquePillar(
+//            l=1.5,
+//            section1=[100,100],
+//            offsetX=$align[X] * 300,
+//            offsetY=$align[Y] * 300,
+//            anchor=BOT+$align
+//         );
+// Example(3D,ColorScheme=Nature,NoAxes): Test with BOTTOM attachments
+//   cuboid([800,800,100])
+//      attach(BOT,TOP,align=corners(BOT))
+//         obliquePillar(
+//            l=1.5,
+//            section1=[100,100],
+//            offsetX=$align[X] * 300,
+//            offsetY=$align[Y] * 300,
+//            anchor=TOP+$align
+//         );
+module obliquePillar(
+		l,
+		section1,
+		section2,
+		angleX = 0,
+		angleY = 0,
+		offsetX,
+		offsetY,
+		spin = 0,
+		material= "Wood",
+		rounding = 0,
+		anchor = BOT,
+		debug=false
+	) 
+{
+	assert(is_meters(l) ,			"[obliquePillar] [l] is undefined. Provide length of pillar");
+	assert(is_dim_pair(section1),	"[obliquePillar] [section1] is undefined. Provide at least section1");
+	assert( is_def(offsetX) || is_def(offsetY) || is_def(angleX) || is_def(angleY), 
+									"[obliquePillar] offset or angle should be defined");	
+	_l = meters(l);
+	offsetX 			= is_undef(offsetX) && is_def(angleY) && angleY > 0  ? adj_ang_to_opp(_l,angleY) : is_def(offsetX) ? offsetX : 0;
+	offsetY 			= is_undef(offsetY) && is_def(angleX) && angleX > 0  ? adj_ang_to_opp(_l,angleX) : is_def(offsetY) ? offsetY : 0;
+	section2 			= default(section2,section1); 
+	bounding_size = 
+		anchor[Z] == -1 ? 
+			[
+				section1[X],
+				section1[Y],
+				_l
+			] :
+		anchor[Z] == 1 ? 
+			[
+				section2[X],
+				section2[Y],
+				_l
+			]
+		:
+	[
+		max(section1[X],section2[X]) + abs(offsetX),
+		max(section1[Y],section2[Y]) + abs(offsetY),
+		_l
+	];
+	
+	cp = [anchor[Z] * offsetX/2,anchor[Z] * offsetY/2,0];
+	zrot(spin)
+	attachable( size = bounding_size,cp=cp,anchor=anchor /*, spin=spin*/)  {
+		union() {
+			if (debug) ghost() cuboid(bounding_size);
+			material( material )
+				skin(
+					[
+						move([-offsetX/2,-offsetY/2,-_l/2]	,path3d(rect(section1,rounding=rounding))),
+						move([offsetX/2,offsetY/2,_l/2]		,path3d(rect(section2,rounding=rounding)))
+						//move([anchor[X]*offset/2,	0,	-_l/2],path3d(rect(section1,rounding=rounding))),
+						//move([anchor[X]*-offset/2,	0,	+_l/2],path3d(rect(section2,rounding=rounding)))
+					],
+					slices=10
+				);
+		}
+		children();
+	}	
+}  

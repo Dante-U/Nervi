@@ -30,11 +30,9 @@ include <_core/main.scad>
 //   info       = If true, generates metadata. Default: false
 //
 // Example(3D,Big,ColorScheme=Nature):
-//   waterTank(d=1.68, h=1.2, capacity=2000, material="Polyethylene", unit_price=1530, weight=34, info=true);
 module waterTank( d, h , capacity, material, unit_price, weight, anchor, spin, info ) {
 	assert(is_meters(d),			"[waterTank] [d] is undefined. Provide diameter");
 	assert(is_meters(h),			"[waterTank] [h] is undefined. Provide height");
-
 	_d= meters(d);	
 	_h= meters(h);	
 	
@@ -65,7 +63,7 @@ module waterTank( d, h , capacity, material, unit_price, weight, anchor, spin, i
 			["name",		str("Water tank(",capacity," L)")	]	,
 			["diameter",	d									]	,
 			["height",		h									]	,
-			["volume",		capacity							]	,
+			["volume,liters",		capacity							]	,
 			["area",		circleArea(d=d)						]	,
 			if (cost)
 				["cost",	unit_price 							]   ,

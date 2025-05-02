@@ -1,4 +1,5 @@
 include <constants.scad>
+include <assert.scad>
 include <BOSL2/fnliterals.scad>
 use <math.scad>
 
@@ -10,16 +11,16 @@ use <math.scad>
 // FileGroup: Utils
 // FileSummary: String utilities
 //////////////////////////////////////////////////////////////////////
+// Inspired by https://github.com/davidson16807/relativity.scad/blob/master/strings.scad
+
 
 
 // Constant: CR
 // Description: Carriage return 
 CR = "\n";
 
-// Inspired by https://github.com/davidson16807/relativity.scad/blob/master/strings.scad
-
-
 // Function: str_center_pad()
+//
 // Synopsis: Centers a string with padding.
 // Topics: Text Formatting, Utilities
 // Description:
@@ -189,6 +190,7 @@ function search_index_recurse(string, pattern, index_of_first, pos, regex, ignor
     );	
 	
 function search_first(string, pattern, pos=0, ignore_case=false, regex=false) =
+	assert(pattern,"[search_first] pattern is undefined")
 	pos == undef?
         undef
     : pos >= len(string)?
@@ -199,13 +201,16 @@ function search_first(string, pattern, pos=0, ignore_case=false, regex=false) =
     ;	
 	
 function _match(string, pattern, pos, regex=false, ignore_case=false) = 
+    assert(is_str(string), 			"[_match] string must be a string")
+    assert(is_str(pattern), 		"[_match] pattern must be a string")
+    assert(is_num(pos) && pos >= 0, "[_match] pos must be a non-negative number")
     regex?
     	_match_parsed_peg(string, undef, pos, peg_op=pattern, ignore_case=ignore_case)[_POS]
     : starts_with(string, pattern, pos, ignore_case=ignore_case)? 
         pos+len(pattern) 
     : 
         undef
-    ;	
+    ;
 
 // Function: fallback_if()
 // 
@@ -263,6 +268,9 @@ function fallback_if(value, error, fallback) =
 //        text("Case-insensitive match!", size=10);
 //    }	
 function starts_with( string, start, pos=0, ignore_case=false, regex=false ) = 
+    assert(is_str(string), 			"[starts_with] string must be a string")
+    assert(is_str(start), 			"[starts_with] start must be a string")
+    assert(is_num(pos) && pos >= 0, "[starts_with] pos must be a non-negative number")
 	regex?
 		_match_parsed_peg(string,
 			undef,
@@ -541,11 +549,9 @@ function tab( count , spaces = 3 ) =
 	str_join([for (i = [1:count*spaces]) " "], "");	
 	
 
-function format_area( value ) =
-	value <10000 ? str(value," m²") : str(value/10000," ha");	
 	
 
-function format_length( value ) =
+function formatLength( value,unit ) =
 	is_undef(value) ? "N/A" :  
 	let (
 		decimals = value < 1  ? 3 :
@@ -554,11 +560,33 @@ function format_length( value ) =
 				//value < 100 : 0,
 		value = decRound(value,decimals)
 	)
-		str(value," m"); 
+		str(value," ",default(unit,"m")); 
 
 		
-function format_section( value ) =
-	str(value[0]/10, " cm x ",value[1]/10," cm" );
+function formatSection( value , unit ) =
+	assert (is_dim_pair(value),"Value to format as a section should be 2 dim array")
+	let (
+		_unit = default(unit,"cm"),
+		_divider = 
+			_unit == "mm" ? 1 :  
+			_unit == "cm" ? 10 :  
+			_unit == "m"  ? 1000 :  
+			1
+	)
+	str(value.x/_divider, " ",_unit," x ",value.y/_divider," ",_unit );
+	
+
+
+function formatArea( value, unit ) =
+	let(
+		_unit = is_def(unit) ? unit : 
+			value > 10000 ? "ha" : "m²",
+		divider = is_def(unit) ? 1 : 
+			value > 10000 ? 10000 : 1,
+	)
+	str(value/divider," ",_unit);
+	//value <10000 ? str(value," m²") : str(value/10000," ha");	
+	
 	
 
 // Function: formatWeight()
@@ -575,7 +603,9 @@ function format_section( value ) =
 // Arguments:
 //   value = Weight in kilograms (scalar).
 // Returns: String with formatted weight and unit (Kg or t).
-function formatWeight(value) =
+
+// TODO: Should be refined 
+function formatWeight(value,unit) =
     is_undef(value) ? "N/A" :
     let (
         is_tons = value > 1000,
@@ -584,12 +614,17 @@ function formatWeight(value) =
                    display_value < 1 ? 3 :
                    display_value < 20 ? 2 : 0,
         rounded_value = decRound(display_value, decimals),
-        unit = is_tons ? "t" : "Kg"
+        _unit = unit ? unit : is_tons ? "t" : "Kg"
     )
-    str(rounded_value, " ", unit);	
+    str(rounded_value, " ", _unit);	
+
 	
 
-function format_volume( value ) =
+function formatVolume( 
+		value,
+		unit
+		//unit = is_undef(unit) ? "m³" : unit
+	) =
 	is_undef(value) ? "N/A" :  
 	let (
 		decimals = 
@@ -598,9 +633,48 @@ function format_volume( value ) =
 				0,
 		value = decRound(value,decimals)
 	)
-	str(value," m³"); 
+	str(value," ",is_undef(unit) ? "m³" : unit ); 
 
 	
-	
+function split(string, seperator=" ", ignore_case = false, regex=false) = 
+	_split(string, index_of(string, seperator, ignore_case=ignore_case, regex=regex));
+    
+function _split(string, indices, i=0) = 
+    len(indices) == 0?
+        [string]
+    : i >= len(indices)?
+        _coalesce_on(after(string, indices[len(indices)-1].y-1), "", [])
+    : i == 0?
+        concat( _coalesce_on(before(string, indices[0].x), "", []), _split(string, indices, i+1) )
+    :
+        concat( between(string, indices[i-1].y, indices[i].x), _split(string, indices, i+1) )
+    ;	
 
+
+function _coalesce_on(value, error, fallback) = 
+	value == error ? fallback : value ;	
+	
+	
+function trim(string) = 
+	string == undef ? undef : string == "" ? ""	:
+		_null_coalesce(
+			between(string, _match_set(string, _WHITESPACE, 0), 
+					_match_set_reverse(string, _WHITESPACE, len(string))),
+			""
+		)
+	;	
+	
+function _null_coalesce(string, replacement) = 
+	string == undef ? replacement :	string;
+
+
+function _match_set(string, set, pos) = 
+	pos >= len(string)?	len(string)	: is_in(string[pos], set )?	_match_set(string, set, pos+1) : pos ;
+
+function _match_set_reverse(string, set, pos) = 
+	pos <= 0 ? 0 : is_in(string[pos-1], set) ? _match_set_reverse(string, set, pos-1) : pos	;	
+	
+function is_in(string, list, ignore_case=false) = 
+	string == undef ? false  : any([ for (i = [0:len(list)-1]) equals(string, list[i], ignore_case=ignore_case) ]);	
+	
 	

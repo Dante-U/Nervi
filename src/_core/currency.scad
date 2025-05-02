@@ -15,19 +15,24 @@ include <strings.scad>
  */
 
 // Main currency formatting function
-function format_currency( 
+function formatCurrency( 
 		amount, 
-		symbol 				= first_defined([ is_undef(symbol) ? undef : l , is_undef($currency) ? "$" : $currency]),
+		symbol 	= first_defined([ 
+					is_undef(symbol) 	? undef : symbol , 
+					is_undef($currency) ? "$" : $currency,
+					//((symbol == undef ? "$" : "$"
+			]),
 		decimals 			= 2, 
 		thousands_separator	= ",", 
 		decimal_separator 	= ".",
-		symbol_position 	= "before"
+		symbol_position 	= "before",
 	) =
 	is_undef(amount) ?
 		"N/A"
 	:	
     let(
         // Convert to string with fixed decimal places
+		_symbol = is_undef(symbol) ? "$" : symbol,
         amount_str = format_fixed_decimal(amount, decimals),
         // Split into integer and decimal parts
         parts 			= split_by_decimal(amount_str),
@@ -41,8 +46,8 @@ function format_currency(
                       formatted_integer,
         result = ( symbol_position == "before" ) ? 
                  //str(currency_symbol, with_decimal) : 
-				 str( symbol, with_decimal ) : 
-                 str( with_decimal, symbol )
+				 str( _symbol, with_decimal ) : 
+                 str( with_decimal, _symbol )
     ) 
 	result;
 

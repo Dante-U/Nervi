@@ -239,6 +239,15 @@ function isVertical( dir ) 		= dir.x == 0;
 //   }
 function rendering() = is_undef($RD) ? RENDER_STANDARD : $RD ;
 
+function valueByRendering( simple,standard,detailed ) =
+	let(
+		level = rendering()
+	)
+	level == RENDER_SIMPLIFIED 	? simple 	: 
+	level == RENDER_DETAILED 	? first_defined([detailed,standard]) : //  	detailed  : //
+	standard;
+	
+
 // Function: corners()
 //
 // Synopsis: Returns the four corner anchors of a specified face.

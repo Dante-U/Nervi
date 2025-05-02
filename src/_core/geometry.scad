@@ -1,4 +1,5 @@
 include <constants.scad>
+include <assert.scad>
 
 //////////////////////////////////////////////////////////////////////
 // LibFile: geometry.scad
@@ -382,47 +383,16 @@ function isLineIntersectsPolygon(line, path, eps=1e-6) =
     assert(isLine(line) && is_path(path), "Line must be two 2D points, and path must be a list of at least three 2D points.")
     let(
         // Convert path to list of line segments (closed polygon)
-        n = len(path),
+        n 		 = len(path),
         segments = [for (i = [0:n-1]) [path[i], path[(i+1)%n]]]
     )
     // Check for the first intersection (short-circuit)
     any([for (seg = segments) lineIntersection(line, seg) != undef]);	
 
-// Function: isLine()
-//
-// Synopsis: Checks if a list represents a valid 2D line segment.
-// Topics: Geometry, Validation
-// Description:
-//   Determines if the input is a valid 2D line segment, defined as a list of exactly two distinct points,
-//   where each point is a valid 2D point (checked via isValidPoint).
-// Arguments:
-//   l = List representing a line segment, expected to contain two 2D points ([x1, y1], [x2, y2]).
-// Example
-//   line = [[0, 0], [1, 1]];
-//   echo(isLine(line)); // Outputs: true
-//   echo(isLine([[0, 0], [0, 0]])); // Outputs: false		
-function isLine(l) = 
-	is_list(l) && 			// is a list
-	len(l) == 2 && 			// has 2 points
-	isPoint(l[0]) && 	// point 1 is valid
-	isPoint(l[1]) && 	// point 2 is valid
-	(l[0] != l[1])			// point 1 is not point 2
-	;
+
 
 	
-// Function: isPoint()
-//
-// Synopsis: Checks if a value is a valid 2D point.
-// Topics: Geometry, Validation
-// Description:
-//   Determines if the input is a valid 2D point, defined as a list of exactly two numeric coordinates [x, y].
-// Arguments:
-//   pt = Value to check, expected to be a list of two numbers representing a 2D point.
-// Example
-//   point = [1, 2];
-//   echo(isPoint(point)); // Outputs: true
-//   echo(isPoint([1, "2"])); // Outputs: false	
-function isPoint(pt) = is_list(pt) && len(pt) == 2 && all([for (c = pt) is_num(c)]); 		
+
 
 
 	

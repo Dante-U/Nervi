@@ -16,6 +16,8 @@ use <_core/debug.scad>
 //
 // Synopsis: Creates a gabled roof structure with adjustable pitch and dimensions.
 // Topics: Architecture, Geometry, Roofing
+// Usage:
+//   gableRoof(pitch,axis,l,w,h,wall,thickness);
 // Description:
 //   Generates a gabled roof by forming a triangular prism atop a base structure.
 //   The module uses global variables ($space_length, $space_width, $space_height, $space_wall)
@@ -29,8 +31,6 @@ use <_core/debug.scad>
 //   h          = Height of the base structure [default: $space_height].
 //   wall       = Wall thickness [default: $space_wall].
 //   debug      = Enable debug mode for visualization [default: false].
-// Usage:
-//   gableRoof(pitch=45, axis=RIGHT) cuboid([10, 10, 5]);
 // Example(3D,ColorScheme=Nature): Gable along Y-axis
 //   include <space.scad>
 //   space(10,8,5,debug=true) 
@@ -50,8 +50,8 @@ module gableRoof(
     w       = is_undef($space_width)  ? undef : $space_width,
     h       = is_undef($space_height) ? undef : $space_height,
     wall    = is_undef($space_wall)   ? undef : $space_wall,
-	material= "Brick",
 	thickness,
+	material= "Brick",
     debug   = false,
 	closed  = true,
 	anchor  ,
@@ -61,10 +61,9 @@ module gableRoof(
 	// IFC parameters
     ifc_guid
 ) {
-	assert( is_num_positive (pitch) , "[gableRoof] Pitch undefined. Provide value in degrees");
-	assert( is_num_positive (l) 	, "[gableRoof] Length (l) undefined. Provide value or set $space_length.");
-	assert( is_num_positive (w) 	, "[gableRoof] Width (w) undefined. Provide value or set $space_width.");
-	assert( is_num_positive (h) 	, "[gableRoof] Height (h) undefined. Provide value or set $space_height.");
+	assert( is_meters (l) 			, "[gableRoof] Length (l) undefined. Provide value or set $space_length.");
+	assert( is_meters (w) 			, "[gableRoof] Width (w) undefined. Provide value or set $space_width.");
+	assert( is_meters (h) 			, "[gableRoof] Height (h) undefined. Provide value or set $space_height.");
 	assert( is_num_positive (wall) 	, "[gableRoof] Wall thickness (wall) undefined. Provide value or set $space_wall.");
 	assert( is_between(pitch, 0, 90), "[gableRoof] Pitch angle must be between 0 and 90 degrees.");
     // Constants and calculated dimensions
@@ -112,6 +111,8 @@ module gableRoof(
 //
 // Synopsis: Creates a slanted roof cutout with configurable rotation and dimensions.
 // Topics: Architecture, Geometry, Modification
+// Usage:
+//   roofCut(angle,rot_axis,rot_anchor,axis,[height_cut]);
 // Description:
 //   Generates a roof cutout by applying a wedge-shaped subtraction along a specified axis.
 //   The module supports rotation around X or Y axes, with adjustable angles and anchor points.
@@ -126,8 +127,6 @@ module gableRoof(
 //   l          = Length of the roof base [default: $space_length].
 //   w          = Width of the roof base [default: $space_width].
 //   wall       = Wall thickness [default: $space_wall].
-// Usage:
-//   roofCut(angle=30, rot_axis=RIGHT) cuboid([10, 10, 10]);
 // Example(3D,ColorScheme=Nature):
 //   include <space.scad>
 //   space(l=2,w=2,h=3,debug=true) 
@@ -156,10 +155,10 @@ module roofCut(
 		wall 		= is_undef( $space_wall   ) ? undef : $space_wall,
 		debug		= false
 	){
-	assert(is_num_positive(l),				"[RoofCut] [l] is undefined. Provide length or define variable $space_length");
-	assert(is_num_positive(w),				"[RoofCut] [w] is undefined. Provide length or define variable $space_width");
-	assert(is_num( wall ),					"[RoofCut] [wall] parameter is undefined. Provide thickness or variable $space_wall");
-	assert(is_num_positive($space_height),	"[RoofCut] $space_height parameter is undefined.");
+	assert(is_meters(l),				"[roofCut] [l] is undefined. Provide length or define variable $space_length");
+	assert(is_meters(w),				"[roofCut] [w] is undefined. Provide length or define variable $space_width");
+	assert(is_num( wall ),				"[roofCut] [wall] parameter is undefined. Provide thickness or variable $space_wall");
+	assert(is_meters($space_height),	"[roofCut] $space_height parameter is undefined.");
 	
 	_l = meters(l) + 2 * (wall ) ;
 	_w = meters(w) + 2 * (wall ) ;
@@ -207,46 +206,57 @@ module roofCut(
 //
 // Synopsis: Creates a hipped roof structure with adjustable dimensions and pitch.
 // Topics: Architecture, Geometry, Roofing
-// Description:
-//   Generates a hipped roof by forming a prismoid with four sloping faces.
-//   The module uses global variables ($space_length, $space_width, $space_height, $space_wall)
-//   for defaults, supporting flexible architectural prototyping.
-// Arguments:
-//   pitch      = Roof pitch angle in degrees [default: 30].
-//   l          = Length of the roof base [default: $space_length].
-//   w          = Width of the roof base [default: $space_width].
-//   h          = Height of the base structure [default: $space_height].
-//   wall       = Wall thickness [default: $space_wall].
-//   debug      = Enable debug mode for visualization [default: false].
-//   anchor     = Anchor point for attachment [default: BOT].
-//   spin       = Spin angle for orientation [default: 0].
-//   orient     = Orientation direction [default: UP].
 // Usage:
-//   hippedRoof( pitch );
-// Example(3D):
+//   hippedRoof(pitch, l, w, h, wall, extension, debug, anchor, spin, orient);
+// Description:
+//   Generates a hipped roof with four sloping faces, formed as a prismoid. Supports global variables
+//   ($space_length, $space_width, $space_height, $space_wall) for defaults. Named anchors allow
+//   attachment to slopes (front-slope, back-slope, left-slope, right-slope) and standard positions
+//   (CENTER, TOP, BOTTOM, etc.). Stores metadata in $meta for BIM integration, mapping to IfcRoof
+//   with PredefinedType=HIP_ROOF.
+// Arguments:
+//   pitch 		= Roof pitch angle in degrees (default: 30).
+//   l 			= Length of the roof base in meters (default: $space_length).
+//   w 			= Width of the roof base in meters (default: $space_width).
+//   h 			= Height of the base structure in meters (default: $space_height).
+//   wall 		= Wall thickness in mm (default: $space_wall).
+//   extension 	= Overhang extension in mm (default: 0).
+//   debug 		= Enable debug mode for wireframe visualization (default: false).
+//   anchor 	= Anchor point for attachment (default: BOTTOM).
+//   spin 		= Spin angle for orientation in degrees (default: 0).
+//   orient 	= Orientation direction (default: UP).
+// Side Effects:
+//   $roof_type = Set to "hipped".
+//   $roof_pitch = Set to pitch value.
+//   $roof_edges = Stores ridge and hip edges for external use.
+// Example(3D,ColorScheme=Nature):
 //   include <space.scad>	
 //   space(3,2,2.4,200,debug=true) 
-//      attach(TOP)
+//      attach(TOP) highlight()
+//         hippedRoof(pitch=30, debug=true);
+// Example(3D,ColorScheme=Nature): Attach to a named anchor
+//   include <space.scad>	
+//   space(3,2,2.4,200,debug=true) 
+//      attach(TOP) highlight_this()
 //         hippedRoof(pitch=30, debug=true)
 //               attach("front-slope")
 //                   cuboid([500,500,800],anchor=BOT);
 module hippedRoof(
     pitch,
-    l       = is_undef($space_length) ? undef : $space_length,
-    w       = is_undef($space_width)  ? undef : $space_width,
-    h       = is_undef($space_height) ? undef : $space_height,
-    wall    = is_undef($space_wall)   ? undef : $space_wall,
-    debug   = false,
-	extension = 0,
-    spin    = 0,
+    l       	= is_undef($space_length) ? undef : $space_length,
+    w       	= is_undef($space_width)  ? undef : $space_width,
+    h       	= is_undef($space_height) ? undef : $space_height,
+    wall    	= is_undef($space_wall)   ? undef : $space_wall,
+    debug   	= false,
+	extension 	= 0,
+    spin    	= 0,
 ) {
-	dummy =     // Input validation
-        assert( is_num_positive(pitch)  , "[hippedRoof] Pitch undefined. Provide value in degrees")
-        assert( is_num_positive(l) 		, "[hippedRoof] Length (l) undefined. Provide value or set $space_length.")
-        assert( is_num_positive(w) 		, "[hippedRoof] Width (w) undefined. Provide value or set $space_width.")
-        assert( is_num_positive(h)		, "[hippedRoof] Height (h) undefined. Provide value or set $space_height.")
-        assert( is_num_positive(wall)	, "[hippedRoof] Wall thickness (wall) undefined. Provide value or set $space_wall.")
-        assert(pitch >= 0 && pitch < 90,  "[hippedRoof] Pitch angle must be between 0 and 90 degrees.");
+	assert( is_between(pitch, 0, 90), "[hippedRoof] Pitch angle must be between 0 and 90 degrees");
+	assert( is_meters(l) 			, "[hippedRoof] Length (l) undefined. Provide value or set $space_length");
+	assert( is_meters(w) 			, "[hippedRoof] Width (w) undefined. Provide value or set $space_width");
+	assert( is_meters(h)			, "[hippedRoof] Height (h) undefined. Provide value or set $space_height");
+	assert( is_num_positive(wall)	, "[hippedRoof] Wall thickness (wall) undefined. Provide value or set $space_wall");
+
 	$roof_type 	= "hipped";
 	$roof_pitch	= pitch;
 	
@@ -396,20 +406,18 @@ module hipsBeam(section = [ 3*INCH, 4*INCH ],material="Wood2"){
 //   dir 			= Direction of rafter alignment: VERTICAL or HORIZONTAL [default: VERTICAL].
 //   info 			= If true, computes and stores metadata in $meta [default: true].
 //   unit_price 	= Cost per linear meter of rafter [default: 100].
-/*
-// Example(3D,ColorScheme=Nature):
-//   $anchor = "roof";
-//   anchorInfo("geom", square([1000, 600], center=true));
-//   roofFrame(rafter_section=[50, 100], spacing=200, dir=HORIZONTAL);
-// Example(3D,ColorScheme=Nature):
-//   $anchor = "gable";
-//   anchorInfo("geom", circle(r=300, $fn=32));
-//   roofFrame(debug=true);
-// Example(3D,ColorScheme=Nature):
-//   $anchor = "shed";
-//   anchorInfo("geom", rect([800, 400], center=true));
-//   roofFrame(spacing=150, material="Oak", unit_price=120, info=true);
-*/
+// Example(3D,Huge,ColorScheme=Nature):
+//   include <space.scad>
+//   space(2,3,2,200,debug=true) 
+//      attach(TOP)
+//         hippedRoof(pitch=30, extension=400, debug=false) {
+//              attach("front-slope")	roofFrame(); 
+//              attach("back-slope"	) 	roofFrame();
+//              attach("left-slope"	) 	roofFrame();
+//              attach("right-slope") 	roofFrame();				
+//              ridgeBeam();	
+//              hipsBeam();
+//         }
 module roofFrame(rafter_section = [ 2*INCH, 4*INCH ], spacing = 400 ,material="Pine",debug = false, 
 		dir = VERTICAL,
 		info = true,
@@ -426,7 +434,7 @@ module roofFrame(rafter_section = [ 2*INCH, 4*INCH ], spacing = 400 ,material="P
 				rafter( section = rafter_section,length = $align_length );
 	if (provideMeta(info)) {
 		cumulative_length = sum([for (seg = segments) lineLength(seg) ]) / 1000;  	
-		density = woodSpecs(material,WOOD_DENSITY);
+		density = woodSpecs(material,MATERIAL_DENSITY);
 		
 		volume  = mm3_to_m3( rafter_section.x * rafter_section.y * cumulative_length*1000); 
 		_ifc_guid = is_undef(ifc_guid) ? generate_guid() : ifc_guid;

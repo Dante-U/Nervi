@@ -3,7 +3,7 @@ include <_materials/masonry.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: space.scad
 // Includes:
-//   include <Nervi/space.scad>
+//   include <space.scad>
 // FileGroup: Superstructure
 // FileSummary: Architecture, Building, Furniture, BIM
 //////////////////////////////////////////////////////////////////////
@@ -15,12 +15,17 @@ WALL_DEFAULT 	= 180;
 // Module: space()
 // 
 // Synopsis: Creates a 3D architectural space with walls and optional metadata.
+// SynTags: Geom, Attachable, BIM
 // Topics: Architecture, Geometry, IFC
+// See Also: slab(),hasSpaceParent()
+// Usage:
+//    space(l, w, h, wall,[except], [wall_material], [debug], [spin], [info], [name]);
 // Description:
 //    Generates a rectangular space defined by length, width, height, and wall thickness.
 //    Supports custom anchors, exclusions, and IFC metadata for architectural modeling.
 //    Renders walls in 3D views or outlines in 2D plan views, with optional room name
 //    and area text. Uses context variables for defaults and supports attachments.
+//    ifcWall 
 // Arguments:
 //    l      = Length of the space (m) [default: $space_length].
 //    w      = Width of the space (m) [default: $space_width].
@@ -57,7 +62,7 @@ module space(
         ifc_guid	// IFC parameters	
 	){
 	assert(is_meters(l),			"[space] [l] is undefined. Provide length or define variable $space_length");
-	assert(is_meters(w),			"[space] [w] is undefined. Provide length or define variable $space_width");
+	assert(is_meters(w),			"[space] [w] is undefined. Provide width or define variable $space_width");
 	assert(is_meters(h),			"[space] [h] is undefined. You should provide height or define variable $space_height");
 	assert(is_num_positive(wall),	"[space] [wall] parameter is undefined. Provide wall thickness or define variable $space_wall");
 
@@ -299,6 +304,7 @@ module spaceWrapper() {
 //    of a space, with optional inset and debug visualization. Applies a boolean difference
 //    to cut the opening from the wall and supports child geometry (e.g., door frames).
 //    Requires space module's context variables and works with attachWalls.
+//    ifcOpening
 // Arguments:
 //    anchors = Wall anchor(s) for placement (LEFT, RIGHT, CENTER, or list). No default.
 //    w       = Opening width (m). No default.
@@ -352,76 +358,6 @@ module placeOpening(anchors,w,h,inset=[ 0,0 ],debug = false, opening = 1) {
 	}
 }
 
-// Module: slab()
-//
-// Synopsis: Creates a parametric slab with customizable dimensions 
-// Topics: Architecture, Rooms, Ground, Slab, Interior Design, IFC  
-// Usage:
-//   slab(length, width, wall, thickness, material, unit_price, anchor, spin, info, ifc_guid);
-// Description:
-//   Generates a concrete slab with dimensions matching the parent space’s footprint, auto-positioned
-//   at the bottom (anchor=TOP) when a direct child of the space module. Calculates volume, weight,
-//   and cost using material properties from masonrySpecs and unit_price (cost per m³). Stores
-//   metadata in $meta for BIM integration. In IFC, maps to IfcSlab with PredefinedType=BASESLAB.
-//
-// Arguments:
-//   length 	= Length in meters (default: $space_length or 1).
-//   width 		= Width in meters (default: $space_width or 1).
-//   wall 		= Wall thickness in mm (default: $space_wall or 0).
-//   thickness 	= Slab thickness in mm (default: 180).
-//   material 	= Material name from masonry.scad (default: "Concrete").
-//   unit_price = Cost per cubic meter in currency units (default: 100).
-//   anchor 	= Anchor point (default: TOP if child of space, else BOTTOM).
-//   spin 		= Rotation around Z-axis in degrees (optional).
-//   info 		= If true, generates metadata (default: true).
-//   ifc_guid 	= IFC global unique identifier (optional).
-//
-// Example(3D,ColorScheme=Nature): Automatic sizing slab with parent space
-//   space(3,3,2,debug=true,except=[FRONT,RIGHT])
-//      color("IndianRed") slab();
-module slab( 
-		l 			= first_defined([is_undef(l) 	? undef : l ,$space_length]),
-		w 			= first_defined([is_undef(w) 	? undef : w ,$space_width]),
-		wall		= first_defined([is_undef(wall) ? undef : w ,is_undef($space_wall) ? undef : $space_wall ,WALL_DEFAULT ]),
-		thickness 	= 180, 
-		material	= "Concrete",	
-		unit_price 	= 100,
-		anchor		, 
-		spin		,
-		info
-	) {
-	assert(is_meters(l),			"[slab] [l] is undefined. Provide length or define variable $space_length");
-	assert(is_meters(w),			"[slab] [w] is undefined. Provide length or define variable $space_width");
-	
-	_length	 	= (l 	? meters(l)		: 1000 ) + 2 * wall;
-	_width	 	= (w 	? meters(w) 	: 1000 ) + 2 * wall;
-	_thickness	= thickness ? thickness	: 200;
-	// Auto-position at TOP if direct child of space
-    _anchor = is_undef(anchor) && hasSpaceParent() ? TOP : first_defined([anchor, BOTTOM]);
-	size = [_length, _width , _thickness]; 
-	zOffset = hasSpaceParent() ? meters( $space_height / 2 ) : 0;
-	down (zOffset)
-	attachable(anchor = _anchor, spin = spin, orient = UP, size = size ){ 
-		material(material) cuboid(size);
-		children();
-	}
-	if (provideMeta(info)) {
-		volume = mm3_to_m3(_length * _width * _thickness); // m³
-        density = masonrySpecs(material, MATERIAL_DENSITY); // kg/m³
-        _ifc_guid = is_undef(ifc_guid) ? generate_guid() : ifc_guid;	
-		$meta = [	
-			["name", 		str("Ground slab(", material, ")")],
-            ["volume", 		volume				],
-            ["weight", 		volume * density	],
-            ["unit_price", 	unit_price			],
-            ["cost", 		volume * unit_price	],
-            ["ifc_class", 	"IfcSlab"			],
-            ["ifc_type", 	"BASESLAB"			],
-            ["ifc_guid", 	_ifc_guid			]			
-		];	
-		info();
-	}
-}
 		
 // Function: hasSpaceParent()
 //
@@ -455,6 +391,7 @@ function hasSpaceParent()  = $parent_modules > 6 && parent_module(6) == "space";
 // Context Variables:
 //    $space_wall = Wall thickness (mm) from space module. Optional.
 // Example(3D,ColorScheme=Nature,NoAxis):
+//    include <masonry-structure.scad>
 //    space(4,3,2.2,debug=true,except=[FRONT,LEFT]){
 //       slab();
 //       align(BACK+BOT,inside=true)

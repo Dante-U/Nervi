@@ -33,8 +33,6 @@ include <BOSL2/rounding.scad>
 //   color("darkgreen") polygon([for(a = [0:5:540]) [radius(a) * cos(a), radius(a) * sin(a)]], convexity=10);
 function radius( angle ) = 10 * pow(phi(), (angle / 90));
 
-
-
 // Function: phi()
 //
 // Synopsis: Returns the golden ratio (φ or phi)
@@ -106,6 +104,7 @@ module arc(radius, thickness, start_angle = 0, end_angle) {
 // 
 // Synopsis: Creates a golden rectangle with an inscribed Fibonacci spiral.
 // Topics: Geometry, Spirals, Mathematics
+// See Also: fibonacciSpiral()
 // Description:
 //    Generates a 3D object consisting of a golden spiral (based on fibonacciSpiral())
 //    inscribed within its bounding rectangle (from boundingRect()). The spiral and
@@ -122,15 +121,12 @@ module arc(radius, thickness, start_angle = 0, end_angle) {
 //    spin = Rotation angle in degrees around Z (BOSL2 style) [default: 0].
 // DefineHeader(Generic):Returns:
 //    A 3D object combining a golden spiral and its bounding rectangle, attachable to children.
-// See Also: fibonacciSpiral()
 // Usage:
-//    goldenRectangle(max_width=100);
-//    goldenRectangle(max_height=80, center=true);
+//    goldenRectangle(max_width, max_height,[center],[spiral_thickness],[rect_thickness],[anchor],[spin]);
 // Example(3D,ColorScheme=Nature,NoAxes): Rectangle with spiral (max width)
 //    goldenRectangle(max_width=100, spiral_thickness=3, rect_thickness=2);
 // Example(3D,ColorScheme=Nature,NoAxes): Centered with max height
 //    goldenRectangle(max_height=61.8, center=true, spiral_thickness=2);	
-
 module goldenRectangle(
     max_width,
     max_height,
@@ -280,13 +276,11 @@ function boundingRect(points) =
 // Usage:
 //   r = radiusFromChord(L=10, h=3); // Radius of circle with chord length 10 at y=3
 // Example: Calculate radius for a chord
-//   ColorScheme=Nature
 //   L = 10;
 //   h = 3;
 //   r = radiusFromChord(L=L, h=h);
 //   echo("Radius:", r); // ECHO: "Radius:", 5.83095
 // Example: Use in a circle
-//   ColorScheme=Nature
 //   r = radiusFromChord(L=8, h=2);
 //   circle(r=r);
 function radiusFromChord(L, h) =
@@ -311,9 +305,9 @@ function radiusFromChord(L, h) =
 //    sagitta = Distance from the chord to the circle's perimeter.
 // Returns: 
 //    The computed radius of the circle.
-// Example(3D,ColorScheme=Nature):
-//    radius = radiusFromLineDistance(10, 3);
-//    echo("Radius: ", radius);
+// Example: Compute radius from line distance
+//   radius = radiusFromLineDistance(10, 3);
+//   echo("Radius: ", radius);
 function radiusFromLineDistance (chord,sagitta) = 
 	pow(chord,2)/(8*sagitta)+(sagitta/2);
 
@@ -331,7 +325,7 @@ function radiusFromLineDistance (chord,sagitta) =
 // Arguments:
 //   area = Vector [width, height] of the area to cover (in mm).
 //   sheet = Vector [width, height] of a single sheet (in mm).
-// Example(2D,ColorScheme=Nature):
+// Example: Sheet count for an area of 4m x 3m
 //   area = [4000, 3000];
 //   sheet = [4 * FEET, 8 * FEET];
 //   count = sheet_count(area, sheet);

@@ -1,5 +1,6 @@
 include <constants.scad>
 include <geometry.scad>
+include <colors.scad>
 
 //////////////////////////////////////////////////////////////////////
 // LibFile: utils.scad
@@ -10,12 +11,12 @@ include <geometry.scad>
 // FileSummary: Architecture, Clearing zone
 //////////////////////////////////////////////////////////////////////
 
-
-
 // Module: extrude()
 //
 // Synopsis: Extrudes a 2D path along a specified BOSL2 direction.
 // Topics: Geometry, Extrusion
+// Usage:
+//   extrude(length,[dir],[path],[center]); 
 // Description:
 //   Extrudes a 2D path along a specified direction (using BOSL2 direction constants like RIGHT, LEFT, FWD, BACK, UP, DOWN)
 //   by a given length. The path is assumed to lie in a plane perpendicular to the extrusion direction.
@@ -25,41 +26,50 @@ include <geometry.scad>
 //   dir 		= BOSL2 direction vector (e.g., RIGHT, LEFT, FWD, BACK, UP, DOWN). Default: UP.
 //   path 		= Optional 2D path (list of [x, y] points). If not provided, the children() geometry is used.
 //   center		= Center the geometry Default : false
-// Example(3D,Spin)
+// Example(3D,ColorScheme=Nature):
 //   path 		= square([10, 5], center=true);
-//   extrude(length=20, direction=RIGHT, path=path);
+//   extrude(length=20, dir=RIGHT, path=path);
 //   // Extrudes a 10x5 square 20 mm along the X-axis
-// Example(3D,Spin)
+// Example(3D,ColorScheme=Nature):
 //   extrude(length=15, dir=FWD) {
 //     circle(r=5, $fn=32);
 //   }
 //   // Extrudes a circle 15 mm along the negative Y-axis
-// Example(3D) : Extruded Right and Centered  
+// Example(3D,ColorScheme=Nature) : Extruded Right and Centered  
 //   extrude(length=15, dir=RIGHT, center=true) {
 //     circle(r=5);
 //   }
 //   // Extrudes a circle 15 mm along the negative X-axis and center 
-
-module extrude(length, dir=UP, path=undef,center = false) {
+module extrude(length, dir=UP, path=undef,center = false,anchor,spin) {
     assert(is_num(length) && length > 0, "length must be a positive number");
     assert(is_vector(dir) && norm(dir) > 0, "direction must be a valid BOSL2 direction vector");
     // Normalize direction to ensure it's a unit vector
     _dir = unit(dir);
 	rot = 
-		_dir == DOWN		? [180,0,0] : 
-		_dir == RIGHT 	? [0,90,0] :
+		_dir == DOWN	? [180,0,0] : 
+		_dir == RIGHT 	? [0,90,0] 	:
 		_dir == LEFT 	? [0,-90,0] :
 		_dir == RIGHT 	? [0,-90,0] :
-		_dir == FWD 		? [90,0,0] :
+		_dir == FWD 	? [90,0,0] 	:
 		_dir == BACK 	? [-90,0,0] :
 		CENTER ;
 	centering = center ? -_dir * length /2 : CENTER;
-	move(centering)
-	rotate( rot ) apply_color() linear_extrude( height=length, center=false ) {
+	//move(centering)
+	//rotate( rot ) apply_color() linear_extrude( height=length, center=false ) 
+	{
 		if (!is_undef(path)) {
-			polygon(path);
+			//size 	= boundingSize(path,length);
+			size 	= v_abs(rot(rot,p=boundingSize(path,length)));
+			attachable( anchor = anchor, spin = spin, size = size /*,cp = -centering*/ ) { 
+				move(centering)
+				rotate( rot ) apply_color() 
+					linear_extrude( height=length, center=false )
+						polygon(path);
+				children();
+			}
 		} else {
-			children();
+			move(centering)
+			rotate( rot ) apply_color() linear_extrude( height=length, center=false ) children();
 		}
 	}
 }
@@ -310,5 +320,57 @@ module miterCut( section, angle=45,debug=false) {
 			);		
 		}
 		children();
+	}	
+}
+
+// Module: alignWith
+//
+// Synopsis: Aligns child geometry along a line segment between two 3D points.
+// Topics: Transformations, Geometry, Alignment
+// Usage: 
+//   alignWith( segment, twist ) { ...  };
+// Description:
+//   Positions and orients child geometry along the line from p1 to p2, with the
+//   geometry’s local X-axis aligned to the line direction. The length of the line
+//   is stored in $align_length for use by children (e.g., to set a cuboid’s length).
+//   The twist parameter controls the cross-section’s orientation:
+//   - twist=true: Applies minimal rotation, which may result in arbitrary rotation
+//     of the Y-Z plane (twist).
+//   - twist=false: Orients the local Z-axis toward the global up direction [0,0,1],
+//     preventing twist in the cross-section.
+//   The module translates the geometry to p1, ensuring the start of the line is at
+//   the geometry’s local origin (e.g., LEFT anchor for cuboids).
+// Arguments:
+//   p1 	= Starting point of the line segment [x, y, z].
+//   p2 	= Ending point of the line segment [x, y, z].
+//   twist 	= Boolean to allow cross-section twist [default: false].
+//
+// Example(3D,ColorScheme=Nature):
+//   alignWith([[0,0,0], [10,5,5]], twist=false)
+//       cuboid([$align_length, 2, 3], anchor=LEFT);
+// Example(3D,ColorScheme=Nature):
+//   alignWith([[0,0,0], [0,10,0]], twist=true)
+//       cylinder(h=$align_length, r=1);
+module alignWith( segment , twist = false ) {
+	unit = unit(segment[1] - segment[0]);
+	$align_length = norm(segment[1] - segment[0]);
+	midpoint = midpoint(segment);
+	translate( midpoint ) 
+	{
+		if (twist) {
+			angle = acos( RIGHT * unit);
+			rotation = let(c = cross(RIGHT, unit)) norm(c) > 1e-6 ? unit(c) : UP;
+			rotate(angle, rotation)	children();
+		} else {
+			proj_up	= UP - UP * unit* unit; // Dot product for projection
+			zAxis 	= norm(proj_up) > EPSILON ? unit(proj_up) : BACK; // Local Z-axis
+			yAxis 	= unit(cross(zAxis, unit));
+			rot_matrix = [
+				[unit.x, yAxis.x, zAxis.x],
+				[unit.y, yAxis.y, zAxis.y],
+				[unit.z, yAxis.z, zAxis.z]
+			];
+			multmatrix(rot_matrix) children();
+		}
 	}	
 }

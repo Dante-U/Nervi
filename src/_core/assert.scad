@@ -209,19 +209,19 @@ function is_less_than(x, threshold, inclusive=true) =
 //   dims = The array to check, expected to be [dim1, dim2]. No default.
 // Returns:
 //   Boolean: true if dims is a two-element array of positive numbers, false otherwise.
-// Example(ColorScheme=Nature)
+// Example(ColorScheme=Nature):
 //   // Valid dimension pair
 //   dims = [10, 20];
 //   if (is_dim_pair(dims)) {
 //     cuboid([dims[1], 5, dims[0]]);  // Creates a cuboid with width=20, height=10
 //   }
-// Example(ColorScheme=Nature)
+// Example(ColorScheme=Nature):
 //   // Invalid dimension pair (negative value)
 //   dims = [10, -5];
 //   if (is_dim_pair(dims)) {
 //     cuboid([dims[1], 5, dims[0]]);  // No cuboid created
 //   }
-// Example(ColorScheme=Nature)
+// Example(ColorScheme=Nature):
 //   // Undefined input
 //   dims = undef;
 //   if (is_dim_pair(dims)) {
@@ -232,3 +232,44 @@ function is_dim_pair(dims) =
   !is_num(dims[0]) || !is_num(dims[1]) ? false : //" Check if both elements are numbers
   dims[0] <= 0 || dims[1] <= 0 ? false :  // Check if both are positive
   true;	
+
+// Function: isLine()
+//
+// Synopsis: Checks if a list represents a valid 2D line segment.
+// Topics: Geometry, Validation
+// Usage:
+//   result = isLine(path);
+// Description:
+//   Determines if the input is a valid 2D line segment, defined as a list of exactly two distinct points,
+//   where each point is a valid 2D point (checked via isValidPoint).
+// Arguments:
+//   l = List representing a line segment, expected to contain two 2D points ([x1, y1], [x2, y2]).
+// Example:
+//   line = [[0, 0], [1, 1]];
+//   echo(isLine(line)); // Outputs: true
+//   echo(isLine([[0, 0], [0, 0]])); // Outputs: false		
+function isLine(l) = 
+	is_list(l) && 			// is a list
+	len(l) == 2 && 			// has 2 points
+	isPoint(l[0]) && 		// point 1 is valid
+	isPoint(l[1]) && 		// point 2 is valid
+	(l[0] != l[1]);			// point 1 is not point 2
+
+// Function: isPoint()
+//
+// Synopsis: Checks if a value is a valid 2D or 3D point.
+// Topics: Geometry, Validation
+// Usage:
+//   result = isPoint(pt); // 2D or 3D point return true
+// Description:
+//   Determines if the input is a valid 2D/3D point, defined as a list of exactly two numeric coordinates [x, y].
+// Arguments:
+//   pt = Value to check, expected to be a list of two numbers representing a 2D point.
+// Example:
+//   point = [1, 2];
+//   echo(isPoint(point)); // Outputs: true
+//   echo(isPoint([1, "2"])); // Outputs: false	
+function isPoint(p) = 
+	is_list(p) && (len(p) == 2 || len(p) == 3) && all([for (coord = p) is_num(coord)]);
+	
+	

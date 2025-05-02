@@ -28,8 +28,8 @@ include <_common.scad>
 //    If property is not defined, returns the complete specification structure for the material.
 //
 // Example(NORENDER):
-//    brick_density = woodSpecs("Brick", MATERIAL_DENSITY);
-//    brick_specs = woodSpecs("Brick");
+//    brick_density = masonrySpecs("Brick", MATERIAL_DENSITY);
+//    brick_specs = masonrySpecs("Brick");
 function masonrySpecs( wood_name, property ) =
 	assert(is_def(wood_name), "[masonrySpecs] Missing wood name argument")
 	let (

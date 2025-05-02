@@ -20,26 +20,32 @@ meta_specs = struct_set([], [
 	"type",        	 [ "Type"											],
 	"code-prefix",   [ "Code prefix"									],
 	
-    "volume",        [ "Volume"		, function(v) format_volume(v)		],
-	"unit_price",    [ "Unit Price"	, function(v) format_currency(v) 	],
-	"weight",    	 [ "Weight"		, function(v) formatWeight(v)		],
-	"area",    	 	 [ "Area"		, function(v) format_area(v)		],
-	"perimeter",     [ "Perimeter"	, function(v) format_length(v)		],
-	"section",     	 [ "Section"	, function(v) format_section(v)		],
-	"value",    	 [ "Value(Deprecated use cost) "		, function(v) format_currency(v)    ],
-	"cost",    	 	 [ "Cost"		, function(v) format_currency(v)    ],
+    "volume",        [ "Volume"		, 		function(v,u) formatVolume(v,u)		],
+	"unit_price",    [ "Unit Price"	, 		function(v,u) formatCurrency(v,symbol=u) 	],
+	"weight",    	 [ "Weight"		, 		function(v,u) formatWeight(v,u)		],
+	"area",    	 	 [ "Area"		, 		function(v,u) formatArea(v,u)			],
+	"perimeter",     [ "Perimeter"	, 		function(v,u) formatLength(v,u)		],
+	"section",     	 [ "Section"	, 		function(v,u) formatSection(v,u)		],
+	"value",    	 [ "Value(use cost) ", 	function(v,u) formatCurrency(v,symbol=u)    ],
+	"cost",    	 	 [ "Cost"		, 		function(v,u) formatCurrency(v,symbol=u)    ],
 	"orientation", 	 [ "Orientation"									],
 	"qty",        	 [ "Quantity"	, "Unit"							],
 	"units",         [ "Units"		, "pce"								],
 	"material",      [ "Material"										],
-	"linear_meters", [ "Linear Meters"	, function(v) format_length(v)	],
-	
+	"linear_meters", [ "Linear Meters", 	function(v,u) formatLength(v,u)	],
+	"diameter", 	 [ "Diameter"	, 		function(v,u) formatLength(v,u)	],
+	"height", 	 	 [ "Height"		, 		function(v,u) formatLength(v,u)	],
     // New IFC properties
     "ifc_class",     [ "IFC Class"                                  ],
     "ifc_type",      [ "IFC Type"                                   ],
     "ifc_guid",      [ "IFC GUID"                                   ],
     "ifc_props",     [ "IFC Properties"                             ],
 	
+]);
+
+unit_specs = struct_set([], [
+	"m",			[ "Meters", "m"],
+
 ]);
 
 function generate_guid() =
@@ -93,7 +99,7 @@ function materialSpecs ( name, price, qty,type, units ) =
 		[
 			if (is_def(price) ) 				["unit_price"	,price			],
 			if (is_def(qty) ) 					["qty"			,qty			],
-			if (is_def(qty) && is_def(price))	["cost"		,price * qty	],
+			if (is_def(qty) && is_def(price))	["cost"			,price * qty	],
 			if (is_def(type))					["material"		,type			],
 			if (is_def(units) ) 				["units"		,units			],
 		]
@@ -112,25 +118,37 @@ function materialSpecs ( name, price, qty,type, units ) =
 //   info = retrieveInfo();  // Returns [["Volume", 5, "Kg"], ["Weight", 2, "Kg"]]	
 function retrieveInfo( data = is_undef(data) ? $meta : data ) = 
 	[
-		for ( m = $meta ) 
-			let ( s = assert(m[0],"meta 0 cannot be undef") metaSpec(m[0]) )	
-				if (s) 
-					[ 
-						s[0], // Label
-						is_function(s[1]) ? s[1](m[1])  : m[1], 
-						is_function(s[1]) ? "" : s[1]
-					] 
-				else if (m[0] == "Materials") 
+		for ( m = data ) 
+			let ( 
+				key 		= m[0],
+				value 		= m[1],
+				_metricUnit =  assert(key,"meta 0 cannot be undef") parseMetricUnit(key), 
+				metric		= _metricUnit[0],
+				unit 		= _metricUnit[1],
+				spec 			= assert(m[0],"meta 0 cannot be undef") metaSpec(metric) 
+			)	
+			if (spec) 
+				let(
+					label 		= spec[0],
+					unitLabel 	= is_function(spec[1]) ? undef 		: spec[1],
+					formatFunc  = is_function(spec[1]) ? spec[1] 	: undef,
+				)
+				[ 
+					label, 										// Label
+					formatFunc 	? formatFunc(value,unit)  : value, 	// Format function or value
+					unitLabel 	? unitLabel : ""				// Unit if provided by spec
+				] 
+			else if (key == "Materials") 
+				[
+					"Materials",
 					[
-						"Materials",
-						[
-							for ( material = m[1] ) 
-								[
-									material[0],
-									retrieveMaterialInfo (material[1])
-								]
-						]
+						for ( material = value ) 
+							[
+								material[0],
+								retrieveMaterialInfo (material[1])
+							]
 					]
+				]
 	];	
 
 function retrieveMaterialInfo ( mat ) = 
@@ -242,3 +260,33 @@ module printData(title,data) {
 	lines = concat(header,data,str_pad("",cols,"*"));
     echo(str( CR, str_join(lines, CR), CR ));
 }	
+
+
+// Function: parseMetricUnit()
+//
+// Synopsis: Parses a string to extract metric and unit components.
+// SynTags: Data
+// Topics: String, Parsing, Metadata
+// Usage:
+//   result = parseMetricUnit(str);
+// Description:
+//   Parses a string of the form "metric,unit" (e.g., "volume,l") to extract the metric name and unit.
+//   If no comma is present (e.g., "volume"), returns the metric with an undefined unit.
+//   Trims whitespace from both metric and unit. Returns undef for invalid input.
+// Arguments:
+//   str = Input string to parse (e.g., "volume,l", "volume"). No default
+// Returns:
+//   A list [metric, unit] (e.g., ["volume", "l"], ["volume", undef]), or undef if input is invalid.
+// Example:
+//   result = parseMetricUnit("volume,l"); // ["volume", "l"]
+//   result = parseMetricUnit("volume");   // ["volume", undef]
+//   result = parseMetricUnit("");         // undef
+function parseMetricUnit(str) =
+    assert(is_str(str), "[parseMetricUnit] str must be a string")
+    str == "" ? undef :
+    let (
+        parts = split(str, ","),
+        metric = trim(parts[0]),
+        unit = len(parts) > 1 ? trim(parts[1]) : undef
+    )
+    metric == "" ? undef : [metric, unit];

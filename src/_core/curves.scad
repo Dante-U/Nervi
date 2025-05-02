@@ -240,6 +240,7 @@ function dropletWave( r, t, amplitude = 1, length = 10, speed = 5, damping = 0.5
 //
 // Synopsis: Generates a point on a clothoid (Euler spiral) curve.
 // Topics: Geometry, Parametric Curves
+// See Also: generalizedClothoid()
 // Description:
 //   Computes the coordinates of a point on a clothoid curve (Euler spiral) based on a parameter t,
 //   a radius of curvature r, and a length l. The clothoid is defined using Fresnel integrals
@@ -265,10 +266,15 @@ function clothoid(t, r, l) =
     )
     [A * C, A * S];
 	
-// Function: generalized_clothoid()
+
+
+	
+	
+// Function: generalizedClothoid()
 //
 // Synopsis: Generates a 2D path for a generalized clothoid curve.
 // Topics: Geometry, Parametric Curves, Numerical Integration
+// See Also: clothoid()
 // Description:
 //   Computes a series of points along a generalized clothoid (Euler spiral) curve using numerical integration.
 //   The curve is defined by the maximum arc length, curvature derivative, initial curvature, initial angle,
@@ -281,9 +287,9 @@ function clothoid(t, r, l) =
 //   theta_0 		= Initial orientation angle of the curve (in radians).
 //   num_points 	= Number of points to generate along the curve.
 // Example(2D,ColorScheme=Nature)
-//   path = generalized_clothoid(s_max=50, kappa_prime=0.01, kappa_0=0, theta_0=0, num_points=100);
+//   path = generalizedClothoid(s_max=50, kappa_prime=0.01, kappa_0=0, theta_0=0, num_points=100);
 //   stroke(path); // Renders a generalized clothoid curve
-function generalized_clothoid(s_max, kappa_prime, kappa_0, theta_0, num_points) =
+function generalizedClothoid(s_max, kappa_prime, kappa_0, theta_0, num_points) =
     let(
         ds = s_max / num_points,  // Step size for numerical integration
         points = [
@@ -312,3 +318,34 @@ function generalized_clothoid(s_max, kappa_prime, kappa_0, theta_0, num_points) 
         ]
     )
     points;
+
+/*
+ * Function: ballistic()
+ *
+ * Synopsis: Calculates a point on a parabolic ballistic curve.
+ * Topics: Curves, Trajectories, Mathematics
+ * Description:
+ *   Computes a 3D point [x, y, z] on a parabolic ballistic trajectory for a given x-coordinate.
+ *   The curve is defined by a specified range (total horizontal distance) and maximum height.
+ *   The y-coordinate is fixed at 0, and the z-coordinate follows a parabolic profile.
+ * Arguments:
+ *   x         = X-coordinate for which to compute estilos de puntos en la curva (mm).
+ *   range     = Total horizontal range of the trajectory (mm) [default: 4000].
+ *   height    = Maximum height of the trajectory at x=0 (mm) [default: 1000].
+ * Returns:
+ *   A 3D vector [x, 0, z] representing a point on the ballistic curve.
+ * Example(3D,ColorScheme=Nature):
+ *   path = [for (x = [-2000:100:2000]) ballistic(x, 4000, 1000)];
+ *   stroke(path, width=30);
+ */
+function ballistic(	x, range  = 4000, height = 1000	) = 
+	let (
+		half_range = range / 2
+	) 
+	[x ,0, height * (1 - pow(x / half_range, 2) ) ];		
+	
+
+	
+
+	
+	
