@@ -457,10 +457,10 @@ module cladding(
 		up(section.y+batten.y) children();
 	}
     module batten(l,dir,anchor) {	// Nested module for battens
-		material( batten_material ) cuboid([batten[0],batten[1],l],orient=dir,anchor=anchor);
+		material( batten_material,"Wood" ) cuboid([batten[0],batten[1],l],orient=dir,anchor=anchor);
     }
     module blade( l, dir, anchor ) {    // Nested module for blades
-		material( blade_material )
+		material( blade_material,"Wood" )
         if (len(section) == 2)
             cuboid([batten[0],batten[1],l],orient=dir,anchor=anchor);
         else {
@@ -555,10 +555,11 @@ module vPanels(
 // Module: woodSheathing()
 //
 // Synopsis: Creates a wall sheathing with oriented panels and optional metadata.
+// SynTags: Geom, Attachable, BIM
 // Topics: Geometry, Construction, Costing
 // See Also: plank(),isSheetOrientedBest()
 // Usage:
-//   woodSheathing([l], [h], [wall], [panel=[2440,1220]], [thickness=18], [direction=LEFT], [material="OSB"], [info=false], [square_price], [unit_price], [anchor=BOT], [numbering=true], [indexed=false], [orient], [spin]);
+//   woodSheathing([l], [h], [wall], [panel], [thickness], [direction], [material], [info], [square_price], [unit_price], [anchor], [numbering], [indexed], [orient], [spin]);
 // Description:
 //   Generates a wall sheathing composed of oriented panels (e.g., 4x8 ft) arranged to cover a wall of
 //   specified length and height. Panels are created using the plank module, with optional numbering or
@@ -702,6 +703,7 @@ module woodSheathing(
 //
 // Synopsis: Creates a rounded cuboid plank with optional indexed text.
 // Topics: Geometry, Text, Construction, IFC
+// SynTags: Geom, Attachable, BIM
 // Usage:
 //   plank(length, width, thickness, index, rounding, material, textSize, textDepth, textColor, info, anchor, spin, orient);
 // Description:
@@ -727,9 +729,9 @@ module woodSheathing(
 //   spin       = Rotation around Z-axis in degrees. Default: 0
 //   orient     = Orientation vector. Default: UP
 //
-// Example(3D,Big,ColorScheme=Nature):
+// Example(3D,ColorScheme=Nature):
 //   plank(length=1000, width=200, thickness=30, material="Pine");
-// Example(3D,Big,ColorScheme=Nature): Provide Tnfo  
+// Example(3D,ColorScheme=Nature): Provide Info  
 //   plank(length=1000, width=200, thickness=20, material="Pine", info = true,cubic_price=600  );
 module plank(
 	length		= first_defined([is_undef(length) 	 ? undef: length, 	is_undef($plank_length) 	? undef : $plank_length]),
@@ -800,6 +802,7 @@ module plank(
 //
 // Synopsis: Creates a rectangular pillar with customizable section and material.
 // Topics: Structures, Superstructure
+// SynTags: Geom, Attachable, BIM
 // See Also: obliquePillar()
 // Status: DEPRECATED use pillar
 // Description:
@@ -832,96 +835,12 @@ module rectPillar(l,section,material= "Wood",rounding = 0,anchor,spin) {
 }  
 
 
-// Module: pillar()
-//
-// Synopsis: Creates a parametric pillar with rectangular or circular cross-section.
-// Topics: Architecture, Structural, IFC
-// Usage:
-//   pillar(l, section, diameter, path, material, linear_price, volume_price, rounding, info, anchor, spin);
-// Description:
-//   Generates a pillar with a rectangular or circular cross-section, defined by length (l) or a path.
-//   Supports material properties from woods.scad and cost calculation (linear or volumetric).
-//   Stores metadata in $meta for BIM integration, mapping to IfcColumn with PredefinedType=COLUMN.
-// Arguments:
-//   l 				= Length in meters (alternative to path).
-//   section 		= [width, height] for rectangular cross-section in mm.
-//   diameter 		= Diameter for circular cross-section in mm.
-//   path 			= 2D or 3D line segment defining pillar orientation.
-//   material 		= Material name from woods.scad (default: "Pine").
-//   linear_price 	= Cost per meter in currency units.
-//   volume_price 	= Cost per cubic meter in currency units.
-//   rounding 		= Fillet radius for edges in mm.
-//   info 			= If true, generates metadata (default: false).
-//   anchor 		= Anchor point for positioning (default: BOTTOM).
-//   spin 			= Rotation around Z-axis in degrees (optional).
-// Example(3D,Big,ColorScheme=Nature): Rectangular section pillar
-//   pillar(l=3, section=[200, 200], info=true, volume_price=600, material="Pine");
-// Example(3D,Big,ColorScheme=Nature): Circular section pillar
-//   pillar(l=3, diameter=200, info=true, linear_price=40, material="Pine");
-// Example(3D,Big,ColorScheme=Nature): Rectangular section pillar following a path
-//   pillar(path=[[-800, 800, -1500], [800, -800, 1500]], section=[200, 300], material="Pine");
-// Example(3D,Big,ColorScheme=Nature): Circular section pillar following a path
-//   pillar(path=[[-800, 800, -1500], [800, -800, 1500]], diameter=200, material="Pine");
-module pillar(l,section,diameter,path, material="Pine",linear_price ,volume_price,rounding,info,anchor,spin) {
-	assert( (is_def(l) && is_meters(l)) || isLine(path)	, "[rectPillar] You should define [l] or [path]");
-	assert( is_dim_pair(section) || is_def(diameter)	, "[rectPillar] You should define section for rectangle section or diameter for circular pillar");
-	_l = is_def(l) ? meters(l) : lineLength( path );
-	size = [first_defined([section[X],diameter]),first_defined([section[Y],diameter]),_l];
-	attachable( size = size, anchor=anchor, spin=spin)  {
-		union() material( material ) {
-			if (is_undef(path)) 
-				if (section)
-					cuboid( size = size,rounding=rounding );
-				else
-					cyl(d=diameter,length=size.z,rounding=rounding);
-			else 
-				alignWith( path )
-						extrude(length=_l,center=true)
-							if (section) rect( section ); else circle(d=diameter, $fn=32);
-		}
-		children();
-	}
-	if ( provideMeta( info ) ) {
-		assert(num_defined([volume_price,linear_price]) == 1, "[pilar] You should define ONE volume_price or linear_price ");
-		density = woodSpecs(material,MATERIAL_DENSITY);
-		volume  = mm3_to_m3( 
-			is_def(diameter) ? circleArea( d = diameter ) * size.z	: 
-			is_def(section)  ? [size.x,size.y,size.z] 	: 
-			0
-		); 
-		price	= first_defined([ volume_price, linear_price ]);
-		value 	= is_def(linear_price) ? linear_price * _l : is_def(volume_price) ? volume_price * volume : 0;
-		$meta = [
-			["name"		, str("Pilar (",is_def(diameter) ? "Circular" : is_def(section) ? "Rectangular" : "N/A", ")")],
-			["cost"	, value	 			],
-			["volume"	, volume 			],
-			["weight"	, volume * density 	]
-		];
-		info();
-		
-	}	
-}
-
-//pillar( path = [[-500,500,-1500],[500,-500,+1500]]	, diameter=200 );
-
-
-
-
-
-
-/*	
-echo ("**** mm3_to_m3 ",mm3_to_m3([200,200,3000]));
-echo ("Glu", circleArea(d=200) * 3000);
-echo ("Glu", mm3_to_m3(circleArea(d=200) * 3000));
-*/
-
-
-
 
 // Module: obliquePillar()
 //
 // Synopsis: Creates an oblique pillar with customizable sections and tilt.
 // Topics: Pillars, Superstructure
+// SynTags: Geom, Attachable, BIM
 // See Also: rectPillar() 
 // Description:
 //   Generates a slanted pillar connecting two rectangular sections over a specified length,
