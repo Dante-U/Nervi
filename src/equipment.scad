@@ -3,7 +3,7 @@ include <_core/main.scad>
 // LibFile: equipment.scad
 // Includes:
 //   include <equipment.scad>
-// FileGroup: Superstructure
+// FileGroup: Equipment
 // FileSummary: Architecture, Building, Equipment
 //////////////////////////////////////////////////////////////////////
 
@@ -30,6 +30,7 @@ include <_core/main.scad>
 //   info       = If true, generates metadata. Default: false
 //
 // Example(3D,Big,ColorScheme=Nature):
+//   waterTank(d=1.68, h=1.2, capacity=2000, material="Polyethylene", unit_price=1530, weight=34, info=true);
 module waterTank( d, h , capacity, material, unit_price, weight, anchor, spin, info ) {
 	assert(is_meters(d),			"[waterTank] [d] is undefined. Provide diameter");
 	assert(is_meters(h),			"[waterTank] [h] is undefined. Provide height");
@@ -63,13 +64,12 @@ module waterTank( d, h , capacity, material, unit_price, weight, anchor, spin, i
 			["name",		str("Water tank(",capacity," L)")	]	,
 			["diameter",	d									]	,
 			["height",		h									]	,
-			["volume,liters",		capacity							]	,
+			["volume,liters",		capacity					]	,
 			["area",		circleArea(d=d)						]	,
 			if (cost)
 				["cost",	unit_price 							]   ,
 			if (weight)
-				["weight",	weight 							]   ,
-				
+				["weight",	weight 								]   ,
 			// Add IFC metadata
             ["ifc_class",   "IfcTank"   ],
             ["ifc_type",    "STORAGE"    ],

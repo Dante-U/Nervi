@@ -5,7 +5,7 @@ include <_materials/masonry.scad>
 // Includes:
 //   include <space.scad>
 // FileGroup: Superstructure
-// FileSummary: Architecture, Building, Furniture, BIM
+// FileSummary: Architecture space definitions
 //////////////////////////////////////////////////////////////////////
 
 // Constant: WALL_DEFAULT

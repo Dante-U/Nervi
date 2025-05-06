@@ -6,7 +6,7 @@ include <_common.scad>
 // Includes:
 //   include <_materials/masonry.scad>
 // FileGroup: Materials
-// FileSummary: Material specs
+// FileSummary: Atchitecture, Material, Masonry
 //////////////////////////////////////////////////////////////////////
 
 // Function: masonrySpecs()
@@ -35,7 +35,7 @@ function masonrySpecs( wood_name, property ) =
 	let (
 		spec = struct_val(masonry_specs, wood_name),
 	)
-	assert(is_def(spec), str("[woodSpecs] Unknown wood type: ", wood_name))
+	assert(is_def(spec), str("[masonrySpecs] Unknown wood type: ", wood_name))
 	is_def(property) ? spec[property] : spec;
 
 	

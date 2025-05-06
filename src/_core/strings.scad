@@ -587,7 +587,6 @@ function formatArea( value, unit ) =
 	str(value/divider," ",_unit);
 	//value <10000 ? str(value," m²") : str(value/10000," ha");	
 	
-	
 
 // Function: formatWeight()
 //
@@ -603,8 +602,6 @@ function formatArea( value, unit ) =
 // Arguments:
 //   value = Weight in kilograms (scalar).
 // Returns: String with formatted weight and unit (Kg or t).
-
-// TODO: Should be refined 
 function formatWeight(value,unit) =
     is_undef(value) ? "N/A" :
     let (

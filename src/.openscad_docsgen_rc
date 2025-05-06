@@ -24,6 +24,7 @@ PrioritizeFiles:
   project.scad
   pilar.scad
   stairs.scad
+  masonry-structure.scad
   wood-structure.scad
   metal-structure.scad
 DefineSynTags:

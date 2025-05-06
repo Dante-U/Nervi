@@ -5,7 +5,7 @@ include <BOSL2/std.scad>
 // Includes:
 //   include <_core/constants.scad>
 // FileGroup: Core
-// FileSummary: Architecture constants
+// FileSummary: Architecture and geometry constants
 //////////////////////////////////////////////////////////////////////
 
 // Constant: X
@@ -72,6 +72,7 @@ CLEARANCE 		= 0.201;
 // 
 // Synopsis: Converts lengths from meters to millimeters.
 // Topics: Units, Geometry
+// See Also: asMeters()
 // Description:
 //    Converts a scalar or list of lengths from meters to millimeters by multiplying
 //    by 1000, for use with the space module's geometry calculations. Returns undef
@@ -84,15 +85,15 @@ CLEARANCE 		= 0.201;
 //    $space_width  = 2;
 //    mm = meters([$space_length, $space_width]); // Returns [3000, 2000]
 //    scalar_mm = meters(1.5); // Returns 1500
-// See Also: millimeters()
 function meters( value ) = 
 	assert(is_num(value) || is_list(value), "[meters] value must be a number or list")
 	is_list (value) ? [ for (v = value) meters(v)] : is_def(value) ? 1000 * value : undef;
 
-// Function: millimeters()
+// Function: asMeters()
 // 
 // Synopsis: Converts lengths from meters to millimeters.
 // Topics: Units, Geometry
+// See Also: meters()
 // Description:
 //    Converts a scalar or list of lengths from meters to millimeters by multiplying
 //    by 1000, for use with the space module's meter-based context variables.
@@ -101,12 +102,10 @@ function meters( value ) =
 // Arguments:
 //    value = Scalar or list of lengths in millimeters. No default.
 // Example:
-//    scalar_m = millimeters(1.500); // Returns 1500
-// See Also: meters()
-function millimeters(value) =
-	assert(is_num(value) || is_list(value), "[millimeters] value must be a number or list")
-    is_list(value) ? [for (v = value) millimeters(v)] : is_def(value) ? value / 1000 : undef;	
-
+//    scalar_m = asMeters(1500); // Returns 1.5	
+function asMeters( value ) = 
+	assert(is_num(value) || is_list(value), "[meters] value must be a number or list")
+	is_list (value) ? [ for (v = value) meters(v)] : is_def(value) ? value/1000 : undef;
 	
 // Function: mm2_to_m2()
 // 
@@ -117,7 +116,7 @@ function millimeters(value) =
 //   Uses the conversion factor 1 mm² = 1e-6 m² for precision.
 // Arguments:
 //   mm2 = Area in square millimeters (mm²).
-// Example(2D,ColorScheme=Nature):
+// Example:
 //   area_mm2 = 1645578.24;
 //   area_m2 = mm2_to_m2(area_mm2);
 //   echo(area_m2); // Outputs: 1.64557824
@@ -137,11 +136,11 @@ function mm2_to_m2(mm2) =
 // Arguments:
 //   volume_mm3 = Volume in cubic millimeters (scalar).
 // Returns: Volume in cubic meters.
-// Example(3D,Big,ColorScheme=Nature):
+// Example(3D,Small,ColorScheme=Nature):
 //   volume_mm3 = 3000 * 3000 * 200; // 3m x 3m x 200mm slab
 //   volume_m3 = mm3_to_m3(volume_mm3);
 //   echo("Volume:", volume_m3, "m³"); // Outputs: Volume: 1.8 m³
-//   cuboid([3000, 3000, 200]); // Visualize slab
+//   highlight() cuboid([3000, 3000, 200]); // Visualize slab
 function mm3_to_m3(mm3) =
 	is_vector(mm3) ?  mm3.x * mm3.y * mm3.z * MM3_TO_M3 : 
 	mm3 * MM3_TO_M3;	
@@ -219,7 +218,7 @@ function isVertical( dir ) 		= dir.x == 0;
 // Function: rendering()
 // Synopsis: Returns the current rendering detail level.
 // Topics: Rendering, Functions
-// See Also: RENDER_SIMPLIFIED, RENDER_STANDARD, RENDER_DETAILED
+// See Also: RENDER_SIMPLIFIED, RENDER_STANDARD, RENDER_DETAILED, valueByRendering()
 // Description:
 //   Retrieves the rendering detail level from the $RD special variable, defaulting to
 //   RENDER_STANDARD if undefined. Use this to control rendering behavior in modules.
@@ -239,6 +238,36 @@ function isVertical( dir ) 		= dir.x == 0;
 //   }
 function rendering() = is_undef($RD) ? RENDER_STANDARD : $RD ;
 
+// Function: valueByRendering()
+// 
+// Synopsis: Returns a value based on the current rendering level.
+// Topics: Rendering, Geometry
+// See Also: RENDER_SIMPLIFIED, RENDER_STANDARD, RENDER_DETAILED
+// Usage:
+//   value = valueByRendering(simple, standard, detailed);
+// Description:
+//   Selects a value based on the rendering level returned by rendering(), typically used to adjust geometric detail
+//   (e.g., $fn for circular geometry or text). Returns 'simple' for RENDER_SIMPLIFIED, 'standard' for RENDER_STANDARD,
+//   and 'detailed' (falling back to 'standard' if undefined) for RENDER_DETAILED. Assumes rendering() returns one of
+//   RENDER_SIMPLIFIED, RENDER_STANDARD, or RENDER_DETAILED. Commonly used to balance rendering performance and quality
+//   in modules like pillar() or beam().
+// Arguments:
+//   simple   = Value for simplified rendering (e.g., low $fn like 16).
+//   standard = Value for standard rendering (e.g., moderate $fn like 32).
+//   detailed = Value for detailed rendering (e.g., high $fn like 64). Default: undef (falls back to standard)
+// Returns:
+//   The selected value based on the rendering level.
+// Example(NORENDER):
+//   fn = valueByRendering(simple=16, standard=32, detailed=64); // Returns 16, 32, or 64 based on rendering()
+// Example(3D,Small,ColorScheme=Tomorrow): Simplified rendered cylinder
+//   $RD = RENDER_SIMPLIFIED;
+//   cyl(d=100,length=100,$fn=valueByRendering(simple=16, standard=32, detailed=64));
+// Example(3D,Small,ColorScheme=Tomorrow): Standard rendered cylinder
+//   $RD = RENDER_STANDARD;
+//   cyl(d=100,length=100,$fn=valueByRendering(simple=16, standard=32, detailed=64));
+// Example(3D,Small,ColorScheme=Tomorrow): Detailes rendered cylinder
+//   $RD = RENDER_DETAILED;
+//   cyl(d=100,length=100,$fn=valueByRendering(simple=16, standard=32, detailed=64));
 function valueByRendering( simple,standard,detailed ) =
 	let(
 		level = rendering()
@@ -247,7 +276,6 @@ function valueByRendering( simple,standard,detailed ) =
 	level == RENDER_DETAILED 	? first_defined([detailed,standard]) : //  	detailed  : //
 	standard;
 	
-
 // Function: corners()
 //
 // Synopsis: Returns the four corner anchors of a specified face.
@@ -260,7 +288,7 @@ function valueByRendering( simple,standard,detailed ) =
 //   face = The face anchor (e.g., BOT, TOP, FWD, BACK, RIGHT, LEFT). No default.
 // Usage:
 //   corners(face); // Returns bottom face corners
-// Example(3D,ColorScheme=Nature): Attaching cuboid to top corners
+// Example(3D,ColorScheme=Tomorrow): Attaching cuboid to top corners
 //    cuboid(50) attach(TOP, BOT,align=corners(TOP)) cuboid(10,$color="Blue");
 // Example(3D,ColorScheme=Nature): Attaching cuboid to right corners
 //    cuboid(50) attach(RIGHT,LEFT, align=corners(RIGHT)) cuboid(10,$color="Red");

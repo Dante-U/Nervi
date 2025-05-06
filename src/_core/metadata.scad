@@ -265,7 +265,6 @@ module printData(title,data) {
 // Function: parseMetricUnit()
 //
 // Synopsis: Parses a string to extract metric and unit components.
-// SynTags: Data
 // Topics: String, Parsing, Metadata
 // Usage:
 //   result = parseMetricUnit(str);

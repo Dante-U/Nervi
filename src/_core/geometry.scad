@@ -138,7 +138,6 @@ function circleArea(r,d) =
 	assert(r != undef || d != undef,"[circleArea] r or d should be defined")
 	let (r = is_undef(r) ? d/2 : r) pow(r,2) * PI ;
 
-
 // Function: line()
 // 
 // Synopsis: Creates a line segment from two points.

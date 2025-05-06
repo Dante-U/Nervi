@@ -57,8 +57,19 @@ function is_num_positive(x) = is_num(x) && x > 0;
 //     cuboid([100, 100, 50]);  // No cuboid created since undef returns false
 //   }
 function is_meters(x,plausible = true)  = 
+	is_list (x) ? all([ for (v = x) is_meters(v,plausible)]) : 
+		is_def(x) && is_num(x) ? 
+			assert(plausible == false || x < 1000,str("[is_meters] value(",x,") seems to be too big for a meter value"))
+		//1000 * value 
+		is_num(x) && x > 0
+		: false;
+
+
+
+/*
 	assert(plausible == false || x < 1000,str("[is_meters] value(",x,") seems to be too big for a meter value"))
 	is_num(x) && x > 0; 
+	*/
 
 // Function: is_between()
 //

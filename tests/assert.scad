@@ -6,7 +6,18 @@ test_is_between();
 test_is_greater_than();
 test_is_less_than();
 test_is_dim_pair();
-//test_is_meters();
+test_is_meters();
+
+
+module test_is_meters() {
+	assert_equal(is_meters(20),true);
+	assert_equal(is_meters(2000,plausible=false),true);
+	
+	assert_equal(is_meters([20,30]),true);
+	assert_equal(is_meters([20,"AA"]),false);
+
+}
+
 
 
 module test_is_num_positive() {

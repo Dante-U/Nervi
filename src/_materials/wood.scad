@@ -35,7 +35,7 @@ function woodSpecs( wood_name, property ) =
 	let (
 		spec = struct_val(wood_specs, wood_name),
 	)
-	assert(is_def(spec), str("[woodSpecs] Unknown wood type: ", wood_name))
+	assert(is_def(spec), str("[woodSpecs] Unknown wood type: '", wood_name,"'"))
 	is_def(property) ? spec[property] : spec;
 
 

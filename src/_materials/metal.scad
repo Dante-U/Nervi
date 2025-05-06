@@ -10,6 +10,9 @@ include <_common.scad>
 // FileSummary: Architecture, Metal
 //////////////////////////////////////////////////////////////////////
 
+
+
+
 metal_sections = struct_set([], [
 	"pipe",        	 [ "Pipe",			function() pipeProfile()	],
 	"square",        [ "Square Tube",	function() hssProfile()		],
@@ -19,6 +22,144 @@ metal_sections = struct_set([], [
 	"tbeam",       	 [ "TBeam",			function() tBeamProfile()	],
 	"rail",       	 [ "Rail",			function() railProfile()	],
 ]);
+
+// Metal specifications structure
+metal_specs = struct_set([], [
+    // Common Structural Metals
+    "Steel", [
+        7850,       // Density (kg/m³)
+        250,        // Yield Strength (MPa, mild steel, e.g., ASTM A36)
+        200000,     // Modulus of Elasticity (MPa)
+        "S235",     // Grade (European standard, equivalent to ASTM A36)
+        ["beams", "columns", "framework", "bridges"],
+        "General-purpose structural steel; widely used in construction, aka Carbon Steel."
+    ],
+    "Stainless Steel", [
+        8000,       // Density (kg/m³)
+        520,        // Yield Strength (MPa, e.g., 304 stainless)
+        190000,     // Modulus of Elasticity (MPa)
+        "304",      // Grade (common austenitic stainless steel)
+        ["cladding", "railings", "marine structures"],
+        "Corrosion-resistant alloy; ideal for harshomaic environments, aka Austenitic Stainless Steel."
+    ],
+    "Aluminum", [
+        2700,       // Density (kg/m³)
+        95,         // Yield Strength (MPa, e.g., 6061-T6)
+        69000,      // Modulus of Elasticity (MPa)
+        "6061-T6",  // Grade (common aluminum alloy)
+        ["aerospace", "automotive", "lightweight structures"],
+        "Lightweight and corrosion-resistant; used in modern construction, aka Aluminum Alloy."
+    ],
+    "Cast Iron", [
+        7200,       // Density (kg/m³)
+        200,        // Yield Strength (MPa, gray cast iron)
+        110000,     // Modulus of Elasticity (MPa)
+        "Gray",     // Grade
+        ["machine bases", "pipes", "engine blocks"],
+        "Brittle but strong in compression; used for heavy-duty components, aka Gray Cast Iron."
+    ],
+    // Specialized Alloys
+    "Titanium", [
+        4500,       // Density (kg/m³)
+        830,        // Yield Strength (MPa, e.g., Grade 5)
+        114000,     // Modulus of Elasticity (MPa)
+        "Grade 5",  // Grade (Ti-6Al-4V)
+        ["aerospace", "medical implants", "high-performance structures"],
+        "High strength-to-weight ratio; corrosion-resistant, aka Titanium Alloy."
+    ],
+    "Copper", [
+        8960,       // Density (kg/m³)
+        70,         // Yield Strength (MPa, annealed)
+        110000,     // Modulus of Elasticity (MPa)
+        "C11000",   // Grade (electrolytic tough pitch)
+        ["electrical wiring", "roofing", "plumbing"],
+        "High conductivity; used in electrical and architectural applications, aka Pure Copper."
+    ],
+    "Brass", [
+        8500,       // Density (kg/m³)
+        200,        // Yield Strength (MPa, e.g., C26000)
+        100000,     // Modulus of Elasticity (MPa)
+        "C26000",   // Grade (cartridge brass)
+        ["fittings", "decorative hardware", "musical instruments"],
+        "Copper-zinc alloy; corrosion-resistant and workable, aka Cartridge Brass."
+    ],
+    "Bronze", [
+        8800,       // Density (kg/m³)
+        250,        // Yield Strength (MPa, e.g., C93200)
+        105000,     // Modulus of Elasticity (MPa)
+        "C93200",   // Grade (bearing bronze)
+        ["bearings", "marine hardware", "sculptures"],
+        "Copper-tin alloy; wear-resistant and corrosion-resistant, aka Bearing Bronze."
+    ],
+    // Brazilian/Regional Metals
+    "AISI 1020", [
+        7850,       // Density (kg/m³)
+        295,        // Yield Strength (MPa)
+        200000,     // Modulus of Elasticity (MPa)
+        "1020",     // Grade (low-carbon steel)
+        ["reinforcing bars", "general fabrication", "machinery parts"],
+        "Low-carbon steel; widely used in Brazilian construction, aka SAE 1020."
+    ],
+    "AISI 1045", [
+        7850,       // Density (kg/m³)
+        565,        // Yield Strength (MPa)
+        200000,     // Modulus of Elasticity (MPa)
+        "1045",     // Grade (medium-carbon steel)
+        ["shafts", "gears", "structural components"],
+        "Medium-carbon steel; common in Brazilian industry, aka SAE 1045."
+    ],
+    "ABNT 350", [
+        7850,       // Density (kg/m³)
+        350,        // Yield Strength (MPa)
+        200000,     // Modulus of Elasticity (MPa)
+        "CA-50",    // Grade (Brazilian rebar standard)
+        ["reinforced concrete", "construction"],
+        "Brazilian standard rebar for concrete reinforcement, aka CA-50."
+    ],
+    "ABNT 420", [
+        7850,       // Density (kg/m³)
+        420,        // Yield Strength (MPa)
+        200000,     // Modulus of Elasticity (MPa)
+        "CA-60",    // Grade (Brazilian rebar standard)
+        ["reinforced concrete", "high-strength structures"],
+        "High-strength rebar for Brazilian construction, aka CA-60."
+    ],
+    // High-Strength Alloys
+    "Inconel", [
+        8400,       // Density (kg/m³)
+        690,        // Yield Strength (MPa, e.g., 625)
+        205000,     // Modulus of Elasticity (MPa)
+        "625",      // Grade (nickel-chromium alloy)
+        ["aerospace", "chemical processing", "marine"],
+        "High-temperature and corrosion-resistant; used in extreme environments, aka Inconel 625."
+    ],
+    "Hastelloy", [
+        9200,       // Density (kg/m³)
+        690,        // Yield Strength (MPa, e.g., C-276)
+        205000,     // Modulus of Elasticity (MPa)
+        "C-276",    // Grade (nickel-molybdenum alloy)
+        ["chemical processing", "pollution control"],
+        "Resistant to aggressive chemicals; used in harsh environments, aka Hastelloy C-276."
+    ],
+    "Monel", [
+        8800,       // Density (kg/m³)
+        550,        // Yield Strength (MPa, e.g., 400)
+        180000,     // Modulus of Elasticity (MPa)
+        "400",      // Grade (nickel-copper alloy)
+        ["marine", "chemical equipment", "valves"],
+        "Corrosion-resistant in marine environments, aka Monel 400."
+    ],
+    // Lightweight Alloys
+    "Magnesium", [
+        1740,       // Density (kg/m³)
+        130,        // Yield Strength (MPa, e.g., AZ31)
+        45000,      // Modulus of Elasticity (MPa)
+        "AZ31",     // Grade (magnesium alloy)
+        ["aerospace", "automotive", "electronics"],
+        "Lightest structural metal; used in weight-sensitive applications, aka Magnesium Alloy."
+    ]
+]);
+
 
 /*
 function metalSection( section_name ) =
@@ -392,7 +533,34 @@ function railProfile(
     )
     move(offset, _path);	
 
-
+//
+// Function: metalSpecs()
+//
+// Synopsis: Retrieves metal specifications by name and property.
+// Topics: Materials, Metal Properties, Construction
+// Usage:
+//   specs = metalSpecs(metal_name, property);
+// Description:
+//   Provides access to metal specifications from the metal_specs structure by metal name.
+//   Can return either the complete specification for a metal type or a specific property.
+// Arguments:
+//   metal_name = The name of the metal to look up in the metal_specs structure.
+//   property   = Optional. Specific property index to retrieve (uses constants like MATERIAL_DENSITY).
+// Returns:
+//   If property is defined, returns the specific property value for the metal.
+//   If property is not defined, returns the complete specification structure for the metal.
+// Example(NORENDER):
+//   steel_density = metalSpecs("Steel", MATERIAL_DENSITY);
+//   aluminum_specs = metalSpecs("Aluminum");
+//
+function metalSpecs(metal_name, property) =
+    assert(is_def(metal_name), "[metalSpecs] Missing metal name argument")
+    let (
+        spec = struct_val(metal_specs, metal_name)
+    )
+    assert(is_def(spec), str("[metalSpecs] Unknown metal type: ", metal_name))
+    is_def(property) ? spec[property] : spec;
+	
 	
 // Function: resolveAnchor()
 //

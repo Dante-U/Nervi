@@ -30,3 +30,18 @@ MATERIAL_APPLICATION = 4;
 // Constant: MATERIAL_DESCRIPTION
 // Description: Index for general description of the material
 MATERIAL_DESCRIPTION = 5;
+
+
+STRUCTURE_MATERIAL_FAMILIES = [ "Wood", "Metal", "Masonry" ];
+
+
+function isValidMaterialFamilies ( value ) = 
+	is_def(value)  && in_list(value,STRUCTURE_MATERIAL_FAMILIES);
+	
+function materialFamilyToMaterial( family  ) =
+	assert (isValidMaterialFamilies(family),"[materialFamilyToMaterial] is not a valid family name")
+	family == "Wood" 	? "Pine" : 	
+	family == "Metal" 	? "Steel" : 	
+	family == "Masonry"	? "Concrete" : 	
+	undef;	
+	
