@@ -41,7 +41,7 @@ debugging_furniture = false;
 // Example(NORENDER):
 //   shifts = placeFurniture([FRONT, RIGHT], inset=[100, 100], vAlign=BOT);
 //   echo(shifts); // Outputs translation vectors
-// Example(3D,Big,ColorScheme=Nature):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   include <Nervi/space.scad>
 //   space(l=3, w=3, h=2, debug=true, except=[FRONT, RIGHT]) {
 //     placeFurniture(anchors=[FRONT, RIGHT], inset=[100, 100]) {
@@ -105,13 +105,13 @@ module place_furniture2(
 //    place     = Number of cushions [1 = Single, 2 = Double] (default: 1).
 // DefineHeader:Returns:
 //    A 3D model of a bed with adjustable size and cushion placement.
-// Example(3D,Big,ColorScheme=Nature): King Size bed
+// Example(3D,Big,ColorScheme=Tomorrow): King Size bed
 //   bed( type = "KingSize" );
-// Example(3D,Big,ColorScheme=Nature): Single bed
+// Example(3D,Big,ColorScheme=Tomorrow): Single bed
 //   bed( type = "Single" );
-// Example(3D,Big,ColorScheme=Nature): Custom size
+// Example(3D,Big,ColorScheme=Tomorrow): Custom size
 //   bed( type = "Custom" , width = 800, length = 2100 );
-// Example(3D,Big,ColorScheme=Nature): Bed with headboard
+// Example(3D,Big,ColorScheme=Tomorrow): Bed with headboard
 //   bed( type = "KingSize", headboard = true );
 module bed(
     type      = "KingSize", 
@@ -198,9 +198,9 @@ module bed(
 // DefineHeader(Generic): Returns:
 //    A table with adjustable dimensions and height, suitable for various seat configurations.
 //
-// Example(3D,Big,ColorScheme=Nature): Table for 12 persons
+// Example(3D,Big,ColorScheme=Tomorrow): Table for 12 persons
 //   squareTable( place = 12 );	
-// Example(3D,Big,ColorScheme=Nature): Custom table size 
+// Example(3D,Big,ColorScheme=Tomorrow): Custom table size 
 //   squareTable( length=2000,width=800 );	
 module squareTable (
 	length    	= 2000, 
@@ -241,7 +241,7 @@ module squareTable (
 //    height   = Stool height (default: 400 mm). 
 // DefineHeader(Generic): Returns:
 //    A stool with a seat and four legs.
-// Example(3D,Big,ColorScheme=Nature): Simple chair
+// Example(3D,Big,ColorScheme=Tomorrow): Simple chair
 //   stool();
 module stool (
     width    = 400, 
@@ -275,7 +275,7 @@ module stool (
 //    back     = Backrest height (default: 500 mm). 
 // DefineHeader(Generic): Returns:
 //    A dining chair with a seat, legs, and a backrest.
-// Example(3D,Big,ColorScheme=Nature): Simple chair
+// Example(3D,Big,ColorScheme=Tomorrow): Simple chair
 //   diningChair();	
 
 module diningChair (
@@ -359,7 +359,7 @@ module couch(length,depth = 980,height = 800,users,anchor,spin ) {
 //    cols			= Cols
 // DefineHeader:Returns:
 //    A 3D model of a dresser
-// Example(3D,Big,ColorScheme=Nature): Simple 2 rows 3 columns dresser
+// Example(3D,Big,ColorScheme=Tomorrow): Simple 2 rows 3 columns dresser
 //   dresser( rows = 2,cols = 3 );
 module dresser( 
 		length    ,    
@@ -499,7 +499,7 @@ module curtain(
 //    height        = Desk height 	(default: 750 mm). 
 //    depth         = Desk depth 	(default: 800 mm). 
 //
-// Example(3D,Big,ColorScheme=Nature): Simple
+// Example(3D,Big,ColorScheme=Tomorrow): Simple
 //   desk();
 module desk( 
 		length    = 1900,    
@@ -599,7 +599,7 @@ module officeChair(
 //    height        = Table height 	(default: 780 mm). 
 // DefineHeader:Returns:
 //    A 3D model of a ...
-// Example(3D,Big,ColorScheme=Nature): Simple
+// Example(3D,Big,ColorScheme=Tomorrow): Simple
 //   shelf();
 module shelf( 
 		width     = 1000,

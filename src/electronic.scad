@@ -26,7 +26,7 @@ include <_core/main.scad>
 //   orient = Orientation vector (default: UP).
 //   info = If true, generates metadata (default: true).
 //   ifc_guid = IFC global unique identifier (optional).
-// Example(3D,Big,ColorScheme=Nature):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   television(size=55, height=1600);
 module television( size = 32,height = 0, anchor, spin, orient,info ) {
 

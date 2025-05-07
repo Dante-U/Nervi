@@ -44,7 +44,7 @@ WALL_DEFAULT 	= 180;
 //    $space_width  = Default width (m). Optional.
 //    $space_height = Default height (m). Optional.
 //    $space_wall   = Default wall thickness (m). Optional.
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //    space(l=3, w=2, h=2.5, wall=200, name="Room", except=["FRONT"],debug=true);
 // See Also: wallGeometry()
 module space( 
@@ -168,11 +168,11 @@ module space(
 //    $space_width  = Space width (m). Required.
 //    $space_height = Space height (m). Required.
 //    $space_wall   = Wall thickness (m). Required.
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //    space(3,2,2.5,debug=true)
 //       attachWalls(faces=[LEFT,FRONT], placement="outside")
 //          material("Brick") cuboid(500,anchor=DOWN);
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //    space(3,2,2.5,debug=true,except=[FRONT,LEFT]) 
 //       attachWalls(faces=[BACK,RIGHT], placement="inside")
 //          material("Brick") cuboid(500,anchor=DOWN);
@@ -316,7 +316,7 @@ module spaceWrapper() {
 //    $wall_length = Wall length (m). Required.
 //    $wall_height = Wall height (m). Required.
 //    $wall_orient = Wall orientation vector. Required.
-// Example(3D,ColorScheme=Nature,NoAxis):
+// Example(3D,ColorScheme=Tomorrow,NoAxis):
 //    space(3,3,2.3,debug=true) 
 //       attachWalls(faces=[FRONT], placement="both") 
 //          cuboid(meters([$wall_length,$wall_height,0.10]))
@@ -367,7 +367,7 @@ module placeOpening(anchors,w,h,inset=[ 0,0 ],debug = false, opening = 1) {
 //   Returns true if the space module is the parent module 6 levels up in the call stack.
 //   Useful for context-aware behavior in modules nested within a space.
 // Returns: Boolean indicating if space is the parent.
-// Example(3D,Big,ColorScheme=Nature):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   space(l=3, w=3, h=2, debug=true, except=[FRONT, RIGHT]) {
 //     if (hasSpaceParent()) cuboid([1000, 1000, 100], anchor=BOT);
 //   }
@@ -390,7 +390,7 @@ function hasSpaceParent()  = $parent_modules > 6 && parent_module(6) == "space";
 //    spin      = Rotation angle (degrees) [default: 0].
 // Context Variables:
 //    $space_wall = Wall thickness (mm) from space module. Optional.
-// Example(3D,ColorScheme=Nature,NoAxis):
+// Example(3D,ColorScheme=Tomorrow,NoAxis):
 //    include <masonry-structure.scad>
 //    space(4,3,2.2,debug=true,except=[FRONT,LEFT]){
 //       slab();
@@ -462,7 +462,7 @@ function roomBound(length=$space_length, width=$space_width, height=$space_heigh
 //    l         = Length of the wall (m).
 //    mark      = Height of each segment (mm) [default: 170].
 //    thickness = Thickness of the wall (mm) [default: 200].
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //    graduatedWall(h=1, l=0.8, mark=200, thickness=100);
 module graduatedWall(h, l, mark =170, thickness = 200) {
     _h = assert(is_num(h) && h > 0, 			"[graduatedWall] h must be a positive number (mm)") meters(h);

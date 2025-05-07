@@ -58,7 +58,7 @@ cuboid(100);
 ```
 
 Nature
-```openscad-3D,;ColorScheme=Nature;Small
+```openscad-3D,;ColorScheme=Tomorrow;Small
 include <BOSL2/std.scad>
 cuboid(100);
 ```
@@ -106,7 +106,7 @@ cuboid(100);
 ```
 
 Nature
-```openscad-3D,;ColorScheme=Nature;Small
+```openscad-3D,;ColorScheme=Tomorrow;Small
 include <BOSL2/std.scad>
 cuboid(100);
 ```

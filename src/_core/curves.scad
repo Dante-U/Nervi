@@ -23,7 +23,7 @@ use <2D.scad>
 //   resolution = Distance between consecutive points along the X-axis (in mm). Default: 1.
 //   phase_shift = Horizontal shift of the wave (in mm). Default: 0.
 //   y_move = Vertical shift of the wave (in mm). Default: 0.
-// Example(2D,ColorScheme=Nature): Renders a sinusoidal wave
+// Example(2D,ColorScheme=Tomorrow): Renders a sinusoidal wave
 //   path = sineWave( length=100, amplitude=10, wavelength=25, period=5 );
 //   stroke(path);
 function sineWave(
@@ -99,11 +99,11 @@ function sine_formula(x, m, p) = m * sin(2 * PI * p * x);
 // Usage:
 //    points = sawtoothWave(total_length=100, amplitude=10, wavelength=20);
 //    sawtoothWave(total_length=50, amplitude=5, wavelength=15, render=true);
-// Example(3D,ColorScheme=Nature,NoAxes): Rendered sawtooth wave
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Rendered sawtooth wave
 //    stroke(sawtoothWave( total_length=100, amplitude=30, wavelength=15,interval=10 ));	
-// Example(3D,ColorScheme=Nature,NoAxes): Sawtooth wave with phase shift
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Sawtooth wave with phase shift
 //    stroke(sawtoothWave( total_length=100, amplitude=30, wavelength=15,interval=10,phase_shift=10 ));	
-// Example(3D,ColorScheme=Nature,NoAxes): Sawtooth wave with y move
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Sawtooth wave with y move
 //    stroke(sawtoothWave( total_length=100, amplitude=30, wavelength=15,interval=10,y_move=10 ));	
 function sawtoothWave(total_length, amplitude, wavelength, interval, phase_shift = 0, y_move = 0) = 
     let(
@@ -155,9 +155,9 @@ function sawtoothWave(total_length, amplitude, wavelength, interval, phase_shift
 // Usage:
 //    points = fibonacciSpiral(max_width=100);
 //    fibonacciSpiral(max_height=80, render=true);
-// Example(2D,ColorScheme=Nature): Centered spiral with max width
+// Example(2D,ColorScheme=Tomorrow): Centered spiral with max width
 //    stroke(fibonacciSpiral(max_width=100, center=true));
-// Example(2D,ColorScheme=Nature): Uncentered spiral with max height
+// Example(2D,ColorScheme=Tomorrow): Uncentered spiral with max height
 //    stroke(fibonacciSpiral(max_height=61.8, points=540 ));
 function fibonacciSpiral( max_width, max_height, points=360, angle_step=1, center = false ) = 
     let (
@@ -219,7 +219,7 @@ function fibonacciSpiral( max_width, max_height, points=360, angle_step=1, cente
 //    damping   = Damping factor to reduce amplitude over distance [default: 0.5].
 // Returns:
 //    The wave height at the specified distance and time, or 0 if the wave hasn't arrived.
-// Example(3D,ColorScheme=Nature)
+// Example(3D,ColorScheme=Tomorrow)
 //    // Simple wave at a fixed time
 //    t=1;
 //    points = [
@@ -249,7 +249,7 @@ function dropletWave( r, t, amplitude = 1, length = 10, speed = 5, damping = 0.5
 //   t = Scalar parameter along the curve, typically in the range [0, 1].
 //   r = Radius of curvature at the start of the clothoid (in mm).
 //   l = Length of the clothoid curve (in mm).
-// Example(2D,ColorScheme=Nature)
+// Example(2D,ColorScheme=Tomorrow)
 //   path = [for (t = [0:0.1:1]) clothoid(t, 10, 50)];
 //   stroke(path); // Renders a clothoid curve
 function clothoid(t, r, l) = 
@@ -286,7 +286,7 @@ function clothoid(t, r, l) =
 //   kappa_0 		= Initial curvature at the start of the curve (in 1/mm).
 //   theta_0 		= Initial orientation angle of the curve (in radians).
 //   num_points 	= Number of points to generate along the curve.
-// Example(2D,ColorScheme=Nature)
+// Example(2D,ColorScheme=Tomorrow)
 //   path = generalizedClothoid(s_max=50, kappa_prime=0.01, kappa_0=0, theta_0=0, num_points=100);
 //   stroke(path); // Renders a generalized clothoid curve
 function generalizedClothoid(s_max, kappa_prime, kappa_0, theta_0, num_points) =
@@ -334,7 +334,7 @@ function generalizedClothoid(s_max, kappa_prime, kappa_0, theta_0, num_points) =
  *   height    = Maximum height of the trajectory at x=0 (mm) [default: 1000].
  * Returns:
  *   A 3D vector [x, 0, z] representing a point on the ballistic curve.
- * Example(3D,ColorScheme=Nature):
+ * Example(3D,ColorScheme=Tomorrow):
  *   path = [for (x = [-2000:100:2000]) ballistic(x, 4000, 1000)];
  *   stroke(path, width=30);
  */

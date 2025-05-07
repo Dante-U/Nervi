@@ -227,7 +227,7 @@ function findMetaValue( field ) =
 // Topics: Metadata, Display
 // Description:
 //   Prints metadata from $meta in a neatly formatted block using retrieveInfo() and printData().
-// Example(3D,ColorScheme=Nature,NORENDER)
+// Example(3D,ColorScheme=Tomorrow,NORENDER)
 //   $meta = [["volume", 5], ["weight", 2]];
 //   info();  // Outputs a formatted block with Volume and Weight
 module info() {
@@ -246,7 +246,7 @@ function provideMeta( enabled ) =
 // Arguments:
 //   title = The title of the block.
 //   data = List of strings to display.
-// Example(3D,ColorScheme=Nature)
+// Example(3D,ColorScheme=Tomorrow)
 //   printData("Specs", ["Volume : 5 Kg", "Weight : 2 Kg"]);
 module printData(title,data) {
     assert(is_def(title), "title must be defined");

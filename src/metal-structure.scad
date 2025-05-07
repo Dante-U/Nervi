@@ -26,17 +26,17 @@ include <_materials/metal.scad>
 //   anchor 		= Anchor point (default: CENTER)
 //   spin 			= Rotation around z-axis (default: 0)
 //   orient 		= Orientation (default: UP)
-// Example(3D,ColorScheme=Nature,Small): Square profile
+// Example(3D,ColorScheme=Tomorrow,Small): Square profile
 //   extrudeMetalProfile("square", length= 60,width= 50,height= 100,thickness = 3,);
-// Example(3D,ColorScheme=Nature,Small): Pipe profile
+// Example(3D,ColorScheme=Tomorrow,Small): Pipe profile
 //   extrudeMetalProfile("pipe",length= 60,diameter= 50,thickness = 3);
-// Example(3D,ColorScheme=Nature,Small): Corner profile
+// Example(3D,ColorScheme=Tomorrow,Small): Corner profile
 //   extrudeMetalProfile("corner",length= 60,width= 50,height= 100,thickness = 3);
-// Example(3D,ColorScheme=Nature,Small): Channel profile
+// Example(3D,ColorScheme=Tomorrow,Small): Channel profile
 //   extrudeMetalProfile("channel",length= 60,width= 50,height= 100,thickness = 3);
-// Example(3D,ColorScheme=Nature,Small): iBeam
+// Example(3D,ColorScheme=Tomorrow,Small): iBeam
 //   extrudeMetalProfile("ibeam",length= 60,width= 50,height= 100,web_thickness = 3,flange_thickness = 3);
-// Example(3D,ColorScheme=Nature,Small): tBeam
+// Example(3D,ColorScheme=Tomorrow,Small): tBeam
 //   extrudeMetalProfile("tbeam",length= 60,width= 50,height= 100,web_thickness = 3,flange_thickness = 3); 
 module extrudeMetalProfile(
 		section_name, 

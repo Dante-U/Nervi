@@ -219,13 +219,13 @@ function format_fixed_decimal(number, decimals) =
 //    separator = The character to use as the thousands separator. [default: ","]
 // Returns:
 //    A string with thousands separators added (e.g., "1,234,567").
-// Example(3D,ColorScheme=Nature)
+// Example(3D,ColorScheme=Tomorrow)
 //    s = add_thousands_separators("1234567");
 //    color("green")
 //    translate([0, 0, 0])
 //    linear_extrude(height=1)
 //    text(s, size=10);  // Outputs: 1,234,567
-// Example(3D,ColorScheme=Nature)
+// Example(3D,ColorScheme=Tomorrow)
 //    s = add_thousands_separators("-1234567", ".");
 //    color("green")
 //    translate([0, 20, 0])
@@ -257,13 +257,13 @@ function add_thousands_separators(integer_str, separator = ",") =
 //    str = The input string to split (e.g., "123.45").
 // Returns:
 //    A two-element array [integer_part, decimal_part].
-// Example(3D,ColorScheme=Nature)
+// Example(3D,ColorScheme=Tomorrow)
 //    parts = split_by_decimal("123.45");
 //    color("green")
 //    translate([0, 0, 0])
 //    linear_extrude(height=1)
 //    text(str("Integer: ", parts[0]), size=10);  // Outputs: Integer: 123
-// Example(3D,ColorScheme=Nature)
+// Example(3D,ColorScheme=Tomorrow)
 //    parts = split_by_decimal("123.45");
 //    color("green")
 //    translate([0, 20, 0])

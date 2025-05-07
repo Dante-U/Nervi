@@ -26,16 +26,16 @@ include <colors.scad>
 //   dir 		= BOSL2 direction vector (e.g., RIGHT, LEFT, FWD, BACK, UP, DOWN). Default: UP.
 //   path 		= Optional 2D path (list of [x, y] points). If not provided, the children() geometry is used.
 //   center		= Center the geometry Default : false
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   path 		= square([10, 5], center=true);
 //   extrude(length=20, dir=RIGHT, path=path);
 //   // Extrudes a 10x5 square 20 mm along the X-axis
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   extrude(length=15, dir=FWD) {
 //     circle(r=5, $fn=32);
 //   }
 //   // Extrudes a circle 15 mm along the negative Y-axis
-// Example(3D,ColorScheme=Nature) : Extruded Right and Centered  
+// Example(3D,ColorScheme=Tomorrow) : Extruded Right and Centered  
 //   extrude(length=15, dir=RIGHT, center=true) {
 //     circle(r=5);
 //   }
@@ -245,7 +245,7 @@ function anchorInfo( property , sub_property ) =
 //    geometries directly.
 // Usage:
 //    parent_geometry() stack() child_geometry();
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //    cuboid([20, 20, 10], anchor=CENTER)
 //       stack() cuboid([10, 10, 5], anchor=CENTER);
 module stack() {
@@ -264,29 +264,29 @@ module stack() {
 //   section 	= Height and depth of the profile/tube
 //   angle 		= Miter angle in degrees clock wize (default: 45). 
 //
-// Example(3D,ColorScheme=Nature,Small): Top angle clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Top angle clockwise
 //   diff() cuboid([50,20,80]) attach(TOP) miterCut([20,50],angle=+20);
-// Example(3D,ColorScheme=Nature,Small): Top angle counter clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Top angle counter clockwise
 //   diff() cuboid([50,20,80]) attach(TOP) miterCut([20,50],angle=-20);
-// Example(3D,ColorScheme=Nature,Small): Bottom angle clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Bottom angle clockwise
 //   diff() cuboid([50,20,80]) attach(BOT) miterCut([20,50],angle=+20);
-// Example(3D,ColorScheme=Nature,Small): Bottom angle counter clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Bottom angle counter clockwise
 //   diff() cuboid([50,20,80]) attach(BOT) miterCut([20,50],angle=-20);
-// Example(3D,ColorScheme=Nature,Small): Right angle clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Right angle clockwise
 //   diff() cuboid([80,20,50]) attach(RIGHT) miterCut([20,50],angle=+20);
-// Example(3D,ColorScheme=Nature,Small): Right angle counter clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Right angle counter clockwise
 //   diff() cuboid([80,20,50]) attach(RIGHT) miterCut([20,50],angle=-20);
-// Example(3D,ColorScheme=Nature,Small): Left angle clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Left angle clockwise
 //   diff() cuboid([80,20,50]) attach(LEFT) miterCut([20,50],angle=+20);
-// Example(3D,ColorScheme=Nature,Small): Left angle counter clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Left angle counter clockwise
 //   diff() cuboid([80,20,50]) attach(LEFT) miterCut([20,50],angle=-20);
-// Example(3D,ColorScheme=Nature,Small): Front angle clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Front angle clockwise
 //   diff() cuboid([20,80,50]) attach(FRONT) miterCut([20,50],angle=+20);
-// Example(3D,ColorScheme=Nature,Small): Front angle counter clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Front angle counter clockwise
 //   diff() cuboid([20,80,50]) attach(FRONT) miterCut([20,50],angle=-20);
-// Example(3D,ColorScheme=Nature,Small): Back angle clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Back angle clockwise
 //   diff() cuboid([20,80,50]) attach(BACK) miterCut([20,50],angle=+20);
-// Example(3D,ColorScheme=Nature,Small): Back angle counter clockwise
+// Example(3D,ColorScheme=Tomorrow,Small): Back angle counter clockwise
 //   diff() cuboid([20,80,50]) attach(BACK) miterCut([20,50],angle=-20);
 
 module miterCut( section, angle=45,debug=false) {
@@ -345,10 +345,10 @@ module miterCut( section, angle=45,debug=false) {
 //   p2 	= Ending point of the line segment [x, y, z].
 //   twist 	= Boolean to allow cross-section twist [default: false].
 //
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   alignWith([[0,0,0], [10,5,5]], twist=false)
 //       cuboid([$align_length, 2, 3], anchor=LEFT);
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   alignWith([[0,0,0], [0,10,0]], twist=true)
 //       cylinder(h=$align_length, r=1);
 module alignWith( segment , twist = false ) {

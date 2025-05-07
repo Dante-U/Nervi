@@ -160,26 +160,13 @@ metal_specs = struct_set([], [
     ]
 ]);
 
-
-/*
-function metalSection( section_name ) =
-	let (
-		spec = struct_val(metal_sections, section_name),
-	)
-	spec;
-*/	
-
 function metalSectionPath( section_name ) =
 	assert(is_def(section_name), "[metalSectionPath] Missing section_name argument")
 	let (
 		spec = struct_val(metal_sections, section_name),
-		
 	)
 	assert(is_def(spec), str("[metalSectionPath] Unknown metal profile type: ", section_name))
 	spec[1];	
-	
-
-
 
 // Function: hssProfile()
 //
@@ -191,14 +178,15 @@ function metalSectionPath( section_name ) =
 //   Creates a closed 2D path for a rectangular or square hollow structural section (HSS).
 //   The anchor point defines the path’s origin (e.g., center, corner).
 // Arguments:
-//   width = Section width in mm (default: 100).
-//   height = Section height in mm (default: 100).
-//   thickness = Wall thickness in mm (default: 5).
-//   rounding = Fillet radius for corners in mm (default: 0).
-//   anchor = Anchor point for the path origin (default: CENTER).
+//   width 		= Section width in mm (default: 100).
+//   height 	= Section height in mm (default: 100).
+//   thickness 	= Wall thickness in mm (default: 5).
+//   rounding 	= Fillet radius for corners in mm (default: 0).
+//   anchor 	= Anchor point for the path origin (default: CENTER).
 // Returns:
 //   Closed list of 2D points forming the HSS’s cross-section.
-// Example(2D):
+// Example(3D,Big,ColorScheme=Tomorrow):
+//   region(hssProfile(width = 50,height=50,thickness=3,rounding=1));
 function hssProfile(
 	width		= first_defined([is_undef(width) 	? undef : width ,		is_undef($profile_width) 	? 0 : $profile_width] ), 
 	height		= first_defined([is_undef(height) 	? undef : height ,		is_undef($profile_height) 	? 0 : $profile_height]), 
@@ -220,8 +208,6 @@ function hssProfile(
     )
     move(offset, path);	
 
-
-
 	
 // Function: pipeProfile()
 //
@@ -238,7 +224,7 @@ function hssProfile(
 //   anchor 		= Anchor point for the path origin (default: CENTER).
 // Returns:
 //   Closed list of 2D points forming the pipe’s cross-section.
-// Example(3D,Big,ColorScheme=Nature):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   region(pipeProfile(diameter=50, thickness=5, anchor=CENTER));	
 function pipeProfile( 
 	diameter	= first_defined([is_undef(diameter) ? undef : diameter  ,	is_undef($profile_diameter)	? 0 : $profile_diameter] ), 
@@ -258,9 +244,6 @@ function pipeProfile(
         offset = -resolveAnchor(anchor, [diameter, diameter])
     )
     move(offset, path);
-	
-
-
 
 // Function: cornerProfile()
 //
@@ -279,7 +262,7 @@ function pipeProfile(
 //   anchor = Anchor point for the path origin (default: [0, 0]).
 // Returns:
 //   Closed list of 2D points forming the corner’s cross-section.
-// Example(2D):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   region(cornerProfile(width = 100,height=100,thickness=10,rounding=3));  
 function cornerProfile(
 		width		= first_defined([is_undef(width) 	? undef : width ,		is_undef($profile_width) 	? 0 : $profile_width] 		), 
@@ -329,7 +312,7 @@ function cornerProfile(
 //   anchor 	= Anchor point for the path origin (default: CENTER).
 // Returns:
 //   Closed list of 2D points forming the channel’s cross-section.
-// Example(2D):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   region(channelProfile( width = 50, height = 50, thickness= 6,rounding = 1));  	
 function channelProfile(
 	width		= first_defined([is_undef(width) 	? undef : width ,		is_undef($profile_width) 	? 0 : $profile_width] ), 
@@ -374,7 +357,7 @@ function channelProfile(
 //   anchor 			= Anchor point for the path origin (default: CENTER).
 // Returns:
 //   Closed list of 2D points forming the I-beam’s cross-section.
-// Example(2D):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   region(iBeamProfile(height=50,width=50,web_thickness =3,flange_thickness = 5 ,rounding=2));
 function iBeamProfile(
 	width		  = first_defined([is_undef(width) 			? undef : width ,		is_undef($profile_width) 	? 0 : $profile_width] ), 
@@ -422,7 +405,7 @@ function iBeamProfile(
 //   anchor 			= Anchor point for the path origin (default: CENTER).
 // Returns:
 //   Closed list of 2D points forming the T-beam’s cross-section.
-// Example(2D):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   region(tBeamProfile(height=50,width=50,web_thickness =4,flange_thickness = 5 ,rounding=2));
 function tBeamProfile(
 	width		  = first_defined([is_undef(width) 			? undef : width ,		is_undef($profile_width) 	? 0 : $profile_width] ), 
@@ -475,7 +458,7 @@ function tBeamProfile(
 //   anchor = Anchor point for the path origin (default: CENTER).
 // Returns:
 //   Closed list of 2D points forming the rail's cross-section.
-// Example(2D):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   region(railProfile(width=80, height=100, thickness=10, head_width=40, head_height=20, foot_width=80, rounding=3, anchor=CENTER));
 function railProfile(
 	width = first_defined([is_undef(width) ? undef : width, is_undef($profile_width) ? 80 : $profile_width]),
@@ -550,7 +533,7 @@ function railProfile(
 //   If property is defined, returns the specific property value for the metal.
 //   If property is not defined, returns the complete specification structure for the metal.
 // Example(NORENDER):
-//   steel_density = metalSpecs("Steel", MATERIAL_DENSITY);
+//   steel_density  = metalSpecs("Steel", MATERIAL_DENSITY);
 //   aluminum_specs = metalSpecs("Aluminum");
 //
 function metalSpecs(metal_name, property) =

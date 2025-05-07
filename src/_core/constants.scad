@@ -136,7 +136,7 @@ function mm2_to_m2(mm2) =
 // Arguments:
 //   volume_mm3 = Volume in cubic millimeters (scalar).
 // Returns: Volume in cubic meters.
-// Example(3D,Small,ColorScheme=Nature):
+// Example(3D,Small,ColorScheme=Tomorrow):
 //   volume_mm3 = 3000 * 3000 * 200; // 3m x 3m x 200mm slab
 //   volume_m3 = mm3_to_m3(volume_mm3);
 //   echo("Volume:", volume_m3, "m³"); // Outputs: Volume: 1.8 m³
@@ -227,7 +227,7 @@ function isVertical( dir ) 		= dir.x == 0;
 // Usage:
 //   level = rendering(); // Get current rendering level
 // Example: Conditional rendering based on level
-//   ColorScheme=Nature
+//   ColorScheme=Tomorrow
 //   level = rendering();
 //   if (level == RENDER_SIMPLIFIED) {
 //       cube(10, center=true);
@@ -290,9 +290,9 @@ function valueByRendering( simple,standard,detailed ) =
 //   corners(face); // Returns bottom face corners
 // Example(3D,ColorScheme=Tomorrow): Attaching cuboid to top corners
 //    cuboid(50) attach(TOP, BOT,align=corners(TOP)) cuboid(10,$color="Blue");
-// Example(3D,ColorScheme=Nature): Attaching cuboid to right corners
+// Example(3D,ColorScheme=Tomorrow): Attaching cuboid to right corners
 //    cuboid(50) attach(RIGHT,LEFT, align=corners(RIGHT)) cuboid(10,$color="Red");
-// Example(3D,ColorScheme=Nature): Attaching cuboid to front corners
+// Example(3D,ColorScheme=Tomorrow): Attaching cuboid to front corners
 //    cuboid(50) attach(FRONT,BACK, align=corners(FRONT)) cuboid(10,$color="Green");
 function corners(face) =
     let(

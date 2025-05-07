@@ -119,11 +119,11 @@ function trace2Bezier(tracePath, resolution=3,meters = true) =
 //    height = Height of the parallelogram base. [default: 5]
 //    skew   = Horizontal offset (skew) applied to the top edge. [default: 5]
 //    depth  = Extrusion depth along the Z-axis.
-// Example(3D,ColorScheme=Nature) :  Simple 
+// Example(3D,ColorScheme=Tomorrow) :  Simple 
 //    parallelepiped( width=20, height=10, skew=5, depth=8);
-// Example(3D,ColorScheme=Nature) :  With bottom and top width
+// Example(3D,ColorScheme=Tomorrow) :  With bottom and top width
 //    parallelepiped( width1=25, width2=15, height=10, skew=5, depth=8);
-// Example(3D,ColorScheme=Nature) :  Rounded
+// Example(3D,ColorScheme=Tomorrow) :  Rounded
 //    parallelepiped( width=20, height=10, skew=5, depth=8, rounding = 3);
 module parallelepiped( 
 	width,
@@ -183,11 +183,11 @@ module parallelepiped(
 //   orient    = Orientation of the gable [default: UP].
 // Usage:
 //   gableShape(length=10, width=8, pitch=30, thickness=1);
-// Example(3D,ColorScheme=Nature): Gable shape closed
+// Example(3D,ColorScheme=Tomorrow): Gable shape closed
 //   gableShape(length=10, width=8, pitch=45, thickness=1, closed=true);
-// Example(3D,ColorScheme=Nature): Open gable with height specified
+// Example(3D,ColorScheme=Tomorrow): Open gable with height specified
 //   gableShape(length=12, width=10, height=5, thickness=0.5, closed=false);
-// Example(3D,ColorScheme=Nature): Gable spinned
+// Example(3D,ColorScheme=Tomorrow): Gable spinned
 //   gableShape(length=12, width=10, height=5, thickness=0.5, closed=true, spin=90 );
 module gableShape(
     length,
@@ -249,6 +249,41 @@ module gableShape(
         children();
     }
 }
+
+// Module: pieSlice()
+//
+// Synopsis: Creates a 3D pie slice (cylindrical sector) with specified dimensions
+// Topics: Shapes, Geometry, 3D, Cylinders
+// Description:
+//   Creates a 3D pie slice by extruding a 2D sector of a circle.
+//   The slice starts at 0 degrees and extends counterclockwise by the specified angle.
+//   The shape includes the center point and creates a solid piece with flat sides.
+//
+// Arguments:
+//   radius 	= Radius of the pie slice from center to outer edge
+//   angle  	= Angle of the slice in degrees (0 to 360)
+//   height 	= Height/thickness of the slice
+//   anchor 	= Position anchor for the slice. Default: CENTER
+//   spin   	= Rotation angle in degrees. Default: 0
+//
+// Example(3D,ColorScheme=Tomorrow): Quarter circle slice
+//   pieSlice(radius=50, angle=90, height=20);  
+//
+// Example(3D,ColorScheme=Tomorrow): Third of a circle
+//   pieSlice(radius=30, angle=120, height=15);  
+module pieSlice( radius,angle = 90, height=5 , anchor, spin ,orient ) {
+	bounding_size = [radius*2,radius*2,height];
+	attachable(anchor, spin, orient = orient, size = bounding_size,cp=[0,0,height/2] )   {
+		// Generate points for the curved edge
+		points = [ for (a = [0 : 1 : angle]) [ radius * cos(a), radius * sin(a) ] ];
+		// Create the complete set of points including center
+		full_shape = concat([[0, 0]], points);
+		// Extrude the 2D shape to create 3D pie slice
+		linear_extrude(height=height) polygon(points=full_shape);
+		children();
+	}		
+}
+
 
 module bendExtrude( size, thickness, angle, frags = 24 ) {
     x = size.x;

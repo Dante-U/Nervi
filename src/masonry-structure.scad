@@ -23,8 +23,8 @@ include <space.scad>
 //   metadata in $meta for BIM integration. In IFC, maps to IfcSlab with PredefinedType=BASESLAB.
 //
 // Arguments:
-//   length 	= Length in meters (default: $space_length or 1).
-//   width 		= Width in meters (default: $space_width or 1).
+//   l 			= Length in meters (default: $space_length or 1).
+//   w 			= Width in meters (default: $space_width or 1).
 //   wall 		= Wall thickness in mm (default: $space_wall or 0).
 //   thickness 	= Slab thickness in mm (default: 180).
 //   material 	= Material name from masonry.scad (default: "Concrete").
@@ -34,7 +34,7 @@ include <space.scad>
 //   info 		= If true, generates metadata (default: true).
 //   ifc_guid 	= IFC global unique identifier (optional).
 //
-// Example(3D,ColorScheme=Nature): Automatic sizing slab with parent space
+// Example(3D,ColorScheme=Tomorrow): Automatic sizing slab with parent space
 //   space(3,3,2,debug=true,except=[FRONT,RIGHT])
 //      color("IndianRed") slab();
 module slab( 
@@ -107,9 +107,9 @@ module slab(
 //   ifc_guid = IFC global unique identifier (optional).
 // Side Effects:
 //   $meta = Stores metadata (name, volume, weight, unit_price, cost, IFC properties) if info=true.
-// Example(3D,Big,ColorScheme=Nature): Simple wall footing
+// Example(3D,Big,ColorScheme=Tomorrow): Simple wall footing
 //   wallFooting(l=5, w=0.6, thickness=300);    
-// Example(3D,Big,ColorScheme=Nature): Wall footing for space 
+// Example(3D,Big,ColorScheme=Tomorrow): Wall footing for space 
 //   space(4,4,0.4,debug=true)
 //      color("IndianRed") wallFooting(w=0.6, thickness=300);   
 module wallFooting(
@@ -203,7 +203,7 @@ module wallFooting(
 //   ifc_guid = IFC global unique identifier (optional).
 // Side Effects:
 //   $meta = Stores metadata (name, volume, weight, unit_price, cost, IFC properties) if info=true.
-// Example(3D,Big,ColorScheme=Nature): Footing pad with top pillar
+// Example(3D,Big,ColorScheme=Tomorrow): Footing pad with top pillar
 //   include <wood-structure.scad>
 //   color_this("IndianRed") 
 //   footingPad (l=0.6, w=0.6, thickness=300 )
@@ -283,7 +283,7 @@ module footingPad(
 //   ifc_guid 	= IFC global unique identifier (optional).
 // Side Effects:
 //   $meta = Stores metadata (name, volume, weight, unit_price, cost, IFC properties) if info=true.
-// Example(3D,Big,ColorScheme=Nature):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   footingPileCap(length=2, width=2, thickness=600, material="Concrete", unit_price=120);
 //footingPileCap(length=2, width=2, thickness=600, material="Concrete", unit_price=120);
 module footingPileCap(
@@ -356,7 +356,7 @@ module footingPileCap(
 //   ifc_guid 	= IFC global unique identifier (optional).
 // Side Effects:
 //   $meta = Stores metadata (name, volume, weight, unit_price, cost, IFC properties) if info=true.
-// Example(3D,Big,ColorScheme=Nature):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   footingCaisson(diam=1.2, depth=4000, material="Concrete", unit_price=120);
 //footingCaisson(diam=1.2, depth=4000, material="Concrete", unit_price=120);
 module footingCaisson(
@@ -427,7 +427,7 @@ module footingCaisson(
 //   ifc_guid 	= IFC global unique identifier (optional).
 // Side Effects:
 //   $meta = Stores metadata (name, volume, weight, unit_price, cost, IFC properties) if info=true.
-// Example(3D,Big,ColorScheme=Nature):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   pile(diam=0.4, depth=12000, type="BORED", material="Concrete", unit_price=120);
 module pile(
     diam = 0.3,

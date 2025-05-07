@@ -25,9 +25,9 @@ include <_materials/wood.scad>
 //    plate_size  	= Plate dimensions [width, depth] in mm [default: [38.1, 88.9] (2x4)].
 //
 // See Also: stack()
-// Example(3D,ColorScheme=Nature): 
+// Example(3D,ColorScheme=Tomorrow): 
 //    studWallFrame(l=4, h=2.438, stud_spacing=16*INCH);
-// Example(3D,ColorScheme=Nature): Wood framed attached to space wall
+// Example(3D,ColorScheme=Tomorrow): Wood framed attached to space wall
 //    include <space.scad>	
 //    space (3,1,2,debug=true)
 //       attachWalls([FWD],placement="outside") 
@@ -152,7 +152,7 @@ module studWallFrame(
 // Side Effects:
 //    `$floor_length` is set to the floor length in meters.
 //    `$floor_width` is set to the floor width in meters.
-// Example(3D,Big,ColorScheme=Nature): Simple 3x2 trunk platform
+// Example(3D,Big,ColorScheme=Tomorrow): Simple 3x2 trunk platform
 //   trunkPlatform( l=2, w =3 , h = 0.5, spacing= [1,1], log_diam = 200 );
 module trunkPlatform( 
     l	= 3,    
@@ -243,9 +243,9 @@ module trunkPlatform(
 //    spin = Rotation angle in degrees around Z-axis (BOSL2 style) [default: undef].
 // Usage:
 //    joist(l=2, w=1, spacing=400, dir=BACK);
-// Example(3D,ColorScheme=Nature,NoAxes): Joists along length
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Joists along length
 //    joist(l=2, w=1, spacing=400, section=[120, 40], dir=BACK);
-// Example(3D,ColorScheme=Nature,NoAxes): Joists along width
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Joists along width
 //    joist(l=2, w=1, spacing=400, section=[150, 50], dir=RIGHT);
 module joist(
     l 		= is_undef($floor_length) ? undef : $floor_length,
@@ -320,9 +320,9 @@ module joist(
 // See Also: trunkPlatform()
 // Usage:
 //    deck(l=1, w=1.5, section=[100, 10], gap=10, dir=BACK);
-// Example(3D,ColorScheme=Nature): Deck with planks along length
+// Example(3D,ColorScheme=Tomorrow): Deck with planks along length
 //    deck(l=0.6, w=0.3, section=[120, 15], gap=25, dir=BACK, material="Wood");
-// Example(3D,ColorScheme=Nature,NoAxes): Deck with planks along width
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Deck with planks along width
 //    deck(l=0.6, w=0.3, section=[150, 20], gap=20, dir=RIGHT);
 module deck(
     l 		= is_undef( $floor_length ) ? undef : $floor_length,
@@ -391,7 +391,7 @@ module deck(
 //    spin 			= Rotation angle in degrees (BOSL2 style) [default: undef].
 //    debug 		= If true, renders ghost geometry [default: false].
 
-// Example(3D,ColorScheme=Nature,NoAxes,Huge): Space with front cladding
+// Example(3D,ColorScheme=Tomorrow,NoAxes,Huge): Space with front cladding
 //   include <space.scad>
 //   space(3,2,2.4,debug=true)
 //   	attachWalls([FWD],placement="outside") 
@@ -506,7 +506,7 @@ module cladding(
 //   anchor 		= Anchor point for positioning. [default: BOT]
 //   orient 		= Orientation of the structure. [default: UP]
 //   spin 			= Rotation around the orientation axis. [default: 0]
-// Example(3D,ColorScheme=Nature): 
+// Example(3D,ColorScheme=Tomorrow): 
 //   vPanels(l=6, h=4, grid=[5,3]);
 module vPanels( 
 		l          		= is_def($wall_length) ? $wall_length : undef,    
@@ -584,11 +584,11 @@ module vPanels(
 //   indexed 		= If true, uses unique indices for panels. Default: false
 //   orient 		= Orientation of the sheathing. Default: undef
 //   spin 			= Rotation of the sheathing. Default: undef
-// Example(ColorScheme=Nature): Sheathing with indexed panels
+// Example(ColorScheme=Tomorrow): Sheathing with indexed panels
 //   woodSheathing(l=3, h=2, indexed=true);  
-// Example(ColorScheme=Nature): Plywood with panels of 1x1m
+// Example(ColorScheme=Tomorrow): Plywood with panels of 1x1m
 //   woodSheathing(l=2, h=1.220,panel=[1000,1000], material="Plywood"); 
-// Example(ColorScheme=Nature): Sheathing with metadata output
+// Example(ColorScheme=Tomorrow): Sheathing with metadata output
 //   woodSheathing(l=2, h=1.5, info=true);  
 module woodSheathing(
 	l       		= first_defined([is_undef(l) ? undef: l ,$wall_length]),
@@ -729,9 +729,9 @@ module woodSheathing(
 //   spin       = Rotation around Z-axis in degrees. Default: 0
 //   orient     = Orientation vector. Default: UP
 //
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   plank(length=1000, width=200, thickness=30, material="Pine");
-// Example(3D,ColorScheme=Nature): Provide Info  
+// Example(3D,ColorScheme=Tomorrow): Provide Info  
 //   plank(length=1000, width=200, thickness=20, material="Pine", info = true,cubic_price=600  );
 module plank(
 	length		= first_defined([is_undef(length) 	 ? undef: length, 	is_undef($plank_length) 	? undef : $plank_length]),
@@ -819,7 +819,7 @@ module plank(
 //   Objects to attach to the pillar.
 // Usage:
 //   rectPillar(l,section); 
-// Example(3D,ColorScheme=Nature): Simple pillar with rounding
+// Example(3D,ColorScheme=Tomorrow): Simple pillar with rounding
 //   rectPillar(l=1, section=[150, 200], rounding=5);
 module rectPillar(l,section,material= "Wood",rounding = 0,anchor,spin) {
 	assert( is_meters(l),			"[rectPillar] [l] is undefined.");
@@ -861,13 +861,13 @@ module rectPillar(l,section,material= "Wood",rounding = 0,anchor,spin) {
 //   Objects to attach to the pillar.
 // Usage:
 //   obliquePillar(l, section1,section2,angle,offset); 
-// Example(3D,ColorScheme=Nature): Oblique pillar using angleX
+// Example(3D,ColorScheme=Tomorrow): Oblique pillar using angleX
 //   obliquePillar(l=1, section1=[100, 100], angleX=20);
-// Example(3D,ColorScheme=Nature): Oblique pillar using offsetX
+// Example(3D,ColorScheme=Tomorrow): Oblique pillar using offsetX
 //   obliquePillar(l=1, section1=[100, 100], offsetX=300);
-// Example(3D,ColorScheme=Nature): Oblique pillar using angleY and different sections
+// Example(3D,ColorScheme=Tomorrow): Oblique pillar using angleY and different sections
 //   obliquePillar(l=1, section1=[200, 200], section2=[150, 150],angleY=25);
-// Example(3D,ColorScheme=Nature,NoAxes): Test with TOP attachments
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Test with TOP attachments
 //   cuboid([800,800,100])
 //      attach(TOP,BOT,align=corners(BOT))
 //         obliquePillar(
@@ -877,7 +877,7 @@ module rectPillar(l,section,material= "Wood",rounding = 0,anchor,spin) {
 //            offsetY=$align[Y] * 300,
 //            anchor=BOT+$align
 //         );
-// Example(3D,ColorScheme=Nature,NoAxes): Test with BOTTOM attachments
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Test with BOTTOM attachments
 //   cuboid([800,800,100])
 //      attach(BOT,TOP,align=corners(BOT))
 //         obliquePillar(

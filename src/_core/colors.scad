@@ -66,11 +66,11 @@ material_colors = struct_set([], [
 //    name 			= Material name (e.g., "Wood", "Metal", "Glass").
 //    transparency  = Transparency 
 //    deep  		= If false color at current level only 
-// Example(3D,Small,ColorScheme=Nature,NoAxes): Wood
+// Example(3D,Small,ColorScheme=Tomorrow,NoAxes): Wood
 //   material("Wood") cube([20,20,20]); 
-// Example(3D,Small,ColorScheme=Nature): Clearing
+// Example(3D,Small,ColorScheme=Tomorrow): Clearing
 //   material("Clearing",0.2) cube([20,20,20]); 
-// Example(3D,Small,ColorScheme=Nature): Ghost
+// Example(3D,Small,ColorScheme=Tomorrow): Ghost
 //   material("Ghost") cube([20,20,20]); 
 //
 module material( name, transparency, deep= true ,default ) {
@@ -102,7 +102,7 @@ module material( name, transparency, deep= true ,default ) {
 //    If the material is not found, it returns "default" as a default color.
 // Arguments: 
 //    material = A string representing the material name (e.g., "Wood", "Metal").
-// Example(3D,Small,ColorScheme=Nature,NoAxes): 
+// Example(3D,Small,ColorScheme=Tomorrow,NoAxes): 
 //   cuboid(600,$color=matColor("Sand"));
 //
 function matColor( material ) =
@@ -147,13 +147,13 @@ function matColorSpec( material, fallBack ) =
 //   If $color is undef, the geometry is rendered with the default color.
 //   Useful for ensuring consistent color application across BOSL2 and native OpenSCAD modules.
 //   Especially usefull with linear_extrude
-// Example(ColorScheme=Nature)
+// Example(ColorScheme=Tomorrow)
 //   $color = "Blue";
 //   apply_color() cuboid(20);  // Blue cuboid
-// Example(ColorScheme=Nature)
+// Example(ColorScheme=Tomorrow)
 //   $color = "Blue";
 //   apply_color() linear_extrude(50) rect(60);  // Blue extruded rectangle
-// Example(ColorScheme=Nature)
+// Example(ColorScheme=Tomorrow)
 //   apply_color() cuboid(20);  // Default color (no $color defined)
 module apply_color() {
   if (is_def($color) && $color != "default") {

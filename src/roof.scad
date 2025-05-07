@@ -31,15 +31,15 @@ use <_core/debug.scad>
 //   h          = Height of the base structure [default: $space_height].
 //   wall       = Wall thickness [default: $space_wall].
 //   debug      = Enable debug mode for visualization [default: false].
-// Example(3D,ColorScheme=Nature): Gable along Y-axis
+// Example(3D,ColorScheme=Tomorrow): Gable along Y-axis
 //   include <space.scad>
 //   space(10,8,5,debug=true) 
 //      gableRoof(pitch=30, axis=RIGHT, debug=true);
-// Example(3D,ColorScheme=Nature): Gable along X-axis
+// Example(3D,ColorScheme=Tomorrow): Gable along X-axis
 //   include <space.scad>
 //   space(2,2,1.7,except=[LEFT,RIGHT],debug=true)    
 //      gableRoof(pitch=25,axis=BACK, closed = false); 
-// Example(3D,ColorScheme=Nature): Gable roof closed
+// Example(3D,ColorScheme=Tomorrow): Gable roof closed
 //   include <space.scad>
 //   space(2,2,1.7,except=[LEFT,RIGHT],debug=true)    
 //      gableRoof( axis=BACK, pitch=25, closed = true); 
@@ -127,19 +127,19 @@ module gableRoof(
 //   l          = Length of the roof base [default: $space_length].
 //   w          = Width of the roof base [default: $space_width].
 //   wall       = Wall thickness [default: $space_wall].
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   include <space.scad>
 //   space(l=2,w=2,h=3,debug=true) 
 //       roofCut(angle=45, rot_axis=RIGHT) cuboid([10, 8, 5], chamfer=0.5);
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   include <space.scad>
 //   space(l=2,w=2,h=3,debug=true) roofCut( angle = 20, rot_axis = FWD,rot_anchor = RIGHT ) simpleRoof();
-// Example(3D,ColorScheme=Nature): Axis FWD and Anchor LEFT
+// Example(3D,ColorScheme=Tomorrow): Axis FWD and Anchor LEFT
 //   include <space.scad>
 //   space(l=2,w=2,h=3,debug=true) {
 //      roofCut( angle = 20, rot_axis = FWD,rot_anchor = LEFT ) simpleRoof();
 //   };
-// Example(3D,ColorScheme=Nature): Axis LEFT and Anchor BACK
+// Example(3D,ColorScheme=Tomorrow): Axis LEFT and Anchor BACK
 //   include <space.scad>
 //   space(l=2,w=2,h=3,debug=true) {
 //      roofCut( angle = 20, rot_axis = LEFT,rot_anchor = BACK ) simpleRoof();
@@ -229,12 +229,12 @@ module roofCut(
 //   $roof_type = Set to "hipped".
 //   $roof_pitch = Set to pitch value.
 //   $roof_edges = Stores ridge and hip edges for external use.
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   include <space.scad>	
 //   space(3,2,2.4,200,debug=true) 
 //      attach(TOP) highlight()
 //         hippedRoof(pitch=30, debug=true);
-// Example(3D,ColorScheme=Nature): Attach to a named anchor
+// Example(3D,ColorScheme=Tomorrow): Attach to a named anchor
 //   include <space.scad>	
 //   space(3,2,2.4,200,debug=true) 
 //      attach(TOP) highlight_this()
@@ -328,13 +328,13 @@ module hippedRoof(
 //   section = 2D vector [x, y] for rafter cross-section width (Y) and height (Z) [default: [3*INCH, 4*INCH]].
 //   material = Material name for properties (e.g., "Wood2") [default: "Wood2"].
 /*
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   $roof_edges = struct_set([], ["ridge", [[-100, 0, 50], [100, 0, 50]]]);
 //   ridgeBeam(section=[50, 100], material="Oak");
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   $roof_edges = struct_set([], ["ridge", [[0, -50, 60], [0, 50, 60]]]);
 //   ridgeBeam();
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   $roof_edges = struct_set([], ["ridge", undef]);
 //   ridgeBeam(section=[75, 150], material="Pine");
 */
@@ -365,13 +365,13 @@ module ridgeBeam(section = [ 3*INCH, 4*INCH ],material="Wood2"){
 //   material = Material name for properties (e.g., "Wood2") [default: "Wood2"].
 
 /*
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   $roof_edges = struct_set([], ["hips", [[[0,0,0], [100,100,50]], [[100,0,0], [0,100,50]]]]);
 //   hipsBeam(section=[50, 100], material="Oak");
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   $roof_edges = struct_set([], ["hips", [[[0,0,0], [200,200,100]]]]);
 //   hipsBeam();
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   $roof_edges = struct_set([], ["hips", []]);
 //   hipsBeam(section=[75, 150], material="Pine");
 */
@@ -406,7 +406,7 @@ module hipsBeam(section = [ 3*INCH, 4*INCH ],material="Wood2"){
 //   dir 			= Direction of rafter alignment: VERTICAL or HORIZONTAL [default: VERTICAL].
 //   info 			= If true, computes and stores metadata in $meta [default: true].
 //   unit_price 	= Cost per linear meter of rafter [default: 100].
-// Example(3D,Huge,ColorScheme=Nature):
+// Example(3D,Huge,ColorScheme=Tomorrow):
 //   include <space.scad>
 //   space(2,3,2,200,debug=true) 
 //      attach(TOP)
@@ -476,11 +476,11 @@ module roofFrame(rafter_section = [ 2*INCH, 4*INCH ], spacing = 400 ,material="P
 //   spin 		= Rotation angle (degrees) around Z-axis [default: 0].
 //   rounding 	= Corner radius for smoothing edges [default: 0].
 //   debug 		= If true, shows 2D profile instead of 3D extrusion [default: false].
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   rafter(section=[2, 4], length=10, pitch1=30, pitch2=30, rounding=0.5);
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   rafter(section=[2, 4], length=8, anchor=CENTER, debug=true);
-// Example(3D,ColorScheme=Nature):
+// Example(3D,ColorScheme=Tomorrow):
 //   rafter(section=[3, 5], length=12, pitch1=-45, spin=45);
 module rafter(section,length,pitch1 = 0,pitch2 = 0,anchor = BOT,material = "Wood",spin,rounding = 0,debug = false) {
 	bounding = [ length ,section.x, section.y ];

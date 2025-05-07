@@ -15,7 +15,8 @@ Nervi is actively under development and not yet stable. Features may change, bug
 
 
 Open-Source: Licensed under the MIT License for maximum flexibility.
-## Installation
+
+## Installation
 
 - Download Nervi:
 	- Clone the repository: git clone https://github.com/[your-username]/nervi.git
@@ -25,12 +26,14 @@ Open-Source: Licensed under the MIT License for maximum flexibility.
 - Add to OpenSCAD:
 	- Place the Nervi folder in your OpenSCAD library path or include it in your project directory.
 	- Include Nervi in your .scad file: include <nervi/nervi.scad>
-## Usage
+
+## Usage
 
 Nervi provides a suite of modules and functions to model architectural spaces parametrically. Below is an example inspired by the masterSuite usage:
 openscad
 
-```openscadinclude <nervi/nervi.scad>
+```openscad
+include <nervi/nervi.scad>
 include <BOSL2/std.scad>
 
 module masterSuite(l=3, w=2, h=2.5) {
@@ -62,18 +65,20 @@ This example creates a 3x2x2.5 m room with 0.2 m walls, openings on the left and
 - divider(): Generates internal partition walls within a space.
 - spaceWrapper(): Wraps a space with a bounding box for attachments.
 - roomBound(): Calculates the room’s bounding box, including wall thickness.
-See the wiki documentation for detailed usage and examples.
+
+See the wiki documentation for detailed usage and examples.
 
 ## Documentation
 Nervi’s documentation follows the openscad_docsgen format. Each module and function includes:
 
 - Synopsis: A brief overview.
-- Topics: Relevant categories (e.g., Architecture, Geometry).
+- Topics: Relevant categories (e.ColorScheme=TomorrowGeometry).
 - Description: Detailed explanation.
 - Arguments: Parameter descriptions.
 - Context Variables: Dependencies on $space_* variables.
 - Examples: Visual examples with ColorScheme=Nature.
-Explore the wiki for generated documentation.
+
+Explore the wiki for generated documentation.
 
 ## Contributing
 Nervi is a work in progress, and contributions are welcome! To contribute:
@@ -83,13 +88,15 @@ Fork the repository.
 - Commit changes: git commit -m "Add your feature".
 - Push to the branch: git push origin feature/your-feature.
 - Open a pull request.
-Please follow the Code of Conduct (CODE_OF_CONDUCT.md) and ensure code adheres to Nervi’s best practices (e.g., `https://github.com/BelfrySCAD/openscad_docsgen` documentation, BOSL2 compatibility).
+
+Please follow the Code of Conduct (CODE_OF_CONDUCT.md) and ensure code adheres to Nervi’s best practices (e.g., `https://github.com/BelfrySCAD/openscad_docsgen` documentation, BOSL2 compatibility).
 
 ## License
 Nervi is licensed under the MIT License. See the LICENSE file for details.
 plaintext
 
-```Copyright (c) 2025 Kalpana
+```
+Copyright (c) 2025 Kalpana
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -110,7 +117,8 @@ Nervi is under active development!
 - Some features (e.g., advanced IFC metadata, furniture placement) are incomplete.
 - Bugs or performance issues may arise in complex models.
 - Test thoroughly before using in production, and report issues on GitHub Issues (#).
-## Inspiration
+
+## Inspiration
 
 Named after Pier Luigi Nervi, whose innovative concrete structures (e.g., Palazzo dello Sport in Rome) revolutionized architecture, Nervi aims to empower parametric design with the same spirit of creativity and precision. The library draws on Nervi’s legacy to provide tools for architects and designers to craft intricate, functional spaces.
 

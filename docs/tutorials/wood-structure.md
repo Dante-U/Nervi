@@ -6,7 +6,7 @@
 
 The following module creates wall frame with top and bottom plates and vertical studs.
 
-```openscad-3D;ColorScheme=Nature;Huge
+```openscad-3D;ColorScheme=Tomorrow;Huge
 include <Nervi/space.scad>
 include <Nervi/wood-structure.scad>
 space (3.20,1,2,debug=true)
@@ -17,13 +17,13 @@ space (3.20,1,2,debug=true)
 The spacing is defined with the **stud_spacing** argument in mm. Direction argument is defining if the remaining space should be defined LEFT or RIGHT.
 <!--
 
-```openscad-3D,;ColorScheme=Nature;Big
+```openscad-3D,;ColorScheme=Tomorrow;Big
 include <Nervi/space.scad>
 include <Nervi/wood-structure.scad>
     space (1.10,0.3,1,debug=true) attachWalls([FWD],placement="outside") studWallFrame(direction=LEFT); 
 ```
 
-```openscad-3D;ColorScheme=Nature;Big
+```openscad-3D;ColorScheme=Tomorrow;Big
 include <Nervi/space.scad>
 include <Nervi/wood-structure.scad>
     space (1.10,0.3,1,debug=true) attachWalls([FWD],placement="outside") studWallFrame(direction=RIGHT); 
@@ -117,11 +117,13 @@ trunkPlatform(
 - groundedMaterial (string): Material for buried log portions (default: "Tar").
 - debug (boolean): If true, shows ghosted bounding box and buried logs (default: false).
 - spin (number): Rotation around Z-axis in degrees (optional).
-### Side Effects
+
+### Side Effects
 
 - $floor_length: Set to platform length in meters.
 - $floor_width: Set to platform width in meters.
-### Description
+
+### Description
 Generates a 3D platform with vertical logs arranged in a grid and horizontal beams forming the deck. Vertical logs are buried below ground (depth = h * burial_depth_factor), and horizontal beams are oriented along beam_dir. The module uses BOSL2 for positioning and supports material-based rendering from wood.scad.
 
 

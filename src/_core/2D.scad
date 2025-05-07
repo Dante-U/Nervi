@@ -27,9 +27,9 @@ include <BOSL2/rounding.scad>
 //   angle 	= The angle in degrees where the radius is calculated
 //   base 	= The starting radius at angle 0 [default: 10]
 //
-// Examples(2D, ColorScheme=Nature): Basic golden spiral for 2 full rotations
+// Examples(2D, ColorScheme=Tomorrow): Basic golden spiral for 2 full rotations
 //   polygon([for(a = [0:5:720])[radius(a) * cos(a), radius(a) * sin(a)]], convexity=10);
-// Examples(2D, ColorScheme=Nature): Golden spiral with custom base size
+// Examples(2D, ColorScheme=Tomorrow): Golden spiral with custom base size
 //   color("darkgreen") polygon([for(a = [0:5:540]) [radius(a) * cos(a), radius(a) * sin(a)]], convexity=10);
 function radius( angle ) = 10 * pow(phi(), (angle / 90));
 
@@ -53,7 +53,7 @@ function radius( angle ) = 10 * pow(phi(), (angle / 90));
 //
 // Example: Display the value of phi
 //   echo("Golden ratio (φ):", phi()); // Outputs approximately 1.618033988749895
-// Examples(2D, ColorScheme=Nature): Draw a golden rectangle (width:height ratio = φ:1)
+// Examples(2D, ColorScheme=Tomorrow): Draw a golden rectangle (width:height ratio = φ:1)
 //   square([50, 50/phi()]);
 //
 function phi() = (1 + sqrt(5)) / 2;	
@@ -77,9 +77,9 @@ function phi() = (1 + sqrt(5)) / 2;
 //    spin 			= Rotation angle in degrees around Z (BOSL2 style) [default: 0].
 // Usage:
 //    arc(radius=50, thickness=10, start_angle=0, end_angle=180);
-// Example(3D,ColorScheme=Nature,NoAxes): Half-circle arc
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Half-circle arc
 //    linear_extrude(height=2) arc( radius=50, thickness=5, start_angle=0, end_angle=180);
-// Example(3D,ColorScheme=Nature,NoAxes): Quarter-circle arc
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Quarter-circle arc
 //    linear_extrude(height=3) arc( radius=30, thickness=8, end_angle=90);
 module arc(radius, thickness, start_angle = 0, end_angle) {
     difference() {
@@ -97,8 +97,6 @@ module arc(radius, thickness, start_angle = 0, end_angle) {
                     square(radius * 4, center=true);
     }
 }
-//linear_extrude(height=2) arc(radius=50, thickness=5, start_angle=0, end_angle=180);
-//linear_extrude(height=3) arc( radius=30, thickness=8, end_angle=89);
 
 // Module: goldenRectangle()
 // 
@@ -123,9 +121,9 @@ module arc(radius, thickness, start_angle = 0, end_angle) {
 //    A 3D object combining a golden spiral and its bounding rectangle, attachable to children.
 // Usage:
 //    goldenRectangle(max_width, max_height,[center],[spiral_thickness],[rect_thickness],[anchor],[spin]);
-// Example(3D,ColorScheme=Nature,NoAxes): Rectangle with spiral (max width)
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Rectangle with spiral (max width)
 //    goldenRectangle(max_width=100, spiral_thickness=3, rect_thickness=2);
-// Example(3D,ColorScheme=Nature,NoAxes): Centered with max height
+// Example(3D,ColorScheme=Tomorrow,NoAxes): Centered with max height
 //    goldenRectangle(max_height=61.8, center=true, spiral_thickness=2);	
 module goldenRectangle(
     max_width,
@@ -160,7 +158,7 @@ module goldenRectangle(
     attachable(size=bounding, anchor=anchor, spin=spin, cp=[bounding[0]/2, bounding[1]/2, 0]) {
 		union(){
 			// Rectangle
-			color("BurlyWood") // Pine color for ColorScheme=Nature
+			color("BurlyWood") // Pine color for ColorScheme=Tomorrow
 				linear_extrude(height=rect_thickness)
 					stroke(rect_points, closed=true, width=rect_thickness/2);
 
@@ -178,6 +176,7 @@ module goldenRectangle(
 
 
 // Module: vesicaPiscis()
+//
 // Synopsis: Creates a 2D Vesica Piscis shape.
 // Topics: Geometry, 2D Shapes
 // Description:
@@ -190,9 +189,9 @@ module goldenRectangle(
 //   Optional 2D children to combine with the shape.
 // Usage:
 //   vesicaPiscis(r); 
-// Example(2D,ColorScheme=Nature,NoAxes): Simple Vesica Piscis
+// Example(2D,ColorScheme=Tomorrow,NoAxes): Simple Vesica Piscis
 //   stroke(vesicaPiscis(r=20));
-// Example(2D,ColorScheme=Nature,NoAxes): Vesica piscis with width 100  and height 50
+// Example(2D,ColorScheme=Tomorrow,NoAxes): Vesica piscis with width 100  and height 50
 //   stroke(vesicaPiscis(w=100,h=50));
 function vesicaPiscis(r,ratio = 2, w,h ,plain = false,fn=100) =
 	let(
@@ -221,7 +220,7 @@ function vesicaPiscis(r,ratio = 2, w,h ,plain = false,fn=100) =
 //    rounding = Radius for rounded corners, if defined and > 0. [default: undef]
 // Returns:
 //    A list of 2D points representing the closed parallelogram path.
-// Example(2D,ColorScheme=Nature)
+// Example(2D,ColorScheme=Tomorrow)
 //    polygon(parallelogram(width=20, width1=25, width2=15, height=10, skew=5, rounding=2));
 function parallelogram(width,width1,width2, height=5, skew=5, rounding) = 
 	let (
@@ -250,7 +249,7 @@ function parallelogram(width,width1,width2, height=5, skew=5, rounding) =
 // Arguments:
 //   points = List of 2D points
 //
-// Examples(2D, ColorScheme=Nature): Calculate bounding rectangle of an irregular shape
+// Examples(2D, ColorScheme=Tomorrow): Calculate bounding rectangle of an irregular shape
 //   polygon(boundingRect([[10,10], [20,30], [40,15], [30,5]]));
 function boundingRect(points) = 
 	let ( b = pointlist_bounds( points))
@@ -348,7 +347,7 @@ function sheet_count( area, sheet ) =
 // Arguments:
 //   area = Vector [width, height] of the area to cover (in mm).
 //   sheet = Vector [width, height] of a single sheet (in mm).
-// Example(2D,ColorScheme=Nature):
+// Example(2D,ColorScheme=Tomorrow):
 //   area = [4000, 3000];
 //   sheet = [4 * FEET, 8 * FEET];
 //   waste = sheetWasteAreaByAxis(area, sheet);
@@ -375,7 +374,7 @@ function sheetWasteAreaByAxis(area, sheet) =
 // Arguments:
 //   area = Vector [width, height] of the area to cover (in mm).
 //   sheet = Vector [width, height] of a single sheet (in mm).
-// Example(2D,ColorScheme=Nature):
+// Example(2D,ColorScheme=Tomorrow):
 //   area = [4000, 3000];
 //   sheet = [8 * FEET, 4 * FEET];
 //   is_best = isSheetOrientedBest(area, sheet);
@@ -399,7 +398,7 @@ function isSheetOrientedBest(area, sheet) =
 //   across the Y-axis and concatenating them to the original path in reverse order.
 // Arguments:
 //   path = List of 2D points, where each point is a vector [x, y].
-// Example(2D,ColorScheme=Nature):
+// Example(2D,ColorScheme=Tomorrow):
 //   path = [[1, 0], [2, 1], [1, 2], [0, 1]];
 //   mirrored = yMirrorPath(path);
 //   echo(mirrored); // Outputs: [[1, 0], [2, 1], [1, 2], [0, 1], [-1, 2], [-2, 1], [-1, 0]]

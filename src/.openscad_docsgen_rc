@@ -25,8 +25,13 @@ PrioritizeFiles:
   pilar.scad
   stairs.scad
   masonry-structure.scad
+  structure.scad
+  roof.scad
   wood-structure.scad
   metal-structure.scad
+  furniture.scad
+  electronic.scad
+  equipment.scad
 DefineSynTags:
   Geom = Can return geometry.  
   Path = Can return a Path.

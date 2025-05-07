@@ -40,11 +40,11 @@ include <_materials/multi_material.scad>
 //   anchor        = Anchor point for positioning. Default: BOTTOM
 //   spin          = Rotation around Z-axis in degrees. Default: 0
 //   orient        = Orientation vector. Default: UP
-// Example(3D,Small,ColorScheme=Nature):
+// Example(3D,Small,ColorScheme=Tomorrow):
 //   beam(l=2, section=[50, 100], family="Wood", material="Oak");
-// Example(3D,Small,ColorScheme=Nature): Metal Beam with Text
+// Example(3D,Small,ColorScheme=Tomorrow): Metal Beam with Text
 //   beam(l=2, section=[100, 100], family="Metal", material="Steel", index="B1");
-// Example(3D,Small,ColorScheme=Nature): Concrete Beam with Info
+// Example(3D,Small,ColorScheme=Tomorrow): Concrete Beam with Info
 //   beam(l=2, section=[100, 100], family="Masonry", material="Concrete", info=true, cubic_price=300);
 module beam(
     l             = first_defined([is_undef(l)          ? undef : l,         is_undef($beam_length)         ? 2      : $beam_length]),
@@ -154,11 +154,11 @@ module beam(
 //   anchor        = Anchor point for positioning. Default: BOTTOM
 //   spin          = Rotation around Z-axis in degrees. Default: 0
 //   orient        = Orientation vector. Default: UP
-// Example(3D,Big,ColorScheme=Nature):
+// Example(3D,Big,ColorScheme=Tomorrow):
 //   pillar(l=3, section=[200, 200], family="Wood", material="Oak", info=true, cubic_price=600);
-// Example(3D,Big,ColorScheme=Nature): Circular Pillar with Text
+// Example(3D,Big,ColorScheme=Tomorrow): Circular Pillar with Text
 //   pillar(l=3, diameter=200, family="Metal", material="Steel", index="P1", info=true, cubic_price=2000);
-// Example(3D,Big,ColorScheme=Nature): Concrete Pillar
+// Example(3D,Big,ColorScheme=Tomorrow): Concrete Pillar
 //   pillar(l=3, section=[200, 300], family="Masonry", material="Concrete", info=true, cubic_price=300);
 module pillar(
     l             = first_defined([is_undef(l)          ? undef : l,         is_undef($pillar_l)         ? 3       : $pillar_l]),

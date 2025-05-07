@@ -20,10 +20,11 @@ Parameters :
 - orient (vector): Orientation vector (default: UP).
 - info (boolean): If true, generates metadata (default: true).
 - ifc_guid (string): IFC global unique identifier (optional).
-### Example 1: 55-Inch Television
+
+### Example 1: 55-Inch Television
 
 Create a 55-inch television with a 1600 mm stand.
-
+ColorScheme=Tomorrow
 ```openscad-3D;ColorScheme=Nature
 include <Nervi/space.scad>
 include <Nervi/electronic.scad>
@@ -34,7 +35,7 @@ television(size=55, height=1600);
 ### Example 2: 
 
 Place a 75-inch television on the back wall of a space
-
+ColorScheme=Tomorrow
 ```openscad-3D;ColorScheme=Nature
 include <Nervi/space.scad>
 include <Nervi/electronic.scad>

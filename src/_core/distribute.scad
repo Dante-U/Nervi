@@ -31,11 +31,11 @@ include <../_materials/multi_material.scad>
 //   mask 		= 2D polygon path to intersect.
 //   spacing 	= Distance between consecutive lines.
 //   dir 		= Direction of lines: HORIZONTAL or VERTICAL [default: HORIZONTAL].
-// Example(2D,ColorScheme=Nature):
+// Example(2D,ColorScheme=Tomorrow):
 //   mask = circle(r=5, $fn=32);
 //   segs = segmentsCrossing(mask=mask, spacing=2, dir=HORIZONTAL);
 //   #stroke(segs, width=0.2);
-// Example(2D,ColorScheme=Nature):
+// Example(2D,ColorScheme=Tomorrow):
 //   mask = square([10, 6], center=true);
 //   segs = segmentsCrossing(origin=LEFT, mask=mask, spacing=1.5, dir=VERTICAL);
 //   #stroke(segs, width=0.2);
