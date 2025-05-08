@@ -47,71 +47,11 @@ MOUNT_TYPES = ["standard","flush"];
 // DefineHeader:Returns:  
 //    A staircase model with defined dimensions and properties.
 // Example(3D,ColorScheme=Tomorrow): Simple Straight Staircase
-//   stairs(w=1, total_rise=2800, handrails=[RIGHT]);
+//   stairs(w=1, total_rise=2.8, handrails=[RIGHT]);
 // Example(3D,ColorScheme=Tomorrow): L-Shaped Staircase with 15 steps
-//   stairs(w=.9, total_rise=2600, type="l_shaped", steps=15);
+//   stairs(w=.9, total_rise=2.6, type="l_shaped", steps=15);
 // Example(3D,ColorScheme=Tomorrow): U-Shaped Staircase without handrails
-//   stairs(w=1.2, total_rise=3000, type="u_shaped");
-
-
-//stairs(w=1.2, total_rise=3000, type="straight",debug=true,anchor=BOT+LEFT);
-//right(800)
-
-/*
-include <space.scad>
-include <masonry-structure.scad>
-space(l=5, w=1.2, h=2.8, wall=200, name="Room", except=[FRONT,LEFT],debug=true)
-{
-	slab();
-	position(RIGHT)
-		reddish()
-		stairs(w=1.2,type="straight",family="Metal",slab_thickness = 150,anchor=RIGHT);
-}
-
-*/	
-
-/*
-include <space.scad>
-include <masonry-structure.scad>
-$space_height	= 0.4;
-$space_length	= 0.6;
-$space_width	= 1.2;
-//$space_width	= 1.2;
-
-space(except=[FRONT,LEFT],debug=true)
-{
-	slab();
-	position(RIGHT)
-		reddish()
-		stairs(
-			w=1.2,
-			type="straight",
-			family="Wood",
-			slab_thickness = 150,
-			mount="standard",
-			//mount="flush",
-			anchor=RIGHT
-		);
-}
-back (1500) 
-space(except=[FRONT,LEFT],debug=true)
-{
-	slab();
-	position(RIGHT)
-		reddish()
-		stairs(
-			w=1.2,
-			type="straight",
-			family="Masonry",
-			slab_thickness = 150,
-			mount="standard",
-			//mount="flush",
-			anchor=RIGHT
-		);
-}
-*/
-
-
+//   stairs(w=1.2, total_rise=3, type="u_shaped");
 module stairs(
     type 		= "straight",
 	w  			= first_defined([is_undef(w) 			? undef : w ,$thread_width			]),
@@ -153,7 +93,6 @@ module stairs(
 	$thread_rise 		= _rise;
 	$thread_thickness 	= thickness;
 
-	
     _length 	= l ? meters(l) : 
              (type == "straight" ? _run*_steps : 
              (type == "l_shaped" ? _run*ceil(_steps/2) + _landing : 
@@ -180,16 +119,6 @@ module stairs(
 		echo (str(" - rise (Effective)   :",_rise	));
 		echo (str(" - angle   :",_angle	));
 	}	
-    //
-	// module : tread()
-	//
-	/*
-    module tread( w = _w, r= _run, h=_rise, t = thickness,anchor = TOP,spin = 0) {
-		echo (str(" _step ; ", "w=",w, " r=",r, " h=",h, " t=",t));
-        translate([0, r/2, h]) 
-			material("Wood") cuboid([w, r, t], anchor = anchor,spin=spin);
-    }
-	*/
 	
 	module landing( anchor = TOP+FRONT ){
 		material("Wood") cuboid( [ _landing, _landing, thickness ], anchor=anchor);
@@ -203,7 +132,7 @@ module stairs(
 				 *****************/
                 if ( type == "straight" ) {
 					down( mount == "flush" ? 0 : $thread_rise/2)
-					_straightStairs (_steps, family/*,anchor = anchor*/ );
+						_straightStairs (_steps, family);
                 } else if (type == "l_shaped") {
 					/*****************
 					 * L Shaped
