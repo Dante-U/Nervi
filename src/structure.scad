@@ -1,6 +1,11 @@
 include <_core/main.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: structure.scad
+//   A library for creating parametric structural components in OpenSCAD, designed for BIM and superstructure design.
+//   Provides modules to generate beams and pillars with configurable materials (wood, metal, concrete), cross-sections
+//   (rectangular or circular for pillars), and optional indexed text. Leverages BOSL2 for geometry, attachments, and
+//   rendering. Supports IFC metadata for BIM integration, with material-specific properties and cost calculations.
+//   Uses meters for lengths and millimeters for cross-sectional dimensions, with robust assertions for validation.
 // Includes:
 //   include <structure.scad>
 // FileGroup: Superstructure
@@ -63,9 +68,9 @@ module beam(
     orient        = UP
 ) {
     // Validate inputs
-    assert(is_meters(l), 							"[beam] l must be a plausible positive number in meters");
-    assert(is_dim_pair(section), 					"[beam] section must be a valid [width, thickness] pair in millimeters");
-    assert(isValidMaterialFamilies(family),			"[beam] family must be 'wood', 'metal', or 'concrete'");
+    assert(is_meters(l), 										"[beam] l must be a plausible positive number in meters");
+    assert(is_dim_pair(section), 								"[beam] section must be a valid [width, thickness] pair in millimeters");
+    assert(isValidMaterialFamilies(family),					"[beam] family must be 'Wood', 'Metal', or 'Masonry'");
     assert(is_between(rounding, 0, min(section) / 2, min_inc=true, max_inc=true), 
            "[beam] rounding must be between 0 and half the smallest section dimension (inclusive) in millimeters");
     assert(is_undef(index) || is_string(index) || is_num(index), "[beam] index must be a string or number");

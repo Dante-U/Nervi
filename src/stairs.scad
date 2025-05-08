@@ -1,12 +1,21 @@
 include <_core/main.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: stairs.scad
+//   A library for creating parametric staircases in OpenSCAD, designed for superstructure and interior design.
+//   Provides modules for straight, L-shaped, U-shaped, and spiral staircases, with configurable steps, handrails,
+//   and materials (wood, metal, masonry). Supports BOSL2 for geometry, attachments, and rendering. Includes
+//   a standalone handrail module for custom configurations. Uses meters for large dimensions, millimeters for
+//   small ones, with robust assertions for validation.
 // Includes:
 //   include <stairs.scad>
-// FileGroup: Architecture
+// FileGroup: Superstructure
 // FileSummary: Parametric staircase with handrails
 //////////////////////////////////////////////////////////////////////
 include <_materials/multi_material.scad>
+
+
+MOUNT_TYPES = ["standard","flush"];
+
 
 // Module: stairs()
 // 
@@ -17,20 +26,23 @@ include <_materials/multi_material.scad>
 //    number of steps, and other properties. Supports different stair types
 //    and optional handrails.
 // Arguments:  
-//    type         = Type of stairs ("straight", "l_shaped", "u_shaped") (default: "straight").
-//    w       	   = Total width of the staircase in meters (default: 0.9).
-//    total_rise   = Total height of the staircase (required or uses $room_height).
-//    l       	   = Total horizontal length of the staircase in meters (calculated from run*steps if not provided).
-//    steps        = Number of steps (calculated from height/rise if not provided).
-//    rise         = Theoretical Height of each step (default: 170). 
-//    run          = Depth of each step (default: 250).
-//    thickness    = Thickness of each step (default: 40).
-//    handrails    = Include handrails (default: no). Could be empty , [LEFT] or [RIGHT] or both [ LEFT , RIGHT ] 
-//    rail_height  = Height of handrail from step (default: 900).
-//    rail_width   = Width of handrail (default: 40).
-//    landing_size = Size of landing for L or U shaped stairs (default: width).
-//    anchor       = Attachment anchor point (default: BOTTOM).
-//    spin         = Rotation in degrees (default: 0).
+//    type         		= Type of stairs ("straight", "l_shaped", "u_shaped") (default: "straight").
+//    w       	   		= Total width of the staircase in meters (default: 0.9).
+//    total_rise   		= Total height of the staircase in meters (required or uses $space_height).
+//    l       	   		= Total horizontal length of the staircase in meters (calculated from run*steps if not provided).
+//    steps        		= Number of steps (calculated from height/rise if not provided).
+//    rise         		= Theoretical Height of each step (default: 170). 
+//    run          		= Depth of each step (default: 250).
+//    mount				= 
+//    family	   		= Material family	
+//    thickness    		= Thickness of each step (default: 40).
+//    slab_thickness 	= Slab thickness when family is "Masonry" 
+//    handrails    		= Include handrails (default: no). Could be empty , [LEFT] or [RIGHT] or both [ LEFT , RIGHT ] 
+//    rail_height  		= Height of handrail from step (default: 900).
+//    rail_width   		= Width of handrail (default: 40).
+//    landing_size 		= Size of landing for L or U shaped stairs (default: width).
+//    anchor       		= Attachment anchor point (default: BOTTOM).
+//    spin         		= Rotation in degrees (default: 0).
 //
 // DefineHeader:Returns:  
 //    A staircase model with defined dimensions and properties.
@@ -40,39 +52,121 @@ include <_materials/multi_material.scad>
 //   stairs(w=.9, total_rise=2600, type="l_shaped", steps=15);
 // Example(3D,ColorScheme=Tomorrow): U-Shaped Staircase without handrails
 //   stairs(w=1.2, total_rise=3000, type="u_shaped");
+
+
+//stairs(w=1.2, total_rise=3000, type="straight",debug=true,anchor=BOT+LEFT);
+//right(800)
+
+/*
+include <space.scad>
+include <masonry-structure.scad>
+space(l=5, w=1.2, h=2.8, wall=200, name="Room", except=[FRONT,LEFT],debug=true)
+{
+	slab();
+	position(RIGHT)
+		reddish()
+		stairs(w=1.2,type="straight",family="Metal",slab_thickness = 150,anchor=RIGHT);
+}
+
+*/	
+
+/*
+include <space.scad>
+include <masonry-structure.scad>
+$space_height	= 0.4;
+$space_length	= 0.6;
+$space_width	= 1.2;
+//$space_width	= 1.2;
+
+space(except=[FRONT,LEFT],debug=true)
+{
+	slab();
+	position(RIGHT)
+		reddish()
+		stairs(
+			w=1.2,
+			type="straight",
+			family="Wood",
+			slab_thickness = 150,
+			mount="standard",
+			//mount="flush",
+			anchor=RIGHT
+		);
+}
+back (1500) 
+space(except=[FRONT,LEFT],debug=true)
+{
+	slab();
+	position(RIGHT)
+		reddish()
+		stairs(
+			w=1.2,
+			type="straight",
+			family="Masonry",
+			slab_thickness = 150,
+			mount="standard",
+			//mount="flush",
+			anchor=RIGHT
+		);
+}
+*/
+
+
 module stairs(
     type 		= "straight",
-	w 			= 0.9,
-    total_rise 	= is_undef($room_height) ? undef : $room_height,
+	w  			= first_defined([is_undef(w) 			? undef : w ,$thread_width			]),
+	total_rise  = first_defined([is_undef(total_rise) 	? undef : total_rise ,$space_height	]),
     l,
     steps,
+	family		= "Wood",	
     rise 		= 170,
     run 		= 250,
     thickness 	= 40,
+	slab_thickness, 
     handrails 	= [],	/// Array: [RIGHT], [LEFT], or [RIGHT, LEFT]
     rail_height = 900,
     rail_width 	= 40,
     landing_size,
     anchor 		= BOTTOM,
 	mount 		= "standard", // Could be standard or flush mount  
+	material,
     spin 		= 0,
 	debug 		= false,
 ) {
-    assert(!is_undef(total_rise) || is_num(total_rise), 				"[stairs] [total_rise] parameter is undefined. Provide height or define variable $room_height");
+
+    assert(is_meters(total_rise), 					"[stairs] [total_rise] parameter is undefined. Provide height or define variable $room_height");
 	assert( mount == "flush" || mount == "standard" || is_undef(mount),	"[stairs] 'mount' must be either 'flush' or 'standard'"
 	);
+	assert(isValidMaterialFamilies(family),			"[stairs] family (material) must be 'Wood', 'Metal', or 'Masonry'");
+	assert(isValidMaterialFamilies(family),					"[beam] family must be 'Wood', 'Metal', or 'Masonry'");
+	
+	_total_rise = meters(total_rise);
     _landing 	= landing_size ? landing_size : w;
-    _steps 		= steps ? steps : mount == "flush" ? ceil( total_rise / rise ) : ceil( total_rise / rise ) -1
+    _steps 		= steps ? steps : mount == "flush" ? ceil( _total_rise / rise ) : ceil( _total_rise / rise ) -1
 				;
-	_rise 		= mount == "flush" ? round(total_rise/(_steps))	: round(total_rise/(_steps+1))	;
+	_rise 		= mount == "flush" ? round(_total_rise/(_steps))	: round(_total_rise/(_steps+1))	;
     _run 		= run;
 	_w			= meters(w);
+
+	$thread_width		= meters(w);
+	$thread_run 		= run;
+	$thread_rise 		= _rise;
+	$thread_thickness 	= thickness;
+
+	
     _length 	= l ? meters(l) : 
              (type == "straight" ? _run*_steps : 
              (type == "l_shaped" ? _run*ceil(_steps/2) + _landing : 
              (type == "u_shaped" ? _run*ceil(_steps/3) + _landing : _run*_steps)));
 	_angle 		= adj_opp_to_ang (_steps * _run,_steps * _rise);
-    bounding_size = [ w, _length, total_rise ];
+	
+	$stairs_angle 			= _angle;
+	$stairs_slab_thickness 	= slab_thickness;
+	$stairs_material 		= material;
+	$stairs_mount 			= mount;
+	
+    //bounding_size = [ w, _length, _total_rise ];
+	bounding_size = [ _length, _w,  _total_rise ];
 	
 	if (debug) {
 		echo ("*********************");
@@ -80,7 +174,7 @@ module stairs(
 		echo ("*********************");
 		echo (str(" - type    :",type	));
 		echo (str(" - mount  :",mount	));
-		echo (str(" - total_rise  :",total_rise	));
+		echo (str(" - _total_rise  :",_total_rise	));
 		echo (str(" - rise (Theoretical)  :",rise	));
 		echo (str(" - steps  :",_steps	));
 		echo (str(" - rise (Effective)   :",_rise	));
@@ -89,33 +183,27 @@ module stairs(
     //
 	// module : tread()
 	//
+	/*
     module tread( w = _w, r= _run, h=_rise, t = thickness,anchor = TOP,spin = 0) {
 		echo (str(" _step ; ", "w=",w, " r=",r, " h=",h, " t=",t));
         translate([0, r/2, h]) 
 			material("Wood") cuboid([w, r, t], anchor = anchor,spin=spin);
     }
+	*/
 	
 	module landing( anchor = TOP+FRONT ){
 		material("Wood") cuboid( [ _landing, _landing, thickness ], anchor=anchor);
 	}	
     
-    attachable(anchor, spin, orient=UP, size=bounding_size, cp=[0,_length/2,total_rise/2]) {
+    attachable(anchor, spin, orient=UP, size=bounding_size /*, cp=[_length/2*0,-_w/2*0,_total_rise/2*0]*/ ) {
         union() {
 			{
 				/*****************
 				 * Straight
 				 *****************/
                 if ( type == "straight" ) {
-                    for (i = [0:_steps-1]) translate([0, i*_run, i*_rise]) tread();
-                    // Stringers (structural support)
-					// Left wall
-                    if (false) translate([-_w/2+rail_width/2, _steps*_run/2, _steps*_rise/2])
-                        cuboid([rail_width, _steps*_run, _steps*_rise], anchor=CENTER);
-                    
-					// Right wall
-                    if (false) translate([_w/2-rail_width/2, _steps*_run/2, _steps*_rise/2])
-                        cuboid([rail_width, _steps*_run, _steps*_rise], anchor=CENTER);
-                    
+					down( mount == "flush" ? 0 : $thread_rise/2)
+					_straightStairs (_steps, family/*,anchor = anchor*/ );
                 } else if (type == "l_shaped") {
 					/*****************
 					 * L Shaped
@@ -251,7 +339,7 @@ module stairs(
 			// *******************
             // * Horizontal rail *
 			// *******************
-			railLength = adj_opp_to_hyp (_length,total_rise);
+			railLength = adj_opp_to_hyp (_length,_total_rise);
 			translate(
 				[
 					rail_offset,
@@ -261,16 +349,64 @@ module stairs(
 			material("Wood")
 					xrot(_angle)
 						cyl( 
-							h=railLength,
-							d=rail_width,
-							orient=BACK,
-							anchor=BOT
+							h		= railLength,
+							d		= rail_width,
+							orient	= BACK,
+							anchor	= BOT
 						);
 			
         }
         // Similar logic for L and U shaped stairs would go here
     }
 }
+
+
+module _straightStairs( steps, family,anchor ) {
+	
+	//frame_ref(200);
+	
+	if ( is_in(family,["Wood","Metal"])) {	
+		translate([-steps/2 * $thread_run, 0,-steps/2 * $thread_rise])
+			for (i = [0:steps-1])
+				let (
+					x = i * $thread_run,	
+					z = i * $thread_rise,	
+				)
+				translate([x, 0, z]) tread();		
+	}		
+	else if (family == "Masonry")	 
+	{
+		x0 = ang_opp_to_hyp($stairs_angle,$stairs_slab_thickness);
+		y0 = ang_adj_to_hyp($stairs_angle,$stairs_slab_thickness);
+		path = flatten([
+			[ [x0,0],[0,0] ],
+			for (i = [0:steps-1])
+				let ( 
+					x	= i 	* $thread_run,
+					y 	= (i+1) * $thread_rise, 
+				)
+				[ [ x ,y ] , [ x + $thread_run ,y ] ],
+			[ [ steps*$thread_run,steps*$thread_rise-y0] ]	
+		]);
+		material( $stairs_material , default = materialFamilyToMaterial(family))
+			extrude($thread_width,dir=FRONT, path=path, anchor=anchor, center=true);
+	
+	}	
+		
+}
+
+
+module tread( 
+	w = first_defined([is_undef(w) 	? undef : w ,$thread_width]),
+	r = first_defined([is_undef(r) 	? undef : r ,$thread_run]),
+	h = first_defined([is_undef(h) 	? undef : h ,$thread_rise]),
+	t = first_defined([is_undef(t) 	? undef : t ,$thread_thickness]),
+	anchor = TOP,
+	spin = 0
+) {
+	translate([r/2 ,0, h]) cuboid([r, w, t], anchor = anchor,spin=spin);
+}
+
 
 // Module: spiralStairs()
 // 

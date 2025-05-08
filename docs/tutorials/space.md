@@ -1,6 +1,3 @@
-
-
-
 # Space
 
 Nervi introduce the concept of [space](./space.scad). Space allow you to define a volume who can correspond to a room a logical space or anything you want to define as a space.
@@ -132,14 +129,15 @@ Technicaly localization of walls are defined using anchors.
 
 ## Slab 
 
-Creates a monolithic [`slab()`](./space.scad#module-slab) with dimensions derived from the parent `space()` (./space.scad#module-space) or specified parameters. Automatically aligns to the bottom of a space when a direct child, with an optional vertical offset. Uses `masonrySpecs()` (./masonry.scad#function-masonrySpecs) for material properties and calculates cost as volume * unit_price. Metadata supports IFC export as IfcSlab.
+Creates a monolithic [`slab()`](./masonry-structure.scad#module-slab) with dimensions derived from the parent `space()` (./space.scad#module-space) or specified parameters. Automatically aligns to the bottom of a space when a direct child, with an optional vertical offset. Uses `masonrySpecs()` (./masonry.scad#function-masonrySpecs) for material properties and calculates cost as volume * unit_price. Metadata supports IFC export as IfcSlab.
 
 ### Example 1: Slab with Cost Estimation
 
 Create a slab under a space with cost informations.
 
-```openscad-3D;Huge
+```openscad-3D;ColorScheme=Tomorrow;Small
 include <Nervi/space.scad>
+include <Nervi/masonry-structure.scad>
 space(l=3, w=3, h=2, debug=true, except=[FRONT, RIGHT]) {
     slab(thickness=200, material="Concrete", unit_price=120,info=true);
 }

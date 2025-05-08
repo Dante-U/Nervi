@@ -17,7 +17,7 @@ space (3.20,1,2,debug=true)
 The spacing is defined with the **stud_spacing** argument in mm. Direction argument is defining if the remaining space should be defined LEFT or RIGHT.
 <!--
 
-```openscad-3D,;ColorScheme=Tomorrow;Big
+```openscad-3D;ColorScheme=Tomorrow;Big
 include <Nervi/space.scad>
 include <Nervi/wood-structure.scad>
     space (1.10,0.3,1,debug=true) attachWalls([FWD],placement="outside") studWallFrame(direction=LEFT); 

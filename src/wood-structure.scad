@@ -1,6 +1,11 @@
 include <_core/main.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: wood-structure.scad
+//   A library for creating parametric wood-based structural components in OpenSCAD, designed for 
+//   superstructure and architectural applications. Provides modules for wood-framed walls, platforms, 
+//   joist systems, decking, cladding, V-shaped panel grids, sheathing, and pillars (rectangular and oblique).
+//   Supports customizable materials, BIM metadata, and BOSL2 for geometry, attachments, and rendering. 
+//   Uses meters for large dimensions, millimeters for small ones, with robust assertions for validation.
 // Includes:
 //   include <wood-structure.scad>
 // FileGroup: Superstructure

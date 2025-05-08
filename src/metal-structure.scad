@@ -1,6 +1,11 @@
 include <_core/main.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: metal-structure.scad
+//   A library for creating parametric metal structural components in OpenSCAD, designed for superstructure 
+//   and architectural applications.
+//   Provides a module to extrude 2D metal profiles (e.g., HSS, angle, pipe, channel, I-beam, T-beam) to specified lengths.
+//   Supports customizable dimensions and BOSL2 for geometry, attachments, and rendering. Uses millimeters for dimensions,
+//   with robust assertions for validation.
 // Includes:
 //   include <metal-structure.scad>
 // FileGroup: Superstructure

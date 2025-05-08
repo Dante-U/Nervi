@@ -26,7 +26,6 @@ PrioritizeFiles:
   stairs.scad
   masonry-structure.scad
   structure.scad
-  roof.scad
   wood-structure.scad
   metal-structure.scad
   furniture.scad

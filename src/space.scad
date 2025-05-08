@@ -2,6 +2,17 @@ include <_core/main.scad>
 include <_materials/masonry.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: space.scad
+//   A library for defining and manipulating architectural spaces in OpenSCAD,
+//   tailored for building information modeling (BIM) and superstructure design.
+//   Provides modules and functions to create 3D spaces with walls, attach geometry,
+//   place openings (e.g., doors, windows), and manage metadata for IFC (Industry
+//   Foundation Classes) integration. Leverages BOSL2 for attachment mechanisms,
+//   geometric operations, and efficient rendering. The library supports both 3D
+//   visualizations and 2D plan views, with context-aware behavior for walls,
+//   dividers, and openings. Units are handled consistently (meters for large
+//   dimensions, millimeters for small ones), with robust assertions for validation.
+//   Includes utilities for calculating bounding boxes, generating wall geometry,
+//   and checking parent modules in the call stack.
 // Includes:
 //   include <space.scad>
 // FileGroup: Superstructure
@@ -45,8 +56,7 @@ WALL_DEFAULT 	= 180;
 //    $space_height = Default height (m). Optional.
 //    $space_wall   = Default wall thickness (m). Optional.
 // Example(3D,ColorScheme=Tomorrow):
-//    space(l=3, w=2, h=2.5, wall=200, name="Room", except=["FRONT"],debug=true);
-// See Also: wallGeometry()
+//    space(l=3, w=2, h=2.5, wall=200, name="Room", except=[FRONT],debug=true);
 module space( 
 		l       = first_defined([is_undef(l) 	? undef : l ,$space_length]),
 		w       = first_defined([is_undef(w) 	? undef : w ,$space_width]),

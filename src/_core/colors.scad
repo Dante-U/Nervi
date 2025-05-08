@@ -181,3 +181,8 @@ function green_palette(f) =
         value = 0.3 + f * (0.9 - 0.3)
     )
 	hsv(hue, saturation, value);
+
+	
+module reddish() {
+	color("IndianRed") children(); 	
+}	

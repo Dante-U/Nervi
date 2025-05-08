@@ -1,7 +1,9 @@
 .DS_Store
 *.swp
 *.bak
+*.hidden
 
+archive/
 
 # exported format
 *.3mf

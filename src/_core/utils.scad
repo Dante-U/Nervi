@@ -26,84 +26,41 @@ include <colors.scad>
 //   dir 		= BOSL2 direction vector (e.g., RIGHT, LEFT, FWD, BACK, UP, DOWN). Default: UP.
 //   path 		= Optional 2D path (list of [x, y] points). If not provided, the children() geometry is used.
 //   center		= Center the geometry Default : false
-// Example(3D,ColorScheme=Tomorrow):
+// Example(3D,ColorScheme=Tomorrow): Extrudes a 10x5 square 20 mm along the X-axis
 //   path 		= square([10, 5], center=true);
-//   extrude(length=20, dir=RIGHT, path=path);
-//   // Extrudes a 10x5 square 20 mm along the X-axis
-// Example(3D,ColorScheme=Tomorrow):
-//   extrude(length=15, dir=FWD) {
+//   extrude(height=20, dir=RIGHT, path=path);
+// Example(3D,ColorScheme=Tomorrow): Extrudes a circle 15 mm along the negative Y-axis
+//   extrude(height=15, dir=FWD) 
 //     circle(r=5, $fn=32);
-//   }
-//   // Extrudes a circle 15 mm along the negative Y-axis
 // Example(3D,ColorScheme=Tomorrow) : Extruded Right and Centered  
-//   extrude(length=15, dir=RIGHT, center=true) {
-//     circle(r=5);
-//   }
-//   // Extrudes a circle 15 mm along the negative X-axis and center 
-module extrude(length, dir=UP, path=undef,center = false,anchor,spin) {
-    assert(is_num(length) && length > 0, "length must be a positive number");
-    assert(is_vector(dir) && norm(dir) > 0, "direction must be a valid BOSL2 direction vector");
-    // Normalize direction to ensure it's a unit vector
-    _dir = unit(dir);
-	rot = 
-		_dir == DOWN	? [180,0,0] : 
-		_dir == RIGHT 	? [0,90,0] 	:
-		_dir == LEFT 	? [0,-90,0] :
-		_dir == RIGHT 	? [0,-90,0] :
-		_dir == FWD 	? [90,0,0] 	:
-		_dir == BACK 	? [-90,0,0] :
-		CENTER ;
-	centering = center ? -_dir * length /2 : CENTER;
-	//move(centering)
-	//rotate( rot ) apply_color() linear_extrude( height=length, center=false ) 
-	{
-		if (!is_undef(path)) {
-			//size 	= boundingSize(path,length);
-			size 	= v_abs(rot(rot,p=boundingSize(path,length)));
-			attachable( anchor = anchor, spin = spin, size = size /*,cp = -centering*/ ) { 
-				move(centering)
-				rotate( rot ) apply_color() 
-					linear_extrude( height=length, center=false )
-						polygon(path);
-				children();
-			}
-		} else {
-			move(centering)
-			rotate( rot ) apply_color() linear_extrude( height=length, center=false ) children();
-		}
+//   extrude(height=15, dir=RIGHT, center=true) circle(r=5);
+module extrude(height, dir=UP, path, center=false, path_centering = true, anchor, spin) {
+    assert(is_num_positive(height), 			"[extrude] height must be a positive number");
+    assert(is_vector(dir) && norm(dir) > 0, 	"[extrude] direction must be a valid BOSL2 direction vector");
+	if (is_def(anchor)) assert(is_def(path), 	"[extrude] anchor works only with path");
+	flip = 	dir == DOWN 	? RIGHT : 
+			dir == RIGHT 	? BACK : 
+			dir == BACK 	? UP : 
+			CTR;
+	rot = abs(dir.x) * 90;	
+	shift = center ? dir * height /2 : CTR;
+	move(-shift)	
+	if (is_def(path)) {
+		_path = path_centering ? centerPath( path ) : path;
+		tmat =  (flip == CTR ? 1 : mirror(flip)) *     xrot(rot) * tilt(dir);
+		size = boundingSize(_path,height);
+		_size = v_abs(apply(tmat,size)); // Work with RIGHT,LEFT,UP,DOWN 
+		attachable(anchor=anchor, spin=spin, size=_size) {
+			mirror(flip) xrot(rot) tilt(dir) apply_color()  
+				linear_extrude( height=height, center=false ) polygon(_path);
+			children();		
+		}	
+
+	} else {
+		mirror(flip) xrot(rot) tilt(dir) apply_color()  
+			linear_extrude( height, center=false ) children();
 	}
 }
-
-/*
-extrude(length=15, direction=FWD) circle(r=5, $fn=32); // ok
-extrude(length=15, direction=BACK) circle(r=5, $fn=32); // ok
-extrude(length=15, direction=RIGHT) circle(r=5, $fn=32); // ok
-extrude(length=15, direction=LEFT) circle(r=5, $fn=32); // ko still right
-extrude(length=15, direction=UP) circle(r=5, $fn=32); // ok
-extrude(length=15, direction=DOWN) circle(r=5, $fn=32); // ko still up
-
-
-extrude(length=15, direction=FWD, center=true) circle(r=5, $fn=32); // ok
-extrude(length=15, direction=BACK, center=true) circle(r=5, $fn=32); // ok
-extrude(length=15, direction=RIGHT, center=true) circle(r=5, $fn=32); // ok
-extrude(length=15, direction=LEFT, center=true) circle(r=5, $fn=32); // ko still right
-extrude(length=15, direction=UP, center=true) circle(r=5, $fn=32); // ok
-extrude(length=15, direction=DOWN, center=true) circle(r=5, $fn=32); // ko still up
-
-
-module yExtrude( height ) {
-	assert($children > 0, 				"[xExtrude] required a 2d children polygon to extrude");
-	assert(is_num(height) && height >0,	"[xExtrude] Extrusion height should be define and bigger than 0 " )
-	path_extrude2d(yLine( length = height)) children();
-}
-*/
-/*
-color ("Red") extrude(length=15, direction=FWD,center = true) circle(r=5, $fn=32); // ok
-right(5)
-yExtrude(15) circle(r=5, $fn=32); 	
-*/
-
-
 
 // Function: dirAsName()
 // 
