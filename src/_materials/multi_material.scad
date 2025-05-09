@@ -1,6 +1,7 @@
-include <masonry.scad>
-include <metal.scad>
-include <wood.scad>
+use <masonry.scad>
+use <metal.scad>
+use <wood.scad>
+
 //////////////////////////////////////////////////////////////////////
 // LibFile: multi_material.scad
 //   Masonry material specs

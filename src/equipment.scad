@@ -29,18 +29,16 @@ include <_core/main.scad>
 //   spin       = Rotation around Z-axis in degrees. Default: 0
 //   info       = If true, generates metadata. Default: false
 //
-// Example(3D,Big,ColorScheme=Tomorrow):
+// Example(3D,Big,ColorScheme=Tomorrow;NoAxes): 2000 liters water tank 
 //   waterTank(d=1.68, h=1.2, capacity=2000, material="Polyethylene", unit_price=1530, weight=34, info=true);
 module waterTank( d, h , capacity, material, unit_price, weight, anchor, spin, info ) {
 	assert(is_meters(d),			"[waterTank] [d] is undefined. Provide diameter");
 	assert(is_meters(h),			"[waterTank] [h] is undefined. Provide height");
 	_d= meters(d);	
 	_h= meters(h);	
-	
 	rw = _d/12;
 	rh = _d/8;
 	reinforcement = rect([ rw, rh ], rounding= valueByRendering(0,[rw/2,rw/2,0,0]),spin=90);
-	
 	size = [_d,_d,_h];
 	attachable( anchor = anchor, spin = spin, size = size ) { 
 		material(material,default="Plastic")

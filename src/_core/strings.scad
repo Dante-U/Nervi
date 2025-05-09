@@ -1,23 +1,18 @@
 include <constants.scad>
-include <assert.scad>
 include <BOSL2/fnliterals.scad>
+
+use <assert.scad>
 use <math.scad>
 
 //////////////////////////////////////////////////////////////////////
 // LibFile: strings.scad
 //   String handling
+// Stronglxy inspired by https://github.com/davidson16807/relativity.scad/blob/master/strings.scad
 // Includes:
 //   include <_core/strings.scad>
 // FileGroup: Utils
 // FileSummary: String utilities
 //////////////////////////////////////////////////////////////////////
-// Inspired by https://github.com/davidson16807/relativity.scad/blob/master/strings.scad
-
-
-
-// Constant: CR
-// Description: Carriage return 
-CR = "\n";
 
 // Function: str_center_pad()
 //

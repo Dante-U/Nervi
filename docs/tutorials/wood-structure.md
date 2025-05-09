@@ -1,5 +1,4 @@
-# Wood Structure
-
+# Wood Structure tutorial
 
 
 ## Wood-framed wall
@@ -41,7 +40,7 @@ The spacing can start from the LEFT or from the RIGHT.
 
 Info can be generated using price and material specs : 
 
-```openscad-3D
+```openscad-3D;ColorScheme=Tomorrow
 include <Nervi/space.scad>
 include <Nervi/wood-structure.scad>
 space(3,3,2)
@@ -78,7 +77,7 @@ space(3,3,2)
 ## Trunk platform
 
 
-```openscad-3D
+```openscad-3D;ColorScheme=Tomorrow
 include <Nervi/wood-structure.scad>
 trunkPlatform( l=2, w =3 , h = 0.5, spacing= [1,1], log_diam = 200 );
 ```
@@ -87,7 +86,7 @@ trunkPlatform( l=2, w =3 , h = 0.5, spacing= [1,1], log_diam = 200 );
 
 The [`trunkPlatform()`](./wood-structure.scad#module-trunkPlatform) module generates a customizable platform for terraces or timber house floors, supported by vertical logs (trunks) and horizontal beams. Vertical logs are placed at regular intervals, and horizontal logs span between them to form the deck. The module supports material selection from wood.scad and debugging visualization.
 
-```openscad-3D;Huge
+```openscad-3D;Huge;ColorScheme=Tomorrow
 include <Nervi/wood-structure.scad>
 trunkPlatform(
     l = 3,

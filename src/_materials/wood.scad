@@ -1,5 +1,4 @@
 include <BOSL2/std.scad>
-include <_common.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: wood.scad
 //   Wood specs
@@ -33,13 +32,14 @@ include <_common.scad>
 function woodSpecs( wood_name, property ) =
 	assert(is_def(wood_name), "[woodSpecs] Missing wood name argument")
 	let (
-		spec = struct_val(wood_specs, wood_name),
+		data = _woodData(), 
+		spec = struct_val(data, wood_name),
 	)
 	assert(is_def(spec), str("[woodSpecs] Unknown wood type: '", wood_name,"'"))
 	is_def(property) ? spec[property] : spec;
 
-
-wood_specs = struct_set([], [
+	
+function _woodData() = struct_set([], [
     // Brazilian Woods
     "Eucalyptus saligna", [
         730,        // Density (kg/m³)

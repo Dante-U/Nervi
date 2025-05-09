@@ -4,7 +4,6 @@
 //
 //
 
-//include <Nervi/masonry-structure.scad>
 include <Nervi/structure.scad>
 include <Nervi/wood-structure.scad>
 include <Nervi/masonry-structure.scad>

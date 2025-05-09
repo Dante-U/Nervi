@@ -1,4 +1,4 @@
-# Space
+# Space library Tutorial
 
 Nervi introduce the concept of [space](./space.scad). Space allow you to define a volume who can correspond to a room a logical space or anything you want to define as a space.
 
@@ -22,7 +22,7 @@ $space_wall   = 300;
 space( debug=true );
 ```
 
-Space can exclude walls using exclude arguments. To exlude wall provide direction to except like **FRONT** and **RIGHT** in the following example :   
+Space can exclude walls using exclude arguments. To exclude wall provide direction to except like **FRONT** and **RIGHT** in the following example :   
 
 ```openscad-3D;ColorScheme=Tomorrow
 include <Nervi/space.scad>
@@ -71,9 +71,6 @@ space(3,3,3,debug=true,except=[FRONT])
 		text("OK",halign="center",valign="center",size=1200,$color="Red");
 ```
 
-
-
-
 [`attachWalls()`](./space.scad#module-attachwalls) provides wall length,height,thickness,orientation and an inside flag scope variables : 
 
 |Variable|Definition|
@@ -82,6 +79,7 @@ space(3,3,3,debug=true,except=[FRONT])
 |$wall_height| Height of the corresponding wall in meters|
 |$wall_inside| Flag defining true for inside wall and false for outside|
 |$wall_orient| Normal vector of the face|
+
 
 ```openscad-3D;ColorScheme=Tomorrow;Big
 include <Nervi/space.scad>
@@ -93,13 +91,14 @@ space(debug=true)
 	attachWalls( faces = FRONT)
 		text(str($wall_length," m x ",$wall_height," m"),halign="center",valign="center",size=400,$color="Red");
 ```		
+
 > [!NOTE]  
 > External wall length would be the space length plus 2 times the wall size. If all walls are present.
 
 
 ## Wall surface
 
-Wall surface is provided by [`space()`](./space.scad#module-space) and [`attachWalls()`](./space.scad#module-attachwalls).  You can retrieve the geometry using [`anchorInfo()`](./utils.scad#function-anchorInfo).
+Wall surface is provided by [space()](./space.scad#module-space) and [`attachWalls()`](./space.scad#module-attachwalls).  You can retrieve the geometry using [`anchorInfo()`](./utils.scad#function-anchorInfo).
 
 ```openscad-3D;ColorScheme=Tomorrow;Huge
 include <Nervi/space.scad>
@@ -129,7 +128,7 @@ Technicaly localization of walls are defined using anchors.
 
 ## Slab 
 
-Creates a monolithic [`slab()`](./masonry-structure.scad#module-slab) with dimensions derived from the parent `space()` (./space.scad#module-space) or specified parameters. Automatically aligns to the bottom of a space when a direct child, with an optional vertical offset. Uses `masonrySpecs()` (./masonry.scad#function-masonrySpecs) for material properties and calculates cost as volume * unit_price. Metadata supports IFC export as IfcSlab.
+Creates a monolithic [slab()](./masonry-structure.scad#module-slab) with dimensions derived from the parent [space()](./space.scad#module-space) or specified parameters. Automatically aligns to the bottom of a space when a direct child, with an optional vertical offset. Uses [masonrySpecs()](./masonry.scad#function-masonrySpecs) for material properties and calculates cost as volume * unit_price. Metadata supports IFC export as IfcSlab.
 
 ### Example 1: Slab with Cost Estimation
 
@@ -146,10 +145,10 @@ space(l=3, w=3, h=2, debug=true, except=[FRONT, RIGHT]) {
 
 ### IFC Mapping
 
-Maps to IfcSlab with PredefinedType=BASESLAB. Material properties (e.g., "Concrete") are assigned via IfcMaterial, with $meta providing volume, weight, and cost for BIM cost analysis.
+Maps to IfcSlab with PredefinedType=BASESLAB. Material properties (e.g., "Concrete") are assigned via IfcMaterial, with \$meta providing volume, weight, and cost for BIM cost analysis.
 
 > [! IMPORTANT]  
-> Use "Concrete" from `masonrySpecs()` (./masonry.scad#function-masonrySpecs) for slabs, not "Concrete Block", which is for modular walls.
+> Use "Concrete" from [masonrySpecs()](./masonry.scad#function-masonrySpecs) for slabs, not "Concrete Block", which is for modular walls.
 
 ### Notes
 
@@ -161,7 +160,7 @@ Maps to IfcSlab with PredefinedType=BASESLAB. Material properties (e.g., "Concre
 > Highlights information that users should take into account, even when skimming.
 
 > [!IMPORTANT]  
-> Ensure material matches a key in `masonrySpecs()` (./masonry.scad#function-masonrySpecs) (e.g., "Concrete") to avoid density lookup errors.
+> Ensure material matches a key in [masonrySpecs()](./masonry.scad#function-masonrySpecs) (e.g., "Concrete") to avoid density lookup errors.
 
 
 

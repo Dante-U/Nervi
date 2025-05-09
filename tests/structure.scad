@@ -13,6 +13,6 @@ ydistribute(500) {
 	pillar(l=3, section=[200, 300], material_type="Concrete", material="Concrete", info=true, cubic_price=300);
 */
 	
-	pillar(l=2*2.90,section=[150,150],material_type="Wood",anchor=BOT);
+	pillar(l=2*2.90,section=[150,150],family="Wood",anchor=BOT);
 	
 }

@@ -1,6 +1,5 @@
 include <BOSL2/std.scad>
 include <BOSL2/rounding.scad>
-include <_common.scad>
 
 //////////////////////////////////////////////////////////////////////
 // LibFile: metal.scad
@@ -10,21 +9,40 @@ include <_common.scad>
 // FileSummary: Architecture, Metal
 //////////////////////////////////////////////////////////////////////
 
+//
+// Function: metalSpecs()
+//
+// Synopsis: Retrieves metal specifications by name and property.
+// Topics: Materials, Metal Properties, Construction
+// Usage:
+//   specs = metalSpecs(metal_name, property);
+// Description:
+//   Provides access to metal specifications from the metal_specs structure by metal name.
+//   Can return either the complete specification for a metal type or a specific property.
+// Arguments:
+//   metal_name = The name of the metal to look up in the metal_specs structure.
+//   property   = Optional. Specific property index to retrieve (uses constants like MATERIAL_DENSITY).
+// Returns:
+//   If property is defined, returns the specific property value for the metal.
+//   If property is not defined, returns the complete specification structure for the metal.
+// Example(NORENDER):
+//   steel_density  = metalSpecs("Steel", MATERIAL_DENSITY);
+//   aluminum_specs = metalSpecs("Aluminum");
+//
+function metalSpecs(metal_name, property) =
+    assert(is_def(metal_name), "[metalSpecs] Missing metal name argument")
+    let (
+		data = _metalData(),
+        spec = struct_val(metal_specs, metal_name)
+    )
+    assert(is_def(spec), str("[metalSpecs] Unknown metal type: ", metal_name))
+    is_def(property) ? spec[property] : spec;
 
 
 
-metal_sections = struct_set([], [
-	"pipe",        	 [ "Pipe",			function() pipeProfile()	],
-	"square",        [ "Square Tube",	function() hssProfile()		],
-	"corner",        [ "Corner",		function() cornerProfile()	],
-	"channel",       [ "Channel",		function() channelProfile()	],
-	"ibeam",       	 [ "IBeam",			function() iBeamProfile()	],
-	"tbeam",       	 [ "TBeam",			function() tBeamProfile()	],
-	"rail",       	 [ "Rail",			function() railProfile()	],
-]);
 
 // Metal specifications structure
-metal_specs = struct_set([], [
+function _metalData() = struct_set([], [
     // Common Structural Metals
     "Steel", [
         7850,       // Density (kg/m³)
@@ -163,6 +181,15 @@ metal_specs = struct_set([], [
 function metalSectionPath( section_name ) =
 	assert(is_def(section_name), "[metalSectionPath] Missing section_name argument")
 	let (
+		metal_sections = struct_set([], [
+			"pipe",        	 [ "Pipe",			function() pipeProfile()	],
+			"square",        [ "Square Tube",	function() hssProfile()		],
+			"corner",        [ "Corner",		function() cornerProfile()	],
+			"channel",       [ "Channel",		function() channelProfile()	],
+			"ibeam",       	 [ "IBeam",			function() iBeamProfile()	],
+			"tbeam",       	 [ "TBeam",			function() tBeamProfile()	],
+			"rail",       	 [ "Rail",			function() railProfile()	],
+		]),	
 		spec = struct_val(metal_sections, section_name),
 	)
 	assert(is_def(spec), str("[metalSectionPath] Unknown metal profile type: ", section_name))
@@ -516,33 +543,7 @@ function railProfile(
     )
     move(offset, _path);	
 
-//
-// Function: metalSpecs()
-//
-// Synopsis: Retrieves metal specifications by name and property.
-// Topics: Materials, Metal Properties, Construction
-// Usage:
-//   specs = metalSpecs(metal_name, property);
-// Description:
-//   Provides access to metal specifications from the metal_specs structure by metal name.
-//   Can return either the complete specification for a metal type or a specific property.
-// Arguments:
-//   metal_name = The name of the metal to look up in the metal_specs structure.
-//   property   = Optional. Specific property index to retrieve (uses constants like MATERIAL_DENSITY).
-// Returns:
-//   If property is defined, returns the specific property value for the metal.
-//   If property is not defined, returns the complete specification structure for the metal.
-// Example(NORENDER):
-//   steel_density  = metalSpecs("Steel", MATERIAL_DENSITY);
-//   aluminum_specs = metalSpecs("Aluminum");
-//
-function metalSpecs(metal_name, property) =
-    assert(is_def(metal_name), "[metalSpecs] Missing metal name argument")
-    let (
-        spec = struct_val(metal_specs, metal_name)
-    )
-    assert(is_def(spec), str("[metalSpecs] Unknown metal type: ", metal_name))
-    is_def(property) ? spec[property] : spec;
+
 	
 	
 // Function: resolveAnchor()

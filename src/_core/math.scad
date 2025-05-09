@@ -1,4 +1,5 @@
 include <BOSL2/std.scad>
+
 //////////////////////////////////////////////////////////////////////
 // LibFile: math.scad
 //   Math handling library 
@@ -45,7 +46,6 @@ include <BOSL2/std.scad>
 //   echo("Rounding negative edge case (halfway): ", decRound(-2.5, 0));        // Expect: -3
 //   // Example where EPSILON *might* matter if precision was higher and value closer to boundary
 //   // echo( decRound(0.1250000000001, 2) ); // Might differ from standard round if EPSILON pushes it
-
 function decRound(value,decimals = 2) =
 	let  (
 		mult = pow(10, decimals)

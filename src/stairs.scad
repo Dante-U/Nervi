@@ -13,9 +13,7 @@ include <_core/main.scad>
 //////////////////////////////////////////////////////////////////////
 include <_materials/multi_material.scad>
 
-
-MOUNT_TYPES = ["standard","flush"];
-
+function mountTypes() = ["standard","flush"];
 
 // Module: stairs()
 // 
@@ -29,7 +27,6 @@ MOUNT_TYPES = ["standard","flush"];
 //    type         		= Type of stairs ("straight", "l_shaped", "u_shaped") (default: "straight").
 //    w       	   		= Total width of the staircase in meters (default: 0.9).
 //    total_rise   		= Total height of the staircase in meters (required or uses $space_height).
-//    l       	   		= Total horizontal length of the staircase in meters (calculated from run*steps if not provided).
 //    steps        		= Number of steps (calculated from height/rise if not provided).
 //    rise         		= Theoretical Height of each step (default: 170). 
 //    run          		= Depth of each step (default: 250).
@@ -52,11 +49,40 @@ MOUNT_TYPES = ["standard","flush"];
 //   stairs(w=.9, total_rise=2.6, type="l_shaped", steps=15);
 // Example(3D,ColorScheme=Tomorrow): U-Shaped Staircase without handrails
 //   stairs(w=1.2, total_rise=3, type="u_shaped");
+
+//back(2000) color ("Green")stairs(w=1, total_rise=2.8);
+
+//stairs(w=.9, total_rise=2.6, type="l_shaped", steps=15);
+
+
+
+include <space.scad>
+include <masonry-structure.scad>
+
+
+//back(meters(0)) l_shaped();
+//test_u_shaped( family="Masonry" );
+
+
+module test_u_shaped( family="Masonry" ) {
+	space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true) {
+		slab();
+		position(LEFT)
+			reddish()
+				stairs(w=1.2,type="u_shaped",family=family,slab_thickness=150,anchor=LEFT)
+					show_anchors(300)
+				
+				;
+	};  
+}
+
+
+
+
 module stairs(
     type 		= "straight",
 	w  			= first_defined([is_undef(w) 			? undef : w ,$thread_width			]),
 	total_rise  = first_defined([is_undef(total_rise) 	? undef : total_rise ,$space_height	]),
-    l,
     steps,
 	family		= "Wood",	
     rise 		= 170,
@@ -74,38 +100,49 @@ module stairs(
 	debug 		= false,
 ) {
 
-    assert(is_meters(total_rise), 					"[stairs] [total_rise] parameter is undefined. Provide height or define variable $room_height");
-	assert( mount == "flush" || mount == "standard" || is_undef(mount),	"[stairs] 'mount' must be either 'flush' or 'standard'"
-	);
-	assert(isValidMaterialFamilies(family),			"[stairs] family (material) must be 'Wood', 'Metal', or 'Masonry'");
-	assert(isValidMaterialFamilies(family),					"[beam] family must be 'Wood', 'Metal', or 'Masonry'");
+    assert(is_meters(total_rise), 				"[stairs] [total_rise] parameter is undefined. Provide height or define variable $room_height");
+	assert( is_in(mount,mountTypes()),			"[stairs] 'mount' must be either 'flush' or 'standard'"	);
+	assert(isValidMaterialFamilies(family),		"[stairs] family (material) must be 'Wood', 'Metal', or 'Masonry'");
 	
 	_total_rise = meters(total_rise);
-    _landing 	= landing_size ? landing_size : w;
-    _steps 		= steps ? steps : mount == "flush" ? ceil( _total_rise / rise ) : ceil( _total_rise / rise ) -1
-				;
-	_rise 		= mount == "flush" ? round(_total_rise/(_steps))	: round(_total_rise/(_steps+1))	;
-    _run 		= run;
 	_w			= meters(w);
-
+    _landing 	= landing_size ? landing_size : _w;
+    _steps 		= steps ? steps : mount == "flush" ? ceil( _total_rise / rise ) : ceil( _total_rise / rise ) -1;
+	_rise 		= mount == "flush" ? round(_total_rise/(_steps)) : round(_total_rise/(_steps+1))	;
+	
 	$thread_width		= meters(w);
 	$thread_run 		= run;
 	$thread_rise 		= _rise;
 	$thread_thickness 	= thickness;
-
-    _length 	= l ? meters(l) : 
-             (type == "straight" ? _run*_steps : 
-             (type == "l_shaped" ? _run*ceil(_steps/2) + _landing : 
-             (type == "u_shaped" ? _run*ceil(_steps/3) + _landing : _run*_steps)));
-	_angle 		= adj_opp_to_ang (_steps * _run,_steps * _rise);
+	
+	
+	mount_vertical_shift = mount == "flush" ? 0 : $thread_rise/2;
+	
+	sections = 
+		let (
+			total = _steps,
+			half  = ceil(total/2),
+			third = ceil(total/3),
+		)
+		type == "l_shaped" ? [ half	 , total-half-1	] : 
+		type == "u_shaped" ? [ third , third-1 		, total - 2 * third  - 1] : 
+		[ total ];
+	
+    _length 	= sections[0] * run + ( type != "straight" ? _landing : 0 );
+	_width    = 
+				type == "l_shaped" ? _w 	+ sections[1] * run :		 
+				type == "u_shaped" ? _w * 2 + sections[1] * run : 
+				_w;	// Straight	 
+	_angle 		= adj_opp_to_ang (_steps * run,_steps * _rise);
 	
 	$stairs_angle 			= _angle;
 	$stairs_slab_thickness 	= slab_thickness;
 	$stairs_material 		= material;
 	$stairs_mount 			= mount;
+	$stairs_landing 		= is_def(landing_size) ? landing_size : $thread_width;
+
+	size = [ _length, _width, _total_rise ];
 	
-    //bounding_size = [ w, _length, _total_rise ];
-	bounding_size = [ _length, _w,  _total_rise ];
 	
 	if (debug) {
 		echo ("*********************");
@@ -120,136 +157,66 @@ module stairs(
 		echo (str(" - angle   :",_angle	));
 	}	
 	
-	module landing( anchor = TOP+FRONT ){
-		material("Wood") cuboid( [ _landing, _landing, thickness ], anchor=anchor);
-	}	
+	origin = [ -size.x/2, (_width-_w)/2, -size.z/2	];
     
-    attachable(anchor, spin, orient=UP, size=bounding_size /*, cp=[_length/2*0,-_w/2*0,_total_rise/2*0]*/ ) {
-        union() {
-			{
-				/*****************
-				 * Straight
-				 *****************/
-                if ( type == "straight" ) {
-					down( mount == "flush" ? 0 : $thread_rise/2)
-						_straightStairs (_steps, family);
-                } else if (type == "l_shaped") {
-					/*****************
-					 * L Shaped
-					 *****************/
-				
-                    // First straight section
-                    half_steps = ceil(_steps/2);
-                    for (i = [0:half_steps-1]) 
-                        translate([0, i*_run, i*_rise])
-                            tread();
-                    // Landing
-                    translate([
-							_w/2-_landing/2, 
-							half_steps * _run, 
-							//half_steps * _rise + _steps +half_steps
-							(half_steps + 1) * _rise // + _steps +half_steps
-						])
-						landing();
-                        //cuboid([_landing, _landing, thickness], anchor=BOTTOM+FRONT);
-                    // Second straight section (perpendicular)
-					for (i = [0:_steps-half_steps-2]) {
-                        translate(
-							[
-								_w/2*2-_landing/2+(i+1)*_run, // OK
-								half_steps*_run - _run/2 , 	// 2 FIX
-								(half_steps+i+1)*_rise //+ _steps
-							])
-								tread( spin=90,anchor=TOP+FRONT+LEFT);
-								//cuboid([_run, _landing, thickness], anchor=BOTTOM+LEFT);
-                    }
-                } else if (type == "u_shaped") {
-					/*****************
-					 * U Shaped
-					 *****************/
-				
-					//anchor_arrow(500);
-					// ************************
-                    //  First straight section
-					// ************************
-                    third_steps = ceil(_steps/3);
-					
-					echo ("**** third_steps ****",third_steps);
-                    for ( n = [0:third_steps-1] ) 
-                        translate([0, n * _run, n * _rise])
-							tread();
-                    // ************************
-                    //  First landing
-					// ************************
-                    translate(
-						[
-							_w/2 - _landing/2, 
-							third_steps*_run, 
-							(third_steps+1) * _rise
-						]) 
-							landing();
-							//cuboid( [ _landing, _landing, thickness ], anchor=TOP+FRONT);
-                    
-					// ************************
-                    // Middle straight section 
-					//     (perpendicular)
-					// ************************
-					middle_steps = ceil(_steps/3)-1;
-                    for ( i = [ 0 : middle_steps-2 ] ) material("Wood") {
-                        translate(
-							[
-								_w/2 - _landing/2+ (i+2) * _run , 
-								third_steps*_run-run/2, 
-								(third_steps+i+1)*_rise
-							])
-							tread( spin=90,anchor=TOP+BACK+LEFT);
-                    }
-					x1 = (middle_steps-1) * _run;
-					//echo ("middle_steps" ,middle_steps);
-					// ************************
-                    // Second landing
-					// ************************
-                    translate([
-							_w/2+_landing/2 + x1 ,  
-							third_steps*_run , 
-							(third_steps+middle_steps+1)*_rise *1
-						]) 
-							landing();
-					// ************************
-					// Third straight section 
-					//   (parallel to first)
-					// ************************
-					remain_steps = _steps - third_steps - middle_steps - ((mount == "flush") ?  2 : 2);
-					for (i = [0:remain_steps]) {
-						translate(
-						[
-							//0+500, 
-							_w/2+_landing/2 + x1 ,
-							(third_steps-i-1)*_run, 
-							(third_steps+middle_steps+i+1)*_rise
-						])
-							tread(_w, _run, _rise);
-					}
-                }
-                // Add handrails if enabled
-				if (len(handrails) > 0) { 
-					if (type == "straight") for (side = handrails) _handrail(side);
-					
-				}
-				/*
-                if (handrail) {
-                    if (type == "straight") {
-                        _handrail(RIGHT); // Left side
-                        _handrail(LEFT); // Right side
-                    } else if (type == "l_shaped") {
-                        // Would add more complex handrail logic here
-                    } else if (type == "u_shaped") {
-                        // Would add more complex handrail logic here
-                    }
-                }
-				*/
-            }
-        }
+    attachable( anchor, spin, size=size ) {
+		if ( type == "straight" ) {
+			/*****************
+			 * Straight
+			 *****************/
+			down( mount_vertical_shift ) _straightStairs (sections[0], family);
+		} else if (type == "l_shaped") {
+			/*****************
+			 * L Shaped
+			 *****************/
+			translate( origin )  // Move to lower origin
+			// Lower stairs
+			_straightStairs (sections[0], family , anchor = LEFT+BOT) 
+			// ************************
+			//  First landing
+			// ************************
+			position(TOP+RIGHT)	landing(anchor=LEFT+BOT)
+			// ************************
+			// Upper section 
+			// ************************
+			position(FWD+TOP)
+				_straightStairs (sections[1], family , anchor = LEFT+BOT,spin=-90) ;						
+		} else if (type == "u_shaped") {
+			/*****************
+			 * U Shaped
+			 *****************/
+			last_landing    = (sections[0] - sections[2] +1) * run;
+			translate( origin )  // Move to lower origin
+			// ************************
+			//  First straight section
+			// ************************
+			_straightStairs (sections[0], family , anchor = LEFT+BOT) 
+			// ************************
+			//  First landing
+			// ************************
+			position(TOP+RIGHT)
+				landing(anchor=LEFT+BOT)
+			// ************************
+			// Middle straight section 
+			// ************************
+			position(FWD+TOP)
+				_straightStairs (sections[1], family , anchor = LEFT+BOT,spin=-90) 
+			// ************************
+			//  Second landing
+			// ************************
+			position(TOP+RIGHT)	
+				landing(anchor=LEFT+BOT)
+			// ************************
+			// Third straight section 
+			// ************************								
+			position(TOP+FWD)									
+				_straightStairs (sections[2], family , anchor = LEFT+BOT,spin=-90)
+			// ************************
+			//  Third landing
+			// ************************
+			position(TOP+RIGHT)	
+				landing(length = last_landing, anchor=LEFT+BOT);	
+		}	
         children();
     }
 	module _handrail( side=RIGHT ) {
@@ -261,14 +228,14 @@ module stairs(
             for (i = [0:2:_steps]) material("Aluminium") 
 				translate([
 							rail_offset, 
-							i*_run+rail_width/2, 
+							i*run+rail_width/2, 
 							_rise + i* _rise
 						])
                     cuboid([rail_width, rail_width, rail_height], anchor=BOTTOM);
 			// *******************
             // * Horizontal rail *
 			// *******************
-			railLength = adj_opp_to_hyp (_length,_total_rise);
+			railLength = adj_opp_to_hyp (size.x,_total_rise);
 			translate(
 				[
 					rail_offset,
@@ -290,40 +257,60 @@ module stairs(
 }
 
 
-module _straightStairs( steps, family,anchor ) {
+module _straightStairs( steps, family, anchor, spin ) {
 	
 	//frame_ref(200);
-	
-	if ( is_in(family,["Wood","Metal"])) {	
-		translate([-steps/2 * $thread_run, 0,-steps/2 * $thread_rise])
-			for (i = [0:steps-1])
-				let (
-					x = i * $thread_run,	
-					z = i * $thread_rise,	
-				)
-				translate([x, 0, z]) tread();		
-	}		
-	else if (family == "Masonry")	 
-	{
-		x0 = ang_opp_to_hyp($stairs_angle,$stairs_slab_thickness);
-		y0 = ang_adj_to_hyp($stairs_angle,$stairs_slab_thickness);
-		path = flatten([
-			[ [x0,0],[0,0] ],
-			for (i = [0:steps-1])
-				let ( 
-					x	= i 	* $thread_run,
-					y 	= (i+1) * $thread_rise, 
-				)
-				[ [ x ,y ] , [ x + $thread_run ,y ] ],
-			[ [ steps*$thread_run,steps*$thread_rise-y0] ]	
-		]);
-		material( $stairs_material , default = materialFamilyToMaterial(family))
-			extrude($thread_width,dir=FRONT, path=path, anchor=anchor, center=true);
-	
+	size = [ steps * $thread_run, $thread_width, steps * $thread_rise ];
+	attachable( size = size , anchor = anchor , spin ) {
+		if ( is_in(family,["Wood","Metal"])) {	
+			translate([-steps/2 * $thread_run, 0,-steps/2 * $thread_rise])
+				for (i = [0:steps-1])
+					let (
+						x = i * $thread_run,	
+						z = i * $thread_rise,	
+					)
+					//translate([x, 0, z]) tread();		
+					translate([x, 0, z]) cached_tread();		
+		}		
+		else if (family == "Masonry")	 
+		{
+			x0 = ang_opp_to_hyp($stairs_angle,$stairs_slab_thickness);
+			y0 = ang_adj_to_hyp($stairs_angle,$stairs_slab_thickness);
+			path = flatten([
+				[ [x0,0],[0,0] ],
+				for (i = [0:steps-1])
+					let ( 
+						x	= i 	* $thread_run,
+						y 	= (i+1) * $thread_rise, 
+					)
+					[ [ x ,y ] , [ x + $thread_run ,y ] ],
+				[ [ steps*$thread_run,steps*$thread_rise-y0] ]	
+			]);
+			material( $stairs_material , default = materialFamilyToMaterial(family))
+				extrude($thread_width,dir=FRONT, path=path,/* anchor=anchor,*/ center=true);
+		
+		}	
+		children();
 	}	
 		
 }
 
+module landing( 
+		length = first_defined([ is_undef(length) ? undef : length, $stairs_landing ]), 
+		anchor = TOP 
+	){
+	size = [ length, $thread_width, $thread_rise ];
+	attachable (size = size, anchor=anchor) {
+		material("Wood") cuboid( size );
+		children();
+	}
+	
+}	
+
+
+module cached_tread() {
+	render() tread();
+}
 
 module tread( 
 	w = first_defined([is_undef(w) 	? undef : w ,$thread_width]),

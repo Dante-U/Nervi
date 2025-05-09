@@ -1,6 +1,6 @@
 # Stairs
 
-The [stairs.scad](./stairs.scad) library is a powerful tool for creating parametric staircases in OpenSCAD, tailored for architectural and interior design applications. Whether you’re designing a sleek modern staircase for a building superstructure or a compact spiral staircase for a space-conscious interior, this library offers flexible, customizable solutions. 
+The [stairs.scad](./stairs.scad) library is a powerful tool for creating parametric staircases in Nervi for OpenSCAD, tailored for architectural and interior design applications. Whether you’re designing a sleek modern staircase for a building superstructure or a compact spiral staircase for a space-conscious interior, this library offers flexible, customizable solutions. 
 
 By leveraging the BOSL2 library for geometry, attachments, and rendering, stairs.scad enables users to generate **straight**, **L-shaped**, **U-shaped**, and **spiral** staircases with precise control over dimensions, materials, and features like handrails.
 
@@ -86,9 +86,9 @@ space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true)
 
 after code
 
-## Wood straight stairs
+## Wood or Metal straight stairs
 
-This example with demonstrate how to align and spin a stairs in wood.
+This example with demonstrate how to align and spin a stairs in wood or metal.
 
 ```openscad-3D;ColorScheme=Tomorrow;Big
 include <Nervi/stairs.scad>

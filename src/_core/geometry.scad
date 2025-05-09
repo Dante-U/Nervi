@@ -1,5 +1,5 @@
 include <constants.scad>
-include <assert.scad>
+use <assert.scad>
 
 //////////////////////////////////////////////////////////////////////
 // LibFile: geometry.scad
@@ -389,7 +389,20 @@ function isLineIntersectsPolygon(line, path, eps=1e-6) =
     any([for (seg = segments) lineIntersection(line, seg) != undef]);	
 
 
-
+// Function: perimeter()
+//
+// Synopsis: Calculates the perimeter of a 2D rectangle.
+// Topics: Geometry, Measurement
+// Description:
+//   Computes the perimeter of a rectangle given its size as a 2D vector [width, height].
+//   The perimeter is calculated as 2 * width + 2 * height.
+// Arguments:
+//   size = Vector [x, y] representing the width (x) and height (y) of the rectangle (in mm).
+// Example:
+//   size = [10, 5];
+//   peri = perimeter(size);
+//   echo(peri); // Outputs: 30
+function perimeter ( size ) = 2* size.x + 2* size.y;
 	
 
 

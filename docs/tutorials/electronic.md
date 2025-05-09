@@ -1,4 +1,4 @@
-# Electronic devices
+# Electronic devices tutorial
 
 
 ## Television
@@ -26,11 +26,12 @@ Parameters :
 Create a 55-inch television with a 1600 mm stand.
 
 ```openscad-3D;ColorScheme=Tomorrow
-include <Nervi/space.scad>
 include <Nervi/electronic.scad>
-
 television(size=55, height=1600);
 ```
+
+> [!IMPORTANT]  
+> By default televisions are oriented up to be easily attached to walls
 
 ### Example 2: 
 

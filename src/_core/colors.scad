@@ -8,7 +8,8 @@ include <constants.scad>
 // FileSummary: Colors, Material
 //////////////////////////////////////////////////////////////////////
 
-material_colors = struct_set([], [
+function colorsData() = struct_set([], [
+//material_colors = struct_set([], [
     "Aluminium",   ["Linen",           [0.98, 0.941, 0.902], 1],
     "Bamboo",      ["Khaki",           [0.941, 0.902, 0.549], 1],
     "Brick",       ["IndianRed",       [0.804, 0.361, 0.361], 1],
@@ -97,7 +98,7 @@ module material( name, transparency, deep= true ,default ) {
 // Synopsis: Returns the color corresponding to a given material.
 // Topics: Materials, Colors
 // Description: 
-//    This function performs a lookup in the `material_colors` table 
+//    This function performs a lookup in the `colorsData()` table 
 //    and returns the corresponding color for the given material name. 
 //    If the material is not found, it returns "default" as a default color.
 // Arguments: 
@@ -106,7 +107,7 @@ module material( name, transparency, deep= true ,default ) {
 //   cuboid(600,$color=matColor("Sand"));
 //
 function matColor( material ) =
-	struct_val(material_colors, material, default = ["default",1])[0];
+	struct_val( colorsData() , material, default = ["default",1])[0];
 	
 // Function: matColorSpec()
 // Synopsis: Returns the color specification for a given material.
@@ -128,20 +129,21 @@ function matColor( material ) =
 //   spec = matColorSpec("Unknown"); // undef
 function matColorSpec( material, fallBack ) =
 	let (
-		found = is_def(material) ? struct_val(material_colors, material) : undef,
-		result = found ? found : fallBack ? struct_val(material_colors, fallBack) : undef
+		data 	= colorsData(),
+		found 	= is_def(material) ? struct_val(data, material) : undef,
+		result 	= found ? found : fallBack ? struct_val(data, fallBack) : undef
 	)
 	result;
 
 //echo ("matColorSpec",matColorSpec("Wood"));	
 //echo ("matColorSpec with fallback",matColorSpec("glu",fallBack="Plywood"));	
 	
-// Module: apply_color()
+// Module: applyColor()
 //
 // Synopsis: Applies the $color special variable to geometry if defined.
 // Topics: Color, Geometry
 // Usage:
-//   apply_color() { <geometry> }
+//   applyColor() { <geometry> }
 // Description:
 //   Wraps the given geometry in a color() module if $color is defined.
 //   If $color is undef, the geometry is rendered with the default color.
@@ -149,23 +151,23 @@ function matColorSpec( material, fallBack ) =
 //   Especially usefull with linear_extrude
 // Example(ColorScheme=Tomorrow)
 //   $color = "Blue";
-//   apply_color() cuboid(20);  // Blue cuboid
+//   applyColor() cuboid(20);  // Blue cuboid
 // Example(ColorScheme=Tomorrow)
 //   $color = "Blue";
-//   apply_color() linear_extrude(50) rect(60);  // Blue extruded rectangle
+//   applyColor() linear_extrude(50) rect(60);  // Blue extruded rectangle
 // Example(ColorScheme=Tomorrow)
-//   apply_color() cuboid(20);  // Default color (no $color defined)
-module apply_color() {
+//   applyColor() cuboid(20);  // Default color (no $color defined)
+module applyColor() {
   if (is_def($color) && $color != "default") {
     color($color) children();
   } else {
     children();
   }
 }	
-	
 
 /**
  * Function: green_palette
+ *
  * Description: Generates a shade of green based on a factor f.
  * Parameters:
  *   f - Factor from 0 to 1
@@ -186,3 +188,10 @@ function green_palette(f) =
 module reddish() {
 	color("IndianRed") children(); 	
 }	
+module primary() {
+	color("IndianRed") children(); 	
+}	
+module secondary() {
+	color("IndianRed") children(); 	
+}	
+

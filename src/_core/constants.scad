@@ -62,6 +62,11 @@ OFFSET=0.02;
 // Description: Boolean operation clearance
 CLEARANCE 		= 0.201;
 
+
+// Constant: CR
+// Description: Carriage return 
+CR = "\n";
+
 // Constant: EPSILON
 // Synopsis: A tiny value to compare floating point values.  `1e-9`
 // Topics: Constants, Math
@@ -303,3 +308,90 @@ function corners(face) =
         ]
     )
     [for (entry = face_map) if (in_list(face, entry[0])) entry[1]][0];	
+	
+	
+// Constant: MATERIAL_DENSITY
+// Description: Index for material density value (kg/m³)
+MATERIAL_DENSITY 				= 0;
+
+// Constant: MATERIAL_COMPRESSIVE_STRENGTH
+// Description: Index for material compressive strength (MPa)
+MATERIAL_COMPRESSIVE_STRENGTH 	= 1;
+
+// Constant: MATERIAL_ELASTICITY
+// Description: Index for material elasticity/modulus of elasticity (GPa)
+MATERIAL_ELASTICITY 			= 2;
+
+// Constant: MATERIAL_STRENGTH_CLASS
+// Description: Index for material strength classification
+MATERIAL_STRENGTH_CLASS 		= 3;
+
+// Constant: MATERIAL_APPLICATION
+// Description: Index for recommended applications
+MATERIAL_APPLICATION 			= 4;
+
+// Constant: MATERIAL_DESCRIPTION
+// Description: Index for general description of the material
+MATERIAL_DESCRIPTION 			= 5;
+
+// Constant: STRUCTURE_MATERIAL_FAMILIES
+//
+// Synopsis: Defines the list of valid material families for staircase components.
+// Topics: Materials, Validation
+// See Also: isValidMaterialFamilies(), materialFamilyToMaterial(), stairs(), handrail()
+// Description:
+//   A list of strings representing the supported material families for staircase-related modules.
+//   Includes "Wood", "Metal", and "Masonry". Used by validation functions like
+//   isValidMaterialFamilies() to ensure the `family` argument is valid, and by
+//   materialFamilyToMaterial() to map families to specific materials (e.g., "Wood" to "Pine").
+// Example(ColorScheme=Nature):
+//   // Check if a material family is valid
+//   valid = isValidMaterialFamilies("Wood");  // Returns true
+//   echo("Is Wood valid?", valid);
+//   // Map a family to a material
+//   material = materialFamilyToMaterial("Metal");  // Returns "Steel"
+//   echo("Material for Metal:", material);
+STRUCTURE_MATERIAL_FAMILIES = [ "Wood", "Metal", "Masonry" ];
+
+// Function: isValidMaterialFamilies()
+//
+// Synopsis: Validates if a material family is defined and supported.
+// Topics: Materials, Validation
+// See Also: stairs(), handrail()
+// Usage:
+//   valid = isValidMaterialFamilies(value);
+// Description:
+//   Checks if the provided value is a defined string and exists in the list of supported material families
+//   (e.g., "Wood", "Metal", "Masonry"). Used to validate the `family` argument in staircase-related modules.
+// Arguments:
+//   value = The material family to validate (e.g., "Wood").
+// Example(ColorScheme=Tomorrow):
+//   valid = isValidMaterialFamilies("Wood");  // Returns true
+//   valid = isValidMaterialFamilies("Plastic"); // Returns false
+//   echo("Is Wood valid?", valid);
+function isValidMaterialFamilies ( value ) = 
+	is_def(value)  && in_list(value,STRUCTURE_MATERIAL_FAMILIES);
+
+// Function: materialFamilyToMaterial()
+// Synopsis: Maps a material family to a default material name.
+// Topics: Materials, Mapping
+// See Also: isValidMaterialFamilies(), stairs(), handrail()
+// Usage:
+//   material = materialFamilyToMaterial(family);
+// Description:
+//   Converts a material family (e.g., "Wood", "Metal", "Masonry") to a specific default material name
+//   (e.g., "Pine", "Steel", "Concrete"). Returns undef for invalid families. Used to set default materials
+//   in staircase-related modules for rendering or metadata.
+// Arguments:
+//   family = The material family to map (e.g., "Wood").
+// Example(ColorScheme=Tomorrow):
+//   material = materialFamilyToMaterial("Wood");  // Returns "Pine"
+//   material = materialFamilyToMaterial("Metal"); // Returns "Steel"
+//   material = materialFamilyToMaterial("Plastic"); // Returns undef
+//   echo("Material for Wood:", material);	
+function materialFamilyToMaterial( family  ) =
+	assert (isValidMaterialFamilies(family),"[materialFamilyToMaterial] is not a valid family name")
+	family == "Wood" 	? "Pine" : 	
+	family == "Metal" 	? "Steel" : 	
+	family == "Masonry"	? "Concrete" : 	
+	undef;		

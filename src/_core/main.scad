@@ -1,11 +1,8 @@
 include <constants.scad>
-include <colors.scad>
-include <strings.scad>
-include <utils.scad>
-include <geometry.scad>
-include <metadata.scad>
-include <assert.scad>
-include <2D.scad>
-include <3D.scad>
-
-
+use <colors.scad>
+use <utils.scad>
+use <geometry.scad>
+use <metadata.scad>
+use <assert.scad>
+use <math.scad>
+use <2D.scad>

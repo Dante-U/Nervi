@@ -266,10 +266,6 @@ function clothoid(t, r, l) =
     )
     [A * C, A * S];
 	
-
-
-	
-	
 // Function: generalizedClothoid()
 //
 // Synopsis: Generates a 2D path for a generalized clothoid curve.

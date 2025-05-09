@@ -55,7 +55,7 @@ Example 1: Querying a Specific Property
 
 Retrieve the density of "Ipe":
 
-```openscad
+```scad
 include <Nervi/_materials/wood.scad>
 density = woodSpecs("Ipe", MATERIAL_DENSITY);
 echo("Ipe density:", density); // Outputs: Ipe density: 1050

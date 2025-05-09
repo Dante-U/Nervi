@@ -1,5 +1,4 @@
 include <BOSL2/std.scad>
-include <_common.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: masonry.scad
 //   Masonry material specs
@@ -33,13 +32,14 @@ include <_common.scad>
 function masonrySpecs( wood_name, property ) =
 	assert(is_def(wood_name), "[masonrySpecs] Missing wood name argument")
 	let (
+		data = _masonryData(),
 		spec = struct_val(masonry_specs, wood_name),
 	)
 	assert(is_def(spec), str("[masonrySpecs] Unknown wood type: ", wood_name))
 	is_def(property) ? spec[property] : spec;
 
 	
-masonry_specs = struct_set([], [
+function _masonryData()  = struct_set([], [
     // Traditional Masonry
     "Brick", [
         1900,       // Density (kg/m³)

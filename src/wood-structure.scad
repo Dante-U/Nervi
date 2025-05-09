@@ -568,7 +568,7 @@ module vPanels(
 // Description:
 //   Generates a wall sheathing composed of oriented panels (e.g., 4x8 ft) arranged to cover a wall of
 //   specified length and height. Panels are created using the plank module, with optional numbering or
-//   indexing. The material color is applied via apply_color, falling back to $color or the default color.
+//   indexing. The material color is applied via applyColor, falling back to $color or the default color.
 //   Supports metadata output (e.g., cost, volume, weight) if info is true. Length, height, and thickness
 //   default to $wall_length, $wall_height, and $plank_thickness if defined. All dimensions must be positive
 //   numbers, and panel must be a valid [width, height] pair. Spacing between panels is configurable.

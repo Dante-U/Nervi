@@ -1,12 +1,4 @@
 include <_core/main.scad>
-/*
-include <BOSL2/std.scad>
-include <BOSL2/beziers.scad>
-include <BOSL2/skin.scad>
-
-include <_core/utils.scad>
-*/
-
 
 //////////////////////////////////////////////////////////////////////
 // LibFile: furniture.scad
@@ -15,9 +7,6 @@ include <_core/utils.scad>
 // FileGroup: Interior Equipment
 // FileSummary: Architecture, Building, Furniture, BIM, Furniture, IfcFurniture
 //////////////////////////////////////////////////////////////////////
-
-debugging_furniture = false;
-
 
 // Function&Module: placeFurniture()
 //

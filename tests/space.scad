@@ -69,7 +69,7 @@ module test_space_opening() {
 				w = 1,
 				h = 1.4,
 				inset=[200,0],
-				debug = true
+				//debug = true
 			){
 				//frame_ref(850);
 			};
@@ -81,7 +81,7 @@ module test_space_opening() {
 				w = 1,
 				h = 1.4,
 				inset=[200,0],
-				debug = true
+				//debug = true
 			){
 				//frame_ref(850);
 			};
@@ -92,7 +92,7 @@ module test_space_opening() {
 				w = 1,
 				h = 1.4,
 				inset=[200,0],
-				debug = true
+				//debug = true
 			){
 				//frame_ref(850);
 			};

@@ -1,7 +1,6 @@
 include <constants.scad>
-include <strings.scad>
-include <currency.scad>
-
+use <strings.scad>
+use <currency.scad>
 
 //////////////////////////////////////////////////////////////////////
 // LibFile: metadata.scad
@@ -12,9 +11,7 @@ include <currency.scad>
 // FileSummary: Architecture, Metadata
 //////////////////////////////////////////////////////////////////////
 
-// Section: Constants
-//   Predefined metadata specifications for common properties.
-meta_specs = struct_set([], [
+function metaSpecs() = struct_set([], [
 	"id",        	 [ "ID"				    							],
 	"name",        	 [ "Name"											],
 	"type",        	 [ "Type"											],
@@ -43,11 +40,6 @@ meta_specs = struct_set([], [
 	
 ]);
 
-unit_specs = struct_set([], [
-	"m",			[ "Meters", "m"],
-
-]);
-
 function generate_guid() =
     let(
         chars = "0123456789ABCDEF",
@@ -68,7 +60,10 @@ function generate_guid() =
 //   spec = metaSpec("volume");  // Returns ["Volume", "Kg"]	
 function metaSpec( property ) =	
 	assert(property, "Meta spec property cannot be undefined")
-	struct_val(meta_specs, property);
+	let(
+		data = metaSpecs()
+	)
+	struct_val(data, property);
 
 // Function: materialSpecs()
 // 

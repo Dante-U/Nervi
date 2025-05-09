@@ -1,6 +1,7 @@
 include <constants.scad>
-include <geometry.scad>
-include <colors.scad>
+use <geometry.scad>
+use <assert.scad>
+use <colors.scad>
 
 //////////////////////////////////////////////////////////////////////
 // LibFile: utils.scad
@@ -51,13 +52,13 @@ module extrude(height, dir=UP, path, center=false, path_centering = true, anchor
 		size = boundingSize(_path,height);
 		_size = v_abs(apply(tmat,size)); // Work with RIGHT,LEFT,UP,DOWN 
 		attachable(anchor=anchor, spin=spin, size=_size) {
-			mirror(flip) xrot(rot) tilt(dir) apply_color()  
+			mirror(flip) xrot(rot) tilt(dir) applyColor()  
 				linear_extrude( height=height, center=false ) polygon(_path);
 			children();		
 		}	
 
 	} else {
-		mirror(flip) xrot(rot) tilt(dir) apply_color()  
+		mirror(flip) xrot(rot) tilt(dir) applyColor()  
 			linear_extrude( height, center=false ) children();
 	}
 }

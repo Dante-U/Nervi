@@ -1,5 +1,5 @@
 include <_core/main.scad>
-include <_materials/masonry.scad>
+use <_materials/masonry.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: space.scad
 //   A library for defining and manipulating architectural spaces in OpenSCAD,
@@ -207,9 +207,8 @@ module attachWalls( faces = SIDES , child, placement = "outside", force = false 
 	}	
 }
 
-//echo ("wallAnchor",wallAnchor(FRONT,true));
-
 // Function: wallAnchor()
+//
 // Synopsis: Generates a wall anchor name.
 // Topics: Geometry, Helpers
 // Description:
@@ -221,8 +220,8 @@ module attachWalls( faces = SIDES , child, placement = "outside", force = false 
 //    name = wallAnchor(BACK, true); // Returns "BACK_INSIDE"
 function wallAnchor(anchor, inside ) = str(dirAsName(anchor), "_", inside ? "INSIDE" : "OUTSIDE");
 
-
 // Function: wallGeometry()
+//
 // Synopsis: Generates 2D points for a wall's surface in a space.
 // Topics: Architecture, Geometry
 // Description:

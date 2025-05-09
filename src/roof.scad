@@ -1,4 +1,5 @@
 include <_core/main.scad>
+
 //////////////////////////////////////////////////////////////////////
 // LibFile: roof.scad
 // Includes:
@@ -6,8 +7,8 @@ include <_core/main.scad>
 // FileGroup: Superstructure
 // FileSummary: Architecture, Roofs
 //////////////////////////////////////////////////////////////////////
-include <_materials/wood.scad>
 include <BOSL2/rounding.scad>
+use <_materials/wood.scad>
 use <_core/3D.scad>
 use <_core/distribute.scad>
 use <_core/debug.scad>
@@ -476,12 +477,12 @@ module roofFrame(rafter_section = [ 2*INCH, 4*INCH ], spacing = 400 ,material="P
 //   spin 		= Rotation angle (degrees) around Z-axis [default: 0].
 //   rounding 	= Corner radius for smoothing edges [default: 0].
 //   debug 		= If true, shows 2D profile instead of 3D extrusion [default: false].
-// Example(3D,ColorScheme=Tomorrow):
-//   rafter(section=[2, 4], length=10, pitch1=30, pitch2=30, rounding=0.5);
-// Example(3D,ColorScheme=Tomorrow):
-//   rafter(section=[2, 4], length=8, anchor=CENTER, debug=true);
-// Example(3D,ColorScheme=Tomorrow):
-//   rafter(section=[3, 5], length=12, pitch1=-45, spin=45);
+// Example(3D,ColorScheme=Tomorrow): Simple rafter
+//   rafter(section=[60, 120], length=1200, anchor=CENTER, debug=true);
+// Example(3D,ColorScheme=Tomorrow): Pitch 1 and 2 of 30° 
+//   rafter(section=[60, 120], length=1200, pitch1=30, pitch2=30, rounding=0.5);
+// Example(3D,ColorScheme=Tomorrow): Pitch 1 of -45° and spin of 45°
+//   rafter(section=[60, 120], length=1200, pitch1=-45, spin=45);
 module rafter(section,length,pitch1 = 0,pitch2 = 0,anchor = BOT,material = "Wood",spin,rounding = 0,debug = false) {
 	bounding = [ length ,section.x, section.y ];
 	x 	= bounding.x/2;

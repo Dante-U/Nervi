@@ -1,8 +1,8 @@
+include <BOSL2/rounding.scad>
 include <constants.scad>
-use <curves.scad>
+//use <curves.scad>
 use <assert.scad>
 
-include <BOSL2/rounding.scad>
 //////////////////////////////////////////////////////////////////////
 // LibFile: 2D.scad
 // Includes:
@@ -309,8 +309,6 @@ function radiusFromChord(L, h) =
 //   echo("Radius: ", radius);
 function radiusFromLineDistance (chord,sagitta) = 
 	pow(chord,2)/(8*sagitta)+(sagitta/2);
-
-
 	
 
 // Function: sheet_count()
@@ -411,17 +409,4 @@ function yMirrorPath( path ) =
 	)
 	concat(path,reflected);	
 
-// Function: perimeter()
-//
-// Synopsis: Calculates the perimeter of a 2D rectangle.
-// Topics: Geometry, Measurement
-// Description:
-//   Computes the perimeter of a rectangle given its size as a 2D vector [width, height].
-//   The perimeter is calculated as 2 * width + 2 * height.
-// Arguments:
-//   size = Vector [x, y] representing the width (x) and height (y) of the rectangle (in mm).
-// Example:
-//   size = [10, 5];
-//   peri = perimeter(size);
-//   echo(peri); // Outputs: 30
-function perimeter ( size ) = 2* size.x + 2* size.y;
+

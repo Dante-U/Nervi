@@ -1,6 +1,7 @@
 include <constants.scad>
 use <2D.scad>
 use <utils.scad>
+
 //////////////////////////////////////////////////////////////////////
 // LibFile: 3D.scad
 // Includes:
@@ -8,7 +9,7 @@ use <utils.scad>
 // FileGroup: Geometry
 // FileSummary: 3D, Shapes 
 //////////////////////////////////////////////////////////////////////
-	
+
 
 // Function: tracePoint()
 // 
@@ -283,7 +284,6 @@ module pieSlice( radius,angle = 90, height=5 , anchor, spin ,orient ) {
 		children();
 	}		
 }
-
 
 module bendExtrude( size, thickness, angle, frags = 24 ) {
     x = size.x;
