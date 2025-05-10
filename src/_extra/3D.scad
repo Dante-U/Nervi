@@ -1,6 +1,6 @@
-include <constants.scad>
-use <2D.scad>
-use <utils.scad>
+include <../_core/constants.scad>
+use <../_core/2D.scad>
+use <../_core/utils.scad>
 
 //////////////////////////////////////////////////////////////////////
 // LibFile: 3D.scad

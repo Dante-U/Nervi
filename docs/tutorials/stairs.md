@@ -1,4 +1,4 @@
-# Stairs
+# Stairs in Nervi
 
 The [stairs.scad](./stairs.scad) library is a powerful tool for creating parametric staircases in Nervi for OpenSCAD, tailored for architectural and interior design applications. Whether you’re designing a sleek modern staircase for a building superstructure or a compact spiral staircase for a space-conscious interior, this library offers flexible, customizable solutions. 
 
@@ -78,13 +78,17 @@ include <Nervi/masonry-structure.scad>
 space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true)
 {
 	slab();
-	position(RIGHT)
-		reddish()
-			stairs(w=1.2,type="straight",family="Masonry",slab_thickness=150,anchor=RIGHT);
+	position(RIGHT) primary()
+		stairs(
+			w					= 1.2,
+			type				= STRAIGHT,
+			family				= "Masonry",
+			slab_thickness	= 150,
+			anchor				= RIGHT
+		);
 };	
 ```
 
-after code
 
 ## Wood or Metal straight stairs
 
@@ -95,14 +99,62 @@ include <Nervi/stairs.scad>
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
 
-space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true)
-{
+space(l=3, w=3, h=2.8, wall=200, except=[FRONT,RIGHT],debug=true) {
 	slab();
-	position(LEFT)
-		reddish()
-		stairs( w = 1.2, type="straight", family="Wood", anchor=RIGHT, spin=180 );
+	position(LEFT) primary()
+		stairs( 
+			w 		= 1.2, 
+			type	= STRAIGHT, 
+			family	= "Wood", 
+			anchor	= RIGHT, 
+			spin	= 180 
+		);
 };
 ```
+
+## L-Shaped Stairs
+
+L-shaped staircases, characterized by a single **90-degree** turn, provide a space-efficient and visually appealing solution for connecting multiple levels in residential and commercial spaces. The Nervi Stairs Library, offers a parametric approach to designing L-shaped staircases in OpenSCAD. 
+
+### Understanding L-Shaped Stairs
+
+The stairs() module with type=L_SHAPED generates a staircase with two straight sections connected by a landing, forming a 90-degree turn. Key features include:
+
+* Configurable Dimensions: Set width, total rise, number of steps, and landing size.
+* Material Support: Choose from "Wood", "Metal", or "Masonry" families.
+* Handrails: Optional handrails on one or both sides.
+* Mounting Options: Standard or flush mount for integration with floors or slabs.
+* BOSL2 Integration: Uses attachable() for positioning and attachments.
+
+The staircase is divided into a lower section (first set of steps), a landing, and an upper section (second set of steps). The landing size defaults to the staircase width but can be customized.
+
+### Basic Example: Simple L-Shaped Staircase
+
+Let's create a basic L-shaped staircase with a width of 1.2 meter, a total rise of 2.8 meters, and handrails on the right side.
+
+```openscad-3D;ColorScheme=Tomorrow;Big
+include <Nervi/stairs.scad>
+include <Nervi/space.scad>
+include <Nervi/masonry-structure.scad>
+
+zrot(90) space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true) {
+		slab();
+		position(LEFT+BACK)
+			primary()
+				stairs(
+					w					= 1.2,
+					type				= L_SHAPED,
+					family				= "Masonry",
+					handrails 		= [RIGHT],
+					slab_thickness 	= 150,
+					anchor				= LEFT+BACK
+				);
+	};  
+```
+
+> [!NOTE] 
+> The staircase consists of two sections of steps (split approximately evenly) and a landing at the turn. The steps 
+> are calculated based on the total rise, ensuring compliance with standard stair dimensions.
 
 ### Stairs mount
 
@@ -127,13 +179,13 @@ space(except=[FRONT,RIGHT],debug=true)
 	position(LEFT)
 		reddish()
 		stairs(
-			w=1.2,
-			type="straight",
-			family="Masonry",
-			slab_thickness = 150,
-			mount="standard",
-			anchor=RIGHT,
-			spin=180
+			w					= 1.2,
+			type				= STRAIGHT,
+			family				= "Masonry",
+			slab_thickness 	= 150,
+			mount				= STANDARD_MOUNT,
+			anchor				= RIGHT,
+			spin				= 180
 		);
 };
 ```
@@ -153,13 +205,13 @@ space(except=[FRONT,RIGHT],debug=true)
 	position(LEFT)
 		reddish()
 		stairs(
-			w=1.2,
-			type="straight",
-			family="Masonry",
-			slab_thickness = 150,
-			mount="flush",
-			anchor=RIGHT,
-			spin=180
+			w					= 1.2,
+			type				= STRAIGHT,
+			family				= "Masonry",
+			slab_thickness	= 150,
+			mount				= FLUSH_MOUNT,
+			anchor				= RIGHT,
+			spin				= 180
 		);
 }
 ```
@@ -168,5 +220,5 @@ space(except=[FRONT,RIGHT],debug=true)
 
 |Standard Mount|Flush Mount|
 |---|---|
-|![](./images/tutorials/stairs_3.png)|![](./images/tutorials/stairs_4.png)|
-|```mount = "standard"```|```mount = "flush"```|
+|![](./images/tutorials/stairs_4.png)|![](./images/tutorials/stairs_5.png)|
+|```mount = STANDARD_MOUNT```|```mount = FLUSH_MOUNT```|

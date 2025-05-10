@@ -1,6 +1,7 @@
 //include <BOSL2/std.scad>
-include <utils.scad>
-use <strings.scad>
+include <../_core/utils.scad>
+use <../_core/strings.scad>
+
 
 module echo_list(values,level = 0,label = "List Values")  {
 	lines = echo_list(values,level);

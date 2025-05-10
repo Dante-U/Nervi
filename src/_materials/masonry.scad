@@ -33,7 +33,7 @@ function masonrySpecs( wood_name, property ) =
 	assert(is_def(wood_name), "[masonrySpecs] Missing wood name argument")
 	let (
 		data = _masonryData(),
-		spec = struct_val(masonry_specs, wood_name),
+		spec = struct_val(data, wood_name),
 	)
 	assert(is_def(spec), str("[masonrySpecs] Unknown wood type: ", wood_name))
 	is_def(property) ? spec[property] : spec;

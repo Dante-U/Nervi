@@ -206,7 +206,6 @@ function vesicaPiscis(r,ratio = 2, w,h ,plain = false,fn=100) =
 // 
 // Synopsis: Generates a 2D parallelogram path with optional skew and rounded corners.
 // Topics: Shapes, 2D Geometry
-// See Also: parallelepiped()
 // Description:
 //    Creates a 2D parallelogram defined by base widths, height, and an optional skew.
 //    Supports rounded corners if a rounding radius is provided. The resulting path is

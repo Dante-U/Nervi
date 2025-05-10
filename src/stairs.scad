@@ -1,4 +1,5 @@
 include <_core/main.scad>
+
 //////////////////////////////////////////////////////////////////////
 // LibFile: stairs.scad
 //   A library for creating parametric staircases in OpenSCAD, designed for superstructure and interior design.
@@ -12,8 +13,34 @@ include <_core/main.scad>
 // FileSummary: Parametric staircase with handrails
 //////////////////////////////////////////////////////////////////////
 include <_materials/multi_material.scad>
+use <_extra/3D.scad>
 
-function mountTypes() = ["standard","flush"];
+// Constant: STANDARD_MOUNT
+// Description: Stairs standard mount
+STANDARD_MOUNT 	= 1;
+
+// Constant: FLUSH_MOUNT
+// Description: Stairs flush mount
+FLUSH_MOUNT 	= 0;
+
+function mountTypes() = [ STANDARD_MOUNT, FLUSH_MOUNT ];
+
+// Bitwise constants for stair types
+// Constant: STRAIGHT
+// Description : Straight stairs type
+STRAIGHT = 1;  // 001
+
+// Constant: L_SHAPED
+// Description : L shaped stairs type
+L_SHAPED = 2;  // 010
+
+// Constant: U_SHAPED
+// Description : U shaped stairs type
+U_SHAPED = 4;  // 100
+
+function isValidType(t) = 
+    t == STRAIGHT || t == L_SHAPED || t == U_SHAPED;
+
 
 // Module: stairs()
 // 
@@ -24,13 +51,13 @@ function mountTypes() = ["standard","flush"];
 //    number of steps, and other properties. Supports different stair types
 //    and optional handrails.
 // Arguments:  
-//    type         		= Type of stairs ("straight", "l_shaped", "u_shaped") (default: "straight").
+//    type         		= Type of stairs (STRAIGHT, L_SHAPED, U_SHAPED) (default: STRAIGHT).
 //    w       	   		= Total width of the staircase in meters (default: 0.9).
 //    total_rise   		= Total height of the staircase in meters (required or uses $space_height).
 //    steps        		= Number of steps (calculated from height/rise if not provided).
 //    rise         		= Theoretical Height of each step (default: 170). 
 //    run          		= Depth of each step (default: 250).
-//    mount				= 
+//    mount				= The mount could be STANDARD_MOUNT or FLUSH_MOUNT
 //    family	   		= Material family	
 //    thickness    		= Thickness of each step (default: 40).
 //    slab_thickness 	= Slab thickness when family is "Masonry" 
@@ -46,41 +73,11 @@ function mountTypes() = ["standard","flush"];
 // Example(3D,ColorScheme=Tomorrow): Simple Straight Staircase
 //   stairs(w=1, total_rise=2.8, handrails=[RIGHT]);
 // Example(3D,ColorScheme=Tomorrow): L-Shaped Staircase with 15 steps
-//   stairs(w=.9, total_rise=2.6, type="l_shaped", steps=15);
+//   stairs(w=.9, total_rise=2.6, type=L_SHAPED, steps=15);
 // Example(3D,ColorScheme=Tomorrow): U-Shaped Staircase without handrails
-//   stairs(w=1.2, total_rise=3, type="u_shaped");
-
-//back(2000) color ("Green")stairs(w=1, total_rise=2.8);
-
-//stairs(w=.9, total_rise=2.6, type="l_shaped", steps=15);
-
-
-
-include <space.scad>
-include <masonry-structure.scad>
-
-
-//back(meters(0)) l_shaped();
-//test_u_shaped( family="Masonry" );
-
-
-module test_u_shaped( family="Masonry" ) {
-	space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true) {
-		slab();
-		position(LEFT)
-			reddish()
-				stairs(w=1.2,type="u_shaped",family=family,slab_thickness=150,anchor=LEFT)
-					show_anchors(300)
-				
-				;
-	};  
-}
-
-
-
-
+//   stairs(w=1.2, total_rise=3, type=U_SHAPED);
 module stairs(
-    type 		= "straight",
+    type 		= STRAIGHT,
 	w  			= first_defined([is_undef(w) 			? undef : w ,$thread_width			]),
 	total_rise  = first_defined([is_undef(total_rise) 	? undef : total_rise ,$space_height	]),
     steps,
@@ -94,29 +91,28 @@ module stairs(
     rail_width 	= 40,
     landing_size,
     anchor 		= BOTTOM,
-	mount 		= "standard", // Could be standard or flush mount  
+	mount 		= STANDARD_MOUNT, // Could be standard or flush mount  
 	material,
     spin 		= 0,
 	debug 		= false,
 ) {
 
-    assert(is_meters(total_rise), 				"[stairs] [total_rise] parameter is undefined. Provide height or define variable $room_height");
-	assert( is_in(mount,mountTypes()),			"[stairs] 'mount' must be either 'flush' or 'standard'"	);
+    assert(is_meters(total_rise), 				"[stairs] [total_rise] parameter is undefined. Provide height or $room_height");
+	assert( is_in(mount,mountTypes()),			"[stairs] 'mount' must be either FLUSH_MOUNT or STANDARD_MOUNT"	);
 	assert(isValidMaterialFamilies(family),		"[stairs] family (material) must be 'Wood', 'Metal', or 'Masonry'");
 	
 	_total_rise = meters(total_rise);
 	_w			= meters(w);
-    _landing 	= landing_size ? landing_size : _w;
-    _steps 		= steps ? steps : mount == "flush" ? ceil( _total_rise / rise ) : ceil( _total_rise / rise ) -1;
-	_rise 		= mount == "flush" ? round(_total_rise/(_steps)) : round(_total_rise/(_steps+1))	;
+	_landing 	= first_defined([landing_size,_w]);
+    _steps 		= steps ? steps : mount == FLUSH_MOUNT ? ceil( _total_rise / rise ) : ceil( _total_rise / rise ) -1;
+	_rise 		= round( _total_rise / (_steps+ (mount == FLUSH_MOUNT ? 0 : 1)));
 	
 	$thread_width		= meters(w);
 	$thread_run 		= run;
 	$thread_rise 		= _rise;
 	$thread_thickness 	= thickness;
 	
-	
-	mount_vertical_shift = mount == "flush" ? 0 : $thread_rise/2;
+	mount_vertical_shift = mount == FLUSH_MOUNT ? 0 : $thread_rise/2;
 	
 	sections = 
 		let (
@@ -124,14 +120,14 @@ module stairs(
 			half  = ceil(total/2),
 			third = ceil(total/3),
 		)
-		type == "l_shaped" ? [ half	 , total-half-1	] : 
-		type == "u_shaped" ? [ third , third-1 		, total - 2 * third  - 1] : 
+		type == L_SHAPED ? [ half	, total-half-1	] : 
+		type == U_SHAPED ? [ third  , third-1 		, total - 2 * third  - 1] : 
 		[ total ];
 	
-    _length 	= sections[0] * run + ( type != "straight" ? _landing : 0 );
-	_width    = 
-				type == "l_shaped" ? _w 	+ sections[1] * run :		 
-				type == "u_shaped" ? _w * 2 + sections[1] * run : 
+    _length = sections[0] * run + ( type != STRAIGHT ? _landing : 0 );
+	_width  = 
+				type == L_SHAPED ? _w 	+ sections[1] * run :		 
+				type == U_SHAPED ? _w*2 + sections[1] * run : 
 				_w;	// Straight	 
 	_angle 		= adj_opp_to_ang (_steps * run,_steps * _rise);
 	
@@ -139,7 +135,7 @@ module stairs(
 	$stairs_slab_thickness 	= slab_thickness;
 	$stairs_material 		= material;
 	$stairs_mount 			= mount;
-	$stairs_landing 		= is_def(landing_size) ? landing_size : $thread_width;
+	$stairs_landing 		= _landing;
 
 	size = [ _length, _width, _total_rise ];
 	
@@ -160,12 +156,12 @@ module stairs(
 	origin = [ -size.x/2, (_width-_w)/2, -size.z/2	];
     
     attachable( anchor, spin, size=size ) {
-		if ( type == "straight" ) {
+		if ( type == STRAIGHT ) {
 			/*****************
 			 * Straight
 			 *****************/
 			down( mount_vertical_shift ) _straightStairs (sections[0], family);
-		} else if (type == "l_shaped") {
+		} else if (type == L_SHAPED) {
 			/*****************
 			 * L Shaped
 			 *****************/
@@ -181,7 +177,7 @@ module stairs(
 			// ************************
 			position(FWD+TOP)
 				_straightStairs (sections[1], family , anchor = LEFT+BOT,spin=-90) ;						
-		} else if (type == "u_shaped") {
+		} else if (type == U_SHAPED) {
 			/*****************
 			 * U Shaped
 			 *****************/
@@ -221,7 +217,7 @@ module stairs(
     }
 	module _handrail( side=RIGHT ) {
 		rail_offset = -side[X] * (-_w/2  +rail_width/2);			 
-        if ( type == "straight" ) {
+        if ( type == STRAIGHT ) {
 			// ******************
             // * Vertical posts *
 			// ******************

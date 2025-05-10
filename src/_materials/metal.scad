@@ -33,7 +33,7 @@ function metalSpecs(metal_name, property) =
     assert(is_def(metal_name), "[metalSpecs] Missing metal name argument")
     let (
 		data = _metalData(),
-        spec = struct_val(metal_specs, metal_name)
+        spec = struct_val(data, metal_name)
     )
     assert(is_def(spec), str("[metalSpecs] Unknown metal type: ", metal_name))
     is_def(property) ? spec[property] : spec;

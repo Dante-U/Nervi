@@ -5,6 +5,10 @@ include <../src/masonry-structure.scad>
 //test_handrails();
 
 ydistribute(meters(5.2)) {
+
+	test_mount_standard();
+	test_mount_flush();
+
 	test_u_shaped("Masonry");
 
 	test_u_shaped("Wood");
@@ -15,12 +19,59 @@ ydistribute(meters(5.2)) {
 	test_straight("Wood");	
 }	
 
+
+module test_mount_standard() {
+
+	$space_height	= 0.4;
+	$space_length	= 0.6;
+	$space_width	= 1.2;
+
+	space(except=[FWD,LEFT],debug=true)
+	{
+		slab();
+		position(RIGHT)
+			reddish()
+			stairs(
+				w				= 1.2,
+				type			= STRAIGHT,
+				family			= "Masonry",
+				slab_thickness 	= 150,
+				mount			= STANDARD_MOUNT,
+				anchor			= RIGHT,
+			);
+	};
+
+}
+
+module test_mount_flush() {
+
+	$space_height	= 0.4;
+	$space_length	= 0.6;
+	$space_width	= 1.2;
+
+	space(except=[FWD,LEFT],debug=true)
+	{
+		slab();
+		position(RIGHT)
+			reddish()
+			stairs(
+				w				= 1.2,
+				type			= STRAIGHT,
+				family			= "Masonry",
+				slab_thickness 	= 150,
+				mount			= FLUSH_MOUNT,
+				anchor			= RIGHT,
+			);
+	};
+
+}
+
 module test_straight(family="Masonry") {
 	space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true) {
 		slab();
 		position(RIGHT)
 			reddish()
-				stairs(w=1.2,type="straight",family=family,slab_thickness=150,anchor=RIGHT);
+				stairs(w=1.2,type=STRAIGHT,family=family,slab_thickness=150,anchor=RIGHT);
 	};  
 
 }
@@ -30,7 +81,7 @@ module test_l_shaped(family="Masonry") {
 		slab();
 		position(LEFT+BACK)
 			reddish()
-				stairs(w=1.2,type="l_shaped",family=family,slab_thickness=150,anchor=LEFT+BACK);
+				stairs(w=1.2,type=L_SHAPED,family=family,slab_thickness=150,anchor=LEFT+BACK);
 	};  
 }
 
@@ -39,7 +90,7 @@ module test_u_shaped(family="Masonry") {
 		slab();
 		position(LEFT+BACK)
 			reddish()
-				stairs(w=1.2,type="u_shaped",family=family,slab_thickness=150,anchor=LEFT+BACK);
+				stairs(w=1.2,type=U_SHAPED,family=family,slab_thickness=150,anchor=LEFT+BACK);
 	};  
 }
 
