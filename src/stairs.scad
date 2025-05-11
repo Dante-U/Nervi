@@ -134,6 +134,7 @@ module stairs(
 	$stairs_material 		= material;
 	$stairs_mount 			= mount;
 	$stairs_landing 		= _landing;
+	$stairs_family 			= family;
 
 	size = [ _length, _width, _total_rise ];
 	
@@ -160,14 +161,14 @@ module stairs(
 			 * Straight
 			 *****************/
 			down( mount_vertical_shift ) 
-				_straightStairs (sections[0], family, spin=-90) show_anchors(200) placeHandrails(handrails);
+				_straightStairs (sections[0], family, spin=-90) placeHandrails(handrails);
 		} else if (type == L_SHAPED) {
 			/*****************
 			 * L Shaped
 			 *****************/
 			translate( origin )  // Move to lower origin
 			// Lower stairs
-			_straightStairs (sections[0], family , spin= -90, anchor = FWD+BOT+LEFT)  
+			_straightStairs (sections[0], family , spin= -90, anchor = FWD+BOT+LEFT) placeHandrails(handrails)  
 			// ************************
 			//  First landing
 			// ************************
@@ -176,7 +177,7 @@ module stairs(
 			// Upper section 
 			// ************************
 			position(RIGHT+TOP)
-				_straightStairs (sections[1], family , anchor = FWD+BOT,spin=-90) ;						
+				_straightStairs (sections[1], family , anchor = FWD+BOT,spin=-90) placeHandrails(handrails) ;						
 		} else if (type == U_SHAPED) {
 			/*****************
 			 * U Shaped
@@ -255,6 +256,8 @@ module _handrail( side = RIGHT ) {
 
 module _straightStairs( steps, family, anchor, spin ) {
 	size = [ $thread_width, steps * $thread_run, steps * $thread_rise ];
+	$stairs_rise = (steps+1) * $thread_rise / 1000;
+	material( $stairs_material , default = materialFamilyToMaterial(family))
 	attachable( size = size , anchor = anchor , spin ) {
 		if ( is_in(family,[WOOD,METAL]) ) {	
 			//translate([-steps/2 * $thread_run, 0,-steps/2 * $thread_rise])
@@ -280,33 +283,14 @@ module _straightStairs( steps, family, anchor, spin ) {
 					[ [ x ,y ] , [ x + $thread_run ,y ] ],
 				[ [ steps*$thread_run,steps*$thread_rise-y0] ]	
 			]);
-			material( $stairs_material , default = materialFamilyToMaterial(family))
+			
 				extrude($thread_width,dir=LEFT, path=xflip(path),/* anchor=anchor,*/ center=true);
 		}	
 		children();
 	}	
-		
 }
 
-include <space.scad>
-//include <Nervi/stairs.scad>
-include <masonry-structure.scad>
 
-space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true)
-{
-	slab();
-	position(LEFT+BACK) primary()
-		stairs(
-			w					= 1.2,
-			type				= U_SHAPED,
-			//type				= L_SHAPED,
-			//type				= STRAIGHT,
-			family				= MASONRY,
-			slab_thickness		= 150,
-			anchor				= LEFT+BACK
-		) //show_anchors(800)
-		;
-};	
 
 
 
@@ -349,7 +333,7 @@ module tread(
 // Arguments:  
 //    radius       = Outer radius of the staircase (default: 1000).
 //    inner_radius = Inner radius/column radius (default: 150).
-//    total_rise   = Total height of the staircase (required or uses $room_height).
+//    total_rise   = Total height of the staircase (required or uses $space_height).
 //    steps        = Number of steps for a full 360° rotation (default: 16).
 //    turns        = Number of turns/rotations (default: 1).
 //    ccw          = Counter-clockwise rotation if true (default: false).
@@ -368,12 +352,12 @@ module tread(
 module spiralStairs(
     radius 			= 1000,
     inner_radius 	= 150,
-    total_rise		= is_undef($room_height) ? undef : $room_height,
+    total_rise		= is_undef($space_height) ? undef : $space_height,
     steps 			= 16,
     turns 			= 1,
     ccw 			= false,
     thickness 		= 40,
-	mount 			= "standard", // Could be standard or flush mount  
+	mount 			= STANDARD_MOUNT, // Could be standard or flush mount  
     handrail 		= true,
     rail_height 	= 900,
     anchor 			= BOTTOM,
@@ -386,7 +370,7 @@ module spiralStairs(
     total_steps	= ceil(steps * turns);
     step_angle 	= 360 / (steps + (mount == "flush" ? 0 : -1 )) * (ccw ? -1 : 1);
     step_rise 	= total_rise / total_steps;
-	bounding_size = [radius*2, radius*2, total_rise];
+	size = [radius*2, radius*2, total_rise];
 	if (debug) {
 		echo ("**************************");
 		echo ("**     Spiral Stairs    **");
@@ -404,7 +388,7 @@ module spiralStairs(
 			pieSlice(angle=360/steps-2, radius=radius, height=thickness,anchor=TOP);
     }
     
-    attachable(anchor, spin, orient=UP, size=bounding_size,cp=[0,0,total_rise/2]) {
+    attachable(anchor, spin, orient=UP, size=size,cp=[0,0,total_rise/2]) {
         union() {
             material("Wood") {
                 // Central column
@@ -437,9 +421,6 @@ module spiralStairs(
     }
 }
 
-
-
-
 // Module: handrail()
 // 
 // Synopsis: Creates a parametric handrail for staircases.
@@ -465,7 +446,7 @@ module spiralStairs(
 //    anchor 		= Attachment anchor point (BOSL2 style) [default: BOTTOM].
 //    spin 			= Rotation angle in degrees around Z-axis (BOSL2 style) [default: 0].
 // Usage:
-//    handrail( w,total_rise,[l],[rise],[run],[sides],mount,[rail_height],[rail_diam],[post_diam],[post_interval],[material_rail],[material_post] );
+//    handrail( w,total_rise,[l],[rise],[run],[sides],mount,[rail_height],[rail_width],[post_diam],[post_interval],[material_rail],[material_post] );
 // Example(3D,ColorScheme=Tomorrow): Handrail on both side
 //    include <masonry-structure.scad>
 //    slab(l = 2.3, w = 1,anchor = TOP);
@@ -479,35 +460,44 @@ module spiralStairs(
 module handrail(
     w 				= 0,
 	l				= undef,
-    total_rise 		= is_undef( $room_height ) ? 0 : $room_height,
-    rise 			= 170,
-    run 			= 250,
+    //total_rise 		=     is_undef( $space_height ) ? 0 : $space_height,
+	total_rise 		= first_defined([ is_undef($stairs_rise) ? undef : $stairs_rise, is_undef( $space_height ) ? 0 : $space_height ]),
+	
+	
+    rise 			= first_defined([is_undef(rise) ? undef : rise , is_undef($thread_rise) ? 170 : $thread_rise	]),
+    run 			= first_defined([is_undef(run) 	? undef : run  , is_undef($thread_run) 	? 250 : $thread_run		]),
     sides 			= [CENTER],
-	mount 			= "standard", // Could be standard or flush mount  
+	mount 			= first_defined([is_undef(mount) ? undef : mount , is_undef($stairs_mount) ? STANDARD_MOUNT : $stairs_mount	]),
     rail_height		= 900,
-    rail_diam 		= 50,
+    rail_width 		= 80,	//50,
 	post_diam  		= 30,
-    post_interval 	= 200, // Should be same as rise when used for a stair	
+	post_interval 	= first_defined([is_undef(post_interval) ? undef : post_interval , is_undef($thread_run) ? 250 : $thread_run ]),
+	slab_thickness	= first_defined([is_undef(slab_thickness) ? undef : slab_thickness , is_undef($stairs_slab_thickness) ? 0 : $stairs_slab_thickness ]),
+	//family			= WOOD,
+	family 			= first_defined([is_undef(family) ? undef : family , is_undef($stairs_family) ? WOOD : $stairs_family ]),
 	material_rail 	= "Pine",
 	material_post 	= "Oak",
-    anchor 			= BOT,
+    anchor 			,
     spin 			= 0,
 	debug 			= false,
 ) {
+
+	echo ("handrail + total_rise",total_rise);
+
     // Input validation
 	assert(is_def(total_rise) || is_meters(l),	"[handrail] [l] is undefined");
 	assert(w==0 || is_meters(w),				"[handrail] [w] is undefined");
-    assert(is_num(total_rise), 			"[handrail] total_rise must be a positive number");
-	assert(total_rise > 0 || is_num(l), "[handrail] If total rise is 0 then the length should be provided");
-    assert(is_num(run) 			&& run > 0, "[handrail] run must be a positive number");
+    assert(is_num(total_rise), 					"[handrail] total_rise must be a positive number");
+	assert(total_rise > 0 || is_num(l), 		"[handrail] If total rise is 0 then the length should be provided");
+    assert(is_num(run) 			&& run > 0, 	"[handrail] run must be a positive number");
     assert(is_list(sides) 		&& all([for (s = sides) s == LEFT || s == RIGHT|| s == CENTER]), 
-									"[handrail] sides must be LEFT, RIGHT, CENTER or a list of both LEFT and RIGHT");
+												"[handrail] sides must be LEFT, RIGHT, CENTER or a list of both LEFT and RIGHT");
 	_w 			= meters( w );
 	_total_rise	= meters(total_rise);
-	steps = mount == "standard" ? ceil(_total_rise/rise) -1 : ceil(_total_rise/rise);
+	steps = mount == STANDARD_MOUNT ? ceil(_total_rise/rise) -1 : ceil(_total_rise/rise);
 	_l = _total_rise > 0 ? steps * run : meters( l );
     // Calculate properties
-    bounding_size	= [_l,_w,_total_rise + rail_height];
+    size	= [_l,_w,_total_rise + rail_height];
     rail_angle 		= _total_rise > 0 ? adj_opp_to_ang( _l, _total_rise ) : 0 ; // Angle of the rail
     rail_length 	= _total_rise > 0 ? adj_opp_to_hyp( _l, _total_rise ) : _l; // Hypotenuse length of rail
 	
@@ -520,29 +510,75 @@ module handrail(
 	echo ( "post_rise",	post_rise );
 	echo ( "rail_angle",	rail_angle );
 
-	attachable(anchor=anchor, spin=spin, orient=UP, size=bounding_size /*, cp=[0, length/2, total_rise/2] */) {
+	attachable(anchor=anchor, spin=spin, orient=UP, size=size /*, cp=[0, length/2, total_rise/2] */) {
         union() { // Pine color (BurlyWood)
-			if (debug) ghost() cuboid(bounding_size);
+			if (debug) ghost() cuboid(size);
             for (side = sides) {
 				//side_offset = -(( side[X] * _w/2 ) - rail_width / 2); 
-				side_offset = (_w/2 - rail_diam / 2) * side[X];
-				// Posts
-				translate([0,side_offset,-bounding_size[Z]/2])
-					xcopies ( n=post_count,l = _l - post_diam  ) {
-							up( $idx * post_rise )
-							material(material_post)
-								cyl (d=post_diam,h=rail_height,anchor=BOT);
-					}			
-                // Horizontal rail (angled to match stairs)
-				translate([-bounding_size[X]/2, side_offset * 1, -bounding_size[Z]/2+rail_height])
-                    yrot(-rail_angle)
-						material(material_rail)
-							cyl(h=rail_length, d=rail_diam, orient=RIGHT, anchor=BOT);
-            }
+				
+				
+				if ( is_in(family,[WOOD,METAL]) ) {	
+					side_offset = (_w/2 - rail_width / 2) * -side.x;
+					// Posts
+					translate([0,side_offset,-size.z/2])
+						xcopies ( n=post_count,l = _l - post_diam  ) {
+								up( $idx * post_rise )
+								material(material_post)
+									cyl (d=post_diam,h=rail_height,anchor=BOT);
+						}			
+					// Horizontal rail (angled to match stairs)
+					translate([-size.x/2, side_offset * 1, -size.z/2+rail_height])
+						yrot(-rail_angle)
+							material(material_rail)
+								cyl(h=rail_length, d=rail_width, orient=RIGHT, anchor=BOT);
+				}		
+				else if (family == MASONRY)	{	
+					side_offset = (_w/2 + rail_width / 2) * -side.x;				
+					xOrigin = $thread_run /2*0;
+					x0 = ang_opp_to_hyp($stairs_angle,$stairs_slab_thickness);
+					y0 = ang_adj_to_hyp($stairs_angle,$stairs_slab_thickness);
+					path = [
+						[xOrigin+x0,0],[xOrigin,0] ,
+						[xOrigin,rail_height],	
+						[steps*$thread_run,steps*$thread_rise+rail_height],	
+						[steps*$thread_run,steps*$thread_rise-y0] 	
+					];
+					translate([0,side_offset,-size.z/2])
+						material( $stairs_material , default = materialFamilyToMaterial(family))
+						extrude(rail_width,dir=FWD, path=path,/* anchor=anchor,*/ center=true ,anchor=BOT);
+				}
+			}	
         }
         children(); 
     }
 }
+
+include <space.scad>
+//include <Nervi/stairs.scad>
+include <masonry-structure.scad>
+
+//handrail( l = 5, total_rise = 2 ) show_anchors(200);
+
+//if (false) 
+space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true)
+{
+	slab();
+	position(RIGHT+BACK+BOT) 
+		//primary()
+		stairs(
+			w					= 1.2,
+			//type				= U_SHAPED,
+			type				= L_SHAPED,
+			//type				= STRAIGHT,
+			family				= MASONRY,
+			//family				= WOOD,
+			slab_thickness		= 150,
+			anchor				= RIGHT+BACK+BOT,
+			handrails			= [RIGHT]
+		) //show_anchors(800)
+		;
+};	
+
 
 /*
 stairs(w=1, total_rise=2.8, handrails=[RIGHT] ,family=MASONRY);
@@ -550,28 +586,13 @@ stairs(w=1, total_rise=2.8, handrails=[RIGHT] ,family=MASONRY);
 
 
 module placeHandrails( sides ) {
-	echo ("placeHandrails",sides);
-	for( side = sides) {
-		echo ("side: ",dirAsName(side));
-		
-		attach(side == RIGHT ? FWD : BACK) {
-			echo ("$parent_size",$parent_size);
-			handrail (w = $parent_size.y / 1000,l = $parent_size.x / 1000);
-			
-			cuboid(400);
-		}	
-		
-		/*
-		if (side == RIGHT ) attach(FWD) cuboid(400);
-		if (side == LEFT ) attach(BACK) cuboid(400);
-		*/
-		
-		//attach(FWD) cuboid(400);
-		
-		//attach(side) {
-			//cuboid(400);
-		
-		//}
-	}
+	echo ("sides",sides);
+	//for( side = sides) 
+	//	position(side+BOT) 	
+	echo ("AAAAAA w",$parent_size.y);
+	echo ("$thread_width ",$thread_width);
+	position(BOT) 	
+			handrail (w = $thread_width/1000,l = $parent_size.x / 1000,sides=sides,spin=90,anchor=BOT);
+	children();		
 
 }
