@@ -38,9 +38,7 @@ L_SHAPED = 2;  // 010
 // Description : U shaped stairs type
 U_SHAPED = 4;  // 100
 
-function isValidType(t) = 
-    t == STRAIGHT || t == L_SHAPED || t == U_SHAPED;
-
+function isValidType(t) = t == STRAIGHT || t == L_SHAPED || t == U_SHAPED;
 
 // Module: stairs()
 // 
@@ -60,7 +58,7 @@ function isValidType(t) =
 //    mount				= The mount could be STANDARD_MOUNT or FLUSH_MOUNT
 //    family	   		= Material family	
 //    thickness    		= Thickness of each step (default: 40).
-//    slab_thickness 	= Slab thickness when family is "Masonry" 
+//    slab_thickness 	= Slab thickness when family is MASONRY 
 //    handrails    		= Include handrails (default: no). Could be empty , [LEFT] or [RIGHT] or both [ LEFT , RIGHT ] 
 //    rail_height  		= Height of handrail from step (default: 900).
 //    rail_width   		= Width of handrail (default: 40).
@@ -81,7 +79,7 @@ module stairs(
 	w  			= first_defined([is_undef(w) 			? undef : w ,$thread_width			]),
 	total_rise  = first_defined([is_undef(total_rise) 	? undef : total_rise ,$space_height	]),
     steps,
-	family		= "Wood",	
+	family		= WOOD,	
     rise 		= 170,
     run 		= 250,
     thickness 	= 40,
@@ -153,30 +151,32 @@ module stairs(
 		echo (str(" - angle   :",_angle	));
 	}	
 	
-	origin = [ -size.x/2, (_width-_w)/2, -size.z/2	];
+	//origin = [ -size.x/2, (+_width+_w)/2, -size.z/2	];
+	origin = [ -size.x/2, +_width /2, -size.z/2	];
     
     attachable( anchor, spin, size=size ) {
 		if ( type == STRAIGHT ) {
 			/*****************
 			 * Straight
 			 *****************/
-			down( mount_vertical_shift ) _straightStairs (sections[0], family);
+			down( mount_vertical_shift ) 
+				_straightStairs (sections[0], family, spin=-90) show_anchors(200) placeHandrails(handrails);
 		} else if (type == L_SHAPED) {
 			/*****************
 			 * L Shaped
 			 *****************/
 			translate( origin )  // Move to lower origin
 			// Lower stairs
-			_straightStairs (sections[0], family , anchor = LEFT+BOT) 
+			_straightStairs (sections[0], family , spin= -90, anchor = FWD+BOT+LEFT)  
 			// ************************
 			//  First landing
 			// ************************
-			position(TOP+RIGHT)	landing(anchor=LEFT+BOT)
+			position(TOP+BACK) landing(anchor=BOT+FWD)
 			// ************************
 			// Upper section 
 			// ************************
-			position(FWD+TOP)
-				_straightStairs (sections[1], family , anchor = LEFT+BOT,spin=-90) ;						
+			position(RIGHT+TOP)
+				_straightStairs (sections[1], family , anchor = FWD+BOT,spin=-90) ;						
 		} else if (type == U_SHAPED) {
 			/*****************
 			 * U Shaped
@@ -186,36 +186,38 @@ module stairs(
 			// ************************
 			//  First straight section
 			// ************************
-			_straightStairs (sections[0], family , anchor = LEFT+BOT) 
+			_straightStairs (sections[0], family , anchor = FWD+BOT+LEFT,spin=-90) 
 			// ************************
 			//  First landing
 			// ************************
-			position(TOP+RIGHT)
-				landing(anchor=LEFT+BOT)
+			position(TOP+BACK) landing(anchor=BOT+FWD)
 			// ************************
 			// Middle straight section 
 			// ************************
-			position(FWD+TOP)
-				_straightStairs (sections[1], family , anchor = LEFT+BOT,spin=-90) 
+			position(RIGHT+TOP)
+				_straightStairs (sections[1], family , anchor = FWD+BOT,spin=-90) 
 			// ************************
 			//  Second landing
 			// ************************
-			position(TOP+RIGHT)	
-				landing(anchor=LEFT+BOT)
+			position(TOP+BACK)	
+				landing(anchor=FWD+BOT)
 			// ************************
 			// Third straight section 
 			// ************************								
-			position(TOP+FWD)									
-				_straightStairs (sections[2], family , anchor = LEFT+BOT,spin=-90)
+			position(TOP+RIGHT)									
+				_straightStairs (sections[2], family , anchor = BOT+FWD,spin=-90)
 			// ************************
 			//  Third landing
 			// ************************
-			position(TOP+RIGHT)	
-				landing(length = last_landing, anchor=LEFT+BOT);	
+			position(TOP+BACK)	
+				landing(length = last_landing, anchor=BOT+LEFT,spin = 90);	
 		}	
         children();
     }
-	module _handrail( side=RIGHT ) {
+}
+
+
+module _handrail( side = RIGHT ) {
 		rail_offset = -side[X] * (-_w/2  +rail_width/2);			 
         if ( type == STRAIGHT ) {
 			// ******************
@@ -249,26 +251,22 @@ module stairs(
 			
         }
         // Similar logic for L and U shaped stairs would go here
-    }
 }
 
-
 module _straightStairs( steps, family, anchor, spin ) {
-	
-	//frame_ref(200);
-	size = [ steps * $thread_run, $thread_width, steps * $thread_rise ];
+	size = [ $thread_width, steps * $thread_run, steps * $thread_rise ];
 	attachable( size = size , anchor = anchor , spin ) {
-		if ( is_in(family,["Wood","Metal"])) {	
-			translate([-steps/2 * $thread_run, 0,-steps/2 * $thread_rise])
+		if ( is_in(family,[WOOD,METAL]) ) {	
+			//translate([-steps/2 * $thread_run, 0,-steps/2 * $thread_rise])
+			translate([ 0,-steps/2 * $thread_run, -steps/2 * $thread_rise])
 				for (i = [0:steps-1])
 					let (
-						x = i * $thread_run,	
+						y = i * $thread_run,	
 						z = i * $thread_rise,	
 					)
-					//translate([x, 0, z]) tread();		
-					translate([x, 0, z]) cached_tread();		
+					translate([ 0, y, z]) tread();		
 		}		
-		else if (family == "Masonry")	 
+		else if (family == MASONRY)	 
 		{
 			x0 = ang_opp_to_hyp($stairs_angle,$stairs_slab_thickness);
 			y0 = ang_adj_to_hyp($stairs_angle,$stairs_slab_thickness);
@@ -283,30 +281,50 @@ module _straightStairs( steps, family, anchor, spin ) {
 				[ [ steps*$thread_run,steps*$thread_rise-y0] ]	
 			]);
 			material( $stairs_material , default = materialFamilyToMaterial(family))
-				extrude($thread_width,dir=FRONT, path=path,/* anchor=anchor,*/ center=true);
-		
+				extrude($thread_width,dir=LEFT, path=xflip(path),/* anchor=anchor,*/ center=true);
 		}	
 		children();
 	}	
 		
 }
 
+include <space.scad>
+//include <Nervi/stairs.scad>
+include <masonry-structure.scad>
+
+space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true)
+{
+	slab();
+	position(LEFT+BACK) primary()
+		stairs(
+			w					= 1.2,
+			type				= U_SHAPED,
+			//type				= L_SHAPED,
+			//type				= STRAIGHT,
+			family				= MASONRY,
+			slab_thickness		= 150,
+			anchor				= LEFT+BACK
+		) //show_anchors(800)
+		;
+};	
+
+
+
+
+
 module landing( 
 		length = first_defined([ is_undef(length) ? undef : length, $stairs_landing ]), 
-		anchor = TOP 
+		anchor = TOP,
+		spin	
 	){
 	size = [ length, $thread_width, $thread_rise ];
-	attachable (size = size, anchor=anchor) {
+	attachable (size = size, anchor=anchor,spin=spin) {
 		material("Wood") cuboid( size );
 		children();
 	}
 	
 }	
 
-
-module cached_tread() {
-	render() tread();
-}
 
 module tread( 
 	w = first_defined([is_undef(w) 	? undef : w ,$thread_width]),
@@ -316,7 +334,7 @@ module tread(
 	anchor = TOP,
 	spin = 0
 ) {
-	translate([r/2 ,0, h]) cuboid([r, w, t], anchor = anchor,spin=spin);
+	translate([r/2 ,0, h]) cuboid([w, r, t], anchor = anchor,spin=spin);
 }
 
 
@@ -418,6 +436,8 @@ module spiralStairs(
         children();
     }
 }
+
+
 
 
 // Module: handrail()
@@ -522,4 +542,36 @@ module handrail(
         }
         children(); 
     }
+}
+
+/*
+stairs(w=1, total_rise=2.8, handrails=[RIGHT] ,family=MASONRY);
+*/
+
+
+module placeHandrails( sides ) {
+	echo ("placeHandrails",sides);
+	for( side = sides) {
+		echo ("side: ",dirAsName(side));
+		
+		attach(side == RIGHT ? FWD : BACK) {
+			echo ("$parent_size",$parent_size);
+			handrail (w = $parent_size.y / 1000,l = $parent_size.x / 1000);
+			
+			cuboid(400);
+		}	
+		
+		/*
+		if (side == RIGHT ) attach(FWD) cuboid(400);
+		if (side == LEFT ) attach(BACK) cuboid(400);
+		*/
+		
+		//attach(FWD) cuboid(400);
+		
+		//attach(side) {
+			//cuboid(400);
+		
+		//}
+	}
+
 }
