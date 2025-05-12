@@ -215,8 +215,6 @@ module stairs(
 			// ************************
 			position(TOP+BACK)	
 				landing(length = last_landing, anchor=BOT+LEFT,spin = 90)  {
-				
-				
 					$handrail_length = last_landing /1000;
 					$stairs_rise	 = 0;		
 					echo ("$handrail_length",$handrail_length);
@@ -224,48 +222,10 @@ module stairs(
 					//frame_ref(500)
 					placeHandrails(handrails) ; 
 				}	
-				
 				;	
 		}	
         children();
     }
-}
-
-
-module _handrail( side = RIGHT ) {
-		rail_offset = -side[X] * (-_w/2  +rail_width/2);			 
-        if ( type == STRAIGHT ) {
-			// ******************
-            // * Vertical posts *
-			// ******************
-            for (i = [0:2:_steps]) material("Aluminium") 
-				translate([
-							rail_offset, 
-							i*run+rail_width/2, 
-							_rise + i* _rise
-						])
-                    cuboid([rail_width, rail_width, rail_height], anchor=BOTTOM);
-			// *******************
-            // * Horizontal rail *
-			// *******************
-			railLength = adj_opp_to_hyp (size.x,_total_rise);
-			translate(
-				[
-					rail_offset,
-					0,
-					_rise + rail_height
-				])
-			material("Wood")
-					xrot(_angle)
-						cyl( 
-							h		= railLength,
-							d		= rail_width,
-							orient	= BACK,
-							anchor	= BOT
-						);
-			
-        }
-        // Similar logic for L and U shaped stairs would go here
 }
 
 module _straightStairs( steps, family, anchor, spin ) {
@@ -303,42 +263,6 @@ module _straightStairs( steps, family, anchor, spin ) {
 		children();
 	}	
 }
-
-
-
-
-
-
-
-module landing( 
-		length = first_defined([ is_undef(length) ? undef : length, is_undef($stairs_landing) ? undef : $stairs_landing ]), 
-		family = first_defined([ is_undef(family) ? undef : family, is_undef($stairs_family)  ? undef : $stairs_family 	]),
-		anchor = TOP,
-		spin	
-	){
-	size = [ length, $thread_width, $thread_rise ];
-	attachable (size = size, anchor = anchor, spin = spin ) {
-		material( $stairs_material , default = materialFamilyToMaterial(family))
-		//material("Wood") 
-		cuboid( size );
-		zrot(-90)
-		children();
-	}
-	
-}	
-
-
-module tread( 
-	w = first_defined([is_undef(w) 	? undef : w ,$thread_width]),
-	r = first_defined([is_undef(r) 	? undef : r ,$thread_run]),
-	h = first_defined([is_undef(h) 	? undef : h ,$thread_rise]),
-	t = first_defined([is_undef(t) 	? undef : t ,$thread_thickness]),
-	anchor = TOP,
-	spin = 0
-) {
-	translate([0 ,r/2, h]) cuboid([w, r, t], anchor = anchor,spin=spin);
-}
-
 
 // Module: spiralStairs()
 // 
@@ -384,7 +308,6 @@ module spiralStairs(
 ) {
     assert(!is_undef(total_rise) || is_num(total_rise), 
         "[spiralStairs] Spiral stairs [total_rise] parameter is undefined. You should provide height or define variable $room_height");
-    
     total_steps	= ceil(steps * turns);
     step_angle 	= 360 / (steps + (mount == "flush" ? 0 : -1 )) * (ccw ? -1 : 1);
     step_rise 	= total_rise / total_steps;
@@ -478,20 +401,16 @@ module spiralStairs(
 module handrail(
     w 				= 0,
 	l				= is_undef($handrail_length) ? undef : $handrail_length,
-    //total_rise 		=     is_undef( $space_height ) ? 0 : $space_height,
-	total_rise 		= first_defined([ is_undef($stairs_rise) ? undef : $stairs_rise, is_undef( $space_height ) ? 0 : $space_height ]),
-	
-	
+	total_rise 		= first_defined([is_undef($stairs_rise) ? undef : $stairs_rise, is_undef( $space_height ) ? 0 : $space_height ]),
     rise 			= first_defined([is_undef(rise) ? undef : rise , is_undef($thread_rise) ? 170 : $thread_rise	]),
     run 			= first_defined([is_undef(run) 	? undef : run  , is_undef($thread_run) 	? 250 : $thread_run		]),
     sides 			= [CENTER],
 	mount 			= first_defined([is_undef(mount) ? undef : mount , is_undef($stairs_mount) ? STANDARD_MOUNT : $stairs_mount	]),
     rail_height		= 900,
-    rail_width 		= 80,	//50,
+    rail_width 		= 80,
 	post_diam  		= 30,
 	post_interval 	= first_defined([is_undef(post_interval) ? undef : post_interval , is_undef($thread_run) ? 250 : $thread_run ]),
 	slab_thickness	= first_defined([is_undef(slab_thickness) ? undef : slab_thickness , is_undef($stairs_slab_thickness) ? 0 : $stairs_slab_thickness ]),
-	//family			= WOOD,
 	family 			= first_defined([is_undef(family) ? undef : family , is_undef($stairs_family) ? WOOD : $stairs_family ]),
 	material_rail 	= "Pine",
 	material_post 	= "Oak",
@@ -499,17 +418,13 @@ module handrail(
     spin 			= 0,
 	debug 			= false,
 ) {
-
-	echo ("handrail + total_rise",total_rise);
-
     // Input validation
 	assert(is_def(total_rise) || is_meters(l),	"[handrail] [l] is undefined");
 	assert(w==0 || is_meters(w),				"[handrail] [w] is undefined");
     assert(is_num(total_rise), 					"[handrail] total_rise must be a positive number");
 	assert(total_rise > 0 || is_num(l), 		"[handrail] If total rise is 0 then the length should be provided");
     assert(is_num(run) 			&& run > 0, 	"[handrail] run must be a positive number");
-    assert(is_list(sides) 		&& all([for (s = sides) s == LEFT || s == RIGHT|| s == CENTER]), 
-												"[handrail] sides must be LEFT, RIGHT, CENTER or a list of both LEFT and RIGHT");
+    assert(is_list(sides) 		&& all([for (s = sides) s == LEFT || s == RIGHT|| s == CENTER]), "[handrail] side should be LEFT,RIGHT or CENTER");
 	_w 			= meters( w );
 	_total_rise	= meters(total_rise);
 	steps = mount == STANDARD_MOUNT ? ceil(_total_rise/rise) -1 : ceil(_total_rise/rise);
@@ -523,18 +438,16 @@ module handrail(
 	post_count = ceil(_l / post_interval) +1; 
 	post_rise  = _total_rise / ( post_count - 1 );
 	effective_post_interval = _l / post_count;
-	echo ( "effective_post_interval",	effective_post_interval );
-	echo ( "post_count",	post_count );
-	echo ( "post_rise",	post_rise );
-	echo ( "rail_angle",	rail_angle );
-
+	if (debug) {
+		echo ( "effective_post_interval",	effective_post_interval );
+		echo ( "post_count",	post_count );
+		echo ( "post_rise",	post_rise );
+		echo ( "rail_angle",	rail_angle );
+	}
 	attachable(anchor=anchor, spin=spin, orient=UP, size=size /*, cp=[0, length/2, total_rise/2] */) {
         union() { // Pine color (BurlyWood)
 			if (debug) ghost() cuboid(size);
             for (side = sides) {
-				//side_offset = -(( side[X] * _w/2 ) - rail_width / 2); 
-				
-				
 				if ( is_in(family,[WOOD,METAL]) ) {	
 					side_offset = (_w/2 - rail_width / 2) * -side.x;
 					// Posts
@@ -564,7 +477,6 @@ module handrail(
 						[0,0], [0,rail_height],
 						[_l,rail_height] ,[_l,0] 
 					]
-					
 					;
 					translate([0,side_offset,-size.z/2])
 						material( $stairs_material , default = materialFamilyToMaterial(family))
@@ -576,38 +488,118 @@ module handrail(
     }
 }
 
-include <space.scad>
-//include <Nervi/stairs.scad>
-include <masonry-structure.scad>
+// Module: landing()
+//
+// Synopsis: Creates a staircase landing with customizable dimensions and material.
+// Topics: Architecture, Stairs, Interior Design
+// See Also: stairs(), handrail(), tread()
+// Usage:
+//   landing([length], [family], [anchor], [spin]);
+// Description:
+//   Generates a flat landing platform for L-shaped or U-shaped staircases, with specified
+//   length, material family, and BOSL2 attachment. Uses context variables from stairs() for
+//   defaults, making it suitable for both integrated and standalone use. Length is in
+//   millimeters, matching staircase width by default.
+// Arguments:
+//   length = Length of the landing in millimeters [default: $stairs_landing].
+//   family = Material family ("WOOD", "METAL", "MASONRY") [default: $stairs_family].
+//   anchor = BOSL2 anchor point [default: TOP].
+//   spin   = Rotation angle in degrees around Z-axis [default: 0].
+// Context Variables:
+//   $stairs_landing  = Length of the landing in millimeters.
+//   $stairs_family   = Material family ("WOOD", "METAL", "MASONRY").
+//   $stairs_material = Specific material applied to the landing.
+//   $thread_width    = Width of the staircase in millimeters.
+//   $thread_rise     = Height of each step (landing thickness) in millimeters.
+// Example(3D,ColorScheme=Tomorrow):
+//   $stairs_landing = 1000;
+//   $stairs_family = "WOOD";
+//   $thread_width = 1000;
+//   $thread_rise = 170;
+//   landing(length=1000, family="WOOD");
+module landing( 
+		length = first_defined([ is_undef(length) ? undef : length, is_undef($stairs_landing) ? undef : $stairs_landing ]), 
+		family = first_defined([ is_undef(family) ? undef : family, is_undef($stairs_family)  ? undef : $stairs_family 	]),
+		anchor = TOP,
+		spin	
+	){
+    assert(is_num_positive(length), 			"[landing] length must be a positive number (millimeters)");
+    assert(is_num_positive($thread_width), 		"[landing] $thread_width must be positive");
+    assert(is_num_positive($thread_rise), 		"[landing] $thread_rise must be positive");
+	assert(isValidMaterialFamilies(family),		"[landing] family (material) must be 'Wood', 'Metal', or 'Masonry'");
+	
+	size = [ length, $thread_width, $thread_rise ];
+	attachable (size = size, anchor = anchor, spin = spin ) {
+		material( $stairs_material , default = materialFamilyToMaterial(family))
+		//material("Wood") 
+		cuboid( size );
+		zrot(-90)
+		children();
+	}
+}	
 
-//handrail( l = 5, total_rise = 2 ) show_anchors(200);
 
-//if (false) 
-space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true)
-{
-	slab();
-	position(RIGHT+BACK+BOT) 
-		primary()
-		stairs(
-			w					= 1.2,
-			type				= U_SHAPED,
-			//type				= L_SHAPED,
-			//type				= STRAIGHT,
-			family				= MASONRY,
-			//family				= WOOD,
-			slab_thickness		= 150,
-			anchor				= RIGHT+BACK+BOT,
-			handrails			= [RIGHT]
-		) //show_anchors(800)
-		;
-};	
+// Module: tread()
+//
+// Synopsis: Creates a single staircase tread with customizable dimensions.
+// Topics: Architecture, Stairs, Interior Design
+// See Also: stairs(), handrail(), landing()
+// Usage:
+//   tread([w], [r], [h], [t], [anchor], [spin]);
+// Description:
+//   Generates a single staircase tread (step) with specified width, depth, height, and thickness.
+//   Uses context variables from the parent stairs() module for defaults, making it suitable for
+//   both standalone use and integration within staircase designs. Dimensions are in millimeters.
+// Arguments:
+//   w     = Width of the tread in millimeters [default: $thread_width].
+//   r     = Depth (run) of the tread in millimeters [default: $thread_run].
+//   h     = Height (rise) of the tread in millimeters [default: $thread_rise].
+//   t     = Thickness of the tread in millimeters [default: $thread_thickness].
+//   anchor = BOSL2 anchor point [default: TOP].
+//   spin  = Rotation angle in degrees around Z-axis [default: 0].
+// Context Variables:
+//   $thread_width    = Width of the staircase in millimeters.
+//   $thread_run      = Depth of each step in millimeters.
+//   $thread_rise     = Height of each step in millimeters.
+//   $thread_thickness = Thickness of each step in millimeters.
+// Example(3D,ColorScheme=Tomorrow):
+//   $thread_width = 1000;
+//   $thread_run = 250;
+//   $thread_rise = 170;
+//   $thread_thickness = 40;
+//   tread(w=1000, r=250, h=170, t=40);
+module tread( 
+	w = first_defined([is_undef(w) 	? undef : w ,$thread_width]),
+	r = first_defined([is_undef(r) 	? undef : r ,$thread_run]),
+	h = first_defined([is_undef(h) 	? undef : h ,$thread_rise]),
+	t = first_defined([is_undef(t) 	? undef : t ,$thread_thickness]),
+	anchor = TOP,
+	spin = 0
+) {
+	assert(is_num_positive(w), "[tread] w must be a positive number (millimeters)");
+    assert(is_num_positive(r), "[tread] r must be a positive number (millimeters)");
+    assert(is_num_positive(h), "[tread] h must be a positive number (millimeters)");
+    assert(is_num_positive(t), "[tread] t must be a positive number (millimeters)");
+	translate([0 ,r/2, h]) cuboid([w, r, t], anchor = anchor,spin=spin);
+}
 
 
-/*
-stairs(w=1, total_rise=2.8, handrails=[RIGHT] ,family=MASONRY);
-*/
-
-
+// Module: placeHandrails()
+//
+// Synopsis: Positions handrails on staircases using BOSL2 attachment.
+// Topics: Architecture, Stairs, Safety, Internal
+// See Also: stairs(), handrail(), landing(), tread()
+// Usage:
+//   placeHandrails(sides);
+// Description:
+//   An internal utility module that positions handrails on staircases by calling the handrail()
+//   module with appropriate dimensions derived from context variables. Used within stairs()
+//   to place handrails on specified sides, typically for straight, L-shaped, or U-shaped staircases.
+// Arguments:
+//   sides = List of sides for handrail placement ("LEFT", "RIGHT", or ["LEFT", "RIGHT"]).
+// Context Variables:
+//   $thread_width = Width of the staircase in millimeters.
+//   $parent_size  = Size of the parent staircase [length, width, height] in millimeters.
 module placeHandrails( sides ) {
 	position(BOT) handrail (w = $thread_width/1000,l = $parent_size.x / 1000,sides=sides,spin=90,anchor=BOT);
 	children();		

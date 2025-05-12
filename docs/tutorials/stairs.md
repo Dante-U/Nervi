@@ -75,14 +75,14 @@ include <Nervi/space.scad>
 include <Nervi/stairs.scad>
 include <Nervi/masonry-structure.scad>
 
-space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true)
+space(l=5, w=1.2, h=2.8, except=[FRONT,LEFT],debug=true)
 {
 	slab();
 	position(RIGHT) primary()
 		stairs(
 			w					= 1.2,
 			type				= STRAIGHT,
-			family				= "Masonry",
+			family				= MASONRY,
 			slab_thickness	= 150,
 			anchor				= RIGHT
 		);
@@ -99,13 +99,13 @@ include <Nervi/stairs.scad>
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
 
-space(l=3, w=3, h=2.8, wall=200, except=[FRONT,RIGHT],debug=true) {
+space(l=4, w=1.2, h=2.8, except=[FRONT,RIGHT],debug=true) {
 	slab();
 	position(LEFT) primary()
 		stairs( 
 			w 		= 1.2, 
 			type	= STRAIGHT, 
-			family	= "Wood", 
+			family	= WOOD, 
 			anchor	= RIGHT, 
 			spin	= 180 
 		);
@@ -121,7 +121,7 @@ L-shaped staircases, characterized by a single **90-degree** turn, provide a spa
 The stairs() module with type=L_SHAPED generates a staircase with two straight sections connected by a landing, forming a 90-degree turn. Key features include:
 
 * Configurable Dimensions: Set width, total rise, number of steps, and landing size.
-* Material Support: Choose from "Wood", "Metal", or "Masonry" families.
+* Material Support: Choose from WOOD, METAL, or MASONRY families.
 * Handrails: Optional handrails on one or both sides.
 * Mounting Options: Standard or flush mount for integration with floors or slabs.
 * BOSL2 Integration: Uses attachable() for positioning and attachments.
@@ -137,14 +137,14 @@ include <Nervi/stairs.scad>
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
 
-zrot(90) space(l=5, w=1.2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true) {
+zrot(90) space(l=5, w=1.2, h=2.8, except=[FRONT,LEFT],debug=true) {
 		slab();
 		position(LEFT+BACK)
 			primary()
 				stairs(
 					w					= 1.2,
 					type				= L_SHAPED,
-					family				= "Masonry",
+					family				= MASONRY,
 					handrails 		= [RIGHT],
 					slab_thickness 	= 150,
 					anchor				= LEFT+BACK
@@ -181,7 +181,7 @@ space(except=[FRONT,RIGHT],debug=true)
 		stairs(
 			w					= 1.2,
 			type				= STRAIGHT,
-			family				= "Masonry",
+			family				= MASONRY,
 			slab_thickness 	= 150,
 			mount				= STANDARD_MOUNT,
 			anchor				= RIGHT,
@@ -207,7 +207,7 @@ space(except=[FRONT,RIGHT],debug=true)
 		stairs(
 			w					= 1.2,
 			type				= STRAIGHT,
-			family				= "Masonry",
+			family				= MASONRY,
 			slab_thickness	= 150,
 			mount				= FLUSH_MOUNT,
 			anchor				= RIGHT,
@@ -222,3 +222,116 @@ space(except=[FRONT,RIGHT],debug=true)
 |---|---|
 |![](./images/tutorials/stairs_4.png)|![](./images/tutorials/stairs_5.png)|
 |```mount = STANDARD_MOUNT```|```mount = FLUSH_MOUNT```|
+
+
+## Handrail Usage with Nervi Stairs
+
+The Nervi library’s stairs.scad provides powerful tools for creating parametric staircases with customizable handrails. This section explores handrail usage with **straight**, **L-shaped**, and **U-shaped** staircases, leveraging the stairs() and handrail() modules. These chapters guide you through configuring handrails for safety and aesthetics, using BOSL2 for precise geometry and the library’s material system for realistic rendering. Whether you’re a beginner or an OpenSCAD expert, you’ll find practical examples to enhance your architectural designs.
+
+
+### Handrails with Straight Stairs
+
+Handrails for straight staircases in Nervi ensure safety and add visual appeal. The stairs() module’s handrails parameter accepts [LEFT], [RIGHT], or [LEFT, RIGHT] to place handrails, with rail_height and rail_width controlling dimensions. Materials like "Wood" or "Aluminium" are applied via the family parameter, integrating with _materials/multi_material.scad. For a 1-meter-wide, 2.8-meter-high staircase, use:
+
+```
+stairs(w=1, total_rise=2.8, handrails=[RIGHT], family=WOOD, rail_height=900, rail_width=40);
+```
+
+This creates a straight staircase with a right-side wooden handrail. Adjust rail_height for ergonomic designs (e.g., 850-1000 mm). Experiment with mount=FLUSH_MOUNT for seamless floor integration. 
+
+```openscad-3D;ColorScheme=Tomorrow;Huge
+include <Nervi/space.scad>
+include <Nervi/stairs.scad>
+include <Nervi/masonry-structure.scad>
+
+zrot(90) space(l=5, w=1.2, h=2.8, except=[FRONT,LEFT],debug=true)
+{
+	slab();
+	position(RIGHT) primary()
+		stairs(
+			w					= 1.2,
+			type				= STRAIGHT,
+			family				= MASONRY,
+			slab_thickness	= 150,
+			handrails 		= [RIGHT],
+			anchor				= RIGHT
+		);
+};	
+```
+
+
+> [!TIP]
+> Try combining materials or adding custom posts with the standalone handrail() module for unique designs.
+ 
+### Handrails with L-Shaped Stairs
+
+**L-shaped** staircases require handrails that navigate a landing, and Nervi simplifies this with the stairs() module. Set type=L_SHAPED and specify handrails to place rails along both stair sections and the landing. The landing_size parameter (defaulting to stair width) ensures smooth transitions. For a 0.9-meter-wide, 2.6-meter-high staircase with 15 steps:
+
+```
+stairs(w=0.9, total_rise=2.6, type=L_SHAPED, steps=15, handrails=[LEFT, RIGHT], family=METAL);
+```
+
+This generates an L-shaped staircase with metal handrails on both sides. Use rail_width=50 for sturdier rails or family=MASONRY for a concrete aesthetic, adjusting slab_thickness for durability. Beginners can start with default settings, while advanced users can customize landings or integrate with BOSL2’s attachable() for modular designs. Experiment with debug=true to visualize construction logic.
+
+```openscad-3D;ColorScheme=Tomorrow;Huge
+include <Nervi/stairs.scad>
+include <Nervi/space.scad>
+include <Nervi/masonry-structure.scad>
+
+zrot(90) space(l=5, w=1.2, h=2.8, except=[FRONT,LEFT],debug=true) {
+		slab();
+		position(LEFT+BACK)
+			primary()
+				stairs(
+					w					= 1.2,
+					type				= L_SHAPED,
+					family				= MASONRY,
+					handrails 		= [RIGHT],
+					slab_thickness 	= 150,
+					anchor				= LEFT+BACK
+				);
+};  
+```
+
+
+
+### Handrails with U-Shaped Stairs
+
+**U-shaped** staircases, with two landings, demand robust handrail configurations, and Nervi’s stairs() module excels here. Set type=U_SHAPED and use handrails to place rails across all sections. The library automatically calculates landing sizes and rail continuity. For a 1.2-meter-wide, 3-meter-high staircase:
+
+```
+stairs(w=1.2, total_rise=3, type=U_SHAPED, handrails=[RIGHT], family=MASONRY, slab_thickness=150);
+```
+
+This creates a U-shaped masonry staircase with a right-side handrail. Adjust rail_height for accessibility or post_interval in handrail() for denser post placement. The material system supports realistic textures, enhancing rendering. Beginners can rely on defaults, while experts can use $stairs_landing to tweak landing sizes or combine with BOSL2 utilities for complex assemblies. Dive into Nervi on GitHub to customize handrails and share your designs!
+
+```openscad-3D;ColorScheme=Tomorrow;Huge
+include <Nervi/stairs.scad>
+include <Nervi/space.scad>
+include <Nervi/masonry-structure.scad>
+
+zrot(90) space(l=5, w=4, h=2.8, except=[FRONT,LEFT],debug=true)
+{
+	slab();
+	position(RIGHT+BACK+BOT) 
+		primary()
+		stairs(
+			w					= 1.2,
+			type				= U_SHAPED,
+			family				= MASONRY,
+			slab_thickness		= 150,
+			anchor				= RIGHT+BACK+BOT,
+			handrails			= [RIGHT]
+		);
+}	
+```
+
+
+
+
+
+
+
+
+
+
