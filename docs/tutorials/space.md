@@ -137,8 +137,9 @@ Create a slab under a space with cost informations.
 ```openscad-3D;ColorScheme=Tomorrow;Small
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
-space(l=3, w=3, h=2, debug=true, except=[FRONT, RIGHT]) {
-    slab(thickness=200, material="Concrete", unit_price=120,info=true);
+space(l=3, w=3, h=2, debug=true, except=[FRONT, RIGHT]) { 
+    primary() 
+       slab(thickness=200, material="Concrete", unit_price=120,info=true);
 }
 ```
 

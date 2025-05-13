@@ -19,7 +19,7 @@ Open-Source: Licensed under the MIT License for maximum flexibility.
 ## Installation
 
 - Download Nervi:
-	- Clone the repository: git clone https://github.com/[your-username]/nervi.git
+	- Clone the repository: git clone https://github.com/Dante-U/nervi.git
 	- Or download the latest release from GitHub Releases (#).
 - Install BOSL2:
 	- Nervi requires the `https://github.com/BelfrySCAD/BOSL2` library. Install it by cloning or downloading it to your OpenSCAD library folder.
