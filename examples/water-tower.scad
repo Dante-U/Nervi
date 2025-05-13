@@ -37,7 +37,7 @@ module tower() {
 	grid_copies( size=2000, n=2){
 		footingPad(l=0.75,w=0.75,thickness = 200,anchor=TOP )
 			attach(TOP) 
-				pillar(l=2*2.90,diameter=PILLAR_DIAMETER,family="Wood",anchor=BOT) {
+				pillar(l=2*2.90,diameter=PILLAR_DIAMETER,family=WOOD,anchor=BOT) {
 								
 				
 				}
@@ -45,7 +45,7 @@ module tower() {
 	
 	
 	up(meters(1.6)) ycopies( 2050, n=2){
-		beam(l=2-0.0250, section=[100, 100], family="Wood", 	material="Oak",info=false);
+		beam(l=2-0.0250, section=[100, 100], family=WOOD, 	material="Oak",info=false);
 	}
 	
 	
@@ -59,7 +59,7 @@ module tower() {
 	
 	up(meters(2*2.90))
 	rectangularFrame(iSize=[2+PILLAR_DIAMETER/1000, 2+PILLAR_DIAMETER/1000], section=[50, 150]) 
-		beam(l=$frame_length, section=$frame_section, family="Wood");
+		beam(l=$frame_length, section=$frame_section, family=WOOD);
 
 		
 		

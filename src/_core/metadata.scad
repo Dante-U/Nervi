@@ -226,6 +226,7 @@ function findMetaValue( field ) =
 //   $meta = [["volume", 5], ["weight", 2]];
 //   info();  // Outputs a formatted block with Volume and Weight
 module info() {
+	if (is_undef( $mute_info ) || $mute_info == false)
 	printData("Info",formatInfo( retrieveInfo() ));
 }
 

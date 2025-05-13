@@ -1,3 +1,5 @@
+include <../_core/constants.scad>
+
 use <masonry.scad>
 use <metal.scad>
 use <wood.scad>
@@ -25,22 +27,23 @@ use <wood.scad>
 //   Commonly used in structural design to access material characteristics for
 //   calculations like weight, cost, or volume. If the type is invalid, returns undef.
 // Arguments:
-//   family        	= Material type ("Wood", "Metal", "Masonry").
+//   family        	= Material type (WOOD, METAL, MASONRY).
 //   material 		= Specific material name (e.g., "Concrete", "Steel", "Pine").
 //   property     	= Property to retrieve (e.g., MATERIAL_DENSITY, MATERIAL_UNIT_PRICE).
 //
 // Example:
-//   density = materialSpec("Masonry", "Concrete", MATERIAL_DENSITY); // kg/m³
+//   density = materialSpec(MASONRY, "Concrete", MATERIAL_DENSITY); // kg/m³
 //
 function materialSpec ( family,material,property ) =
-	assert (is_def(family),		"[materialSpec] missing material family")
-	assert (material,			"[materialSpec] missing material name")
-	assert (is_def(property),	"[materialSpec] missing property")
+	assert (is_def(family),						"[materialSpec] missing material family")
+	assert (isValidMaterialFamilies(family), 	"[materialSpec] invalid material family")
+	assert (material,							"[materialSpec] missing material name")
+	assert (is_def(property),					"[materialSpec] missing property")
 	let (
 		spec = 
-			family == "Wood" 		? woodSpecs(material,property) : 
-			family == "Metal" 		? metalSpecs(material,property) : 
-			family == "Masonry" 	? masonrySpecs(material,property) : 
+			family == WOOD 		? woodSpecs(material,property) : 
+			family == METAL 	? metalSpecs(material,property) : 
+			family == MASONRY 	? masonrySpecs(material,property) : 
 			undef,
 	)
 	spec;

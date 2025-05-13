@@ -33,7 +33,7 @@ use <_materials/multi_material.scad>
 // Arguments:
 //   l             = Length of the beam (x-axis) in meters. Default: $beam_l or 2
 //   section       = Cross-sectional dimensions [width, thickness] in millimeters. Default: $beam_section or [100, 100]
-//   family		 = Material type ("Wood", "Metal", "Masonry"). Default: "wood"
+//   family		 = Material type (WOOD, METAL, MASONRY). Default: WOOD
 //   material      = Specific material name (e.g., "Oak", "Steel", "Concrete") 
 //   index         = Index number or string to display as text. Default: undef (no text)
 //   rounding      = Radius for edge rounding in millimeters. Default: $beam_rounding or 5
@@ -46,15 +46,15 @@ use <_materials/multi_material.scad>
 //   spin          = Rotation around Z-axis in degrees. Default: 0
 //   orient        = Orientation vector. Default: UP
 // Example(3D,Small,ColorScheme=Tomorrow):
-//   beam(l=2, section=[50, 100], family="Wood", material="Oak");
+//   beam(l=2, section=[50, 100], family=WOOD, material="Oak");
 // Example(3D,Small,ColorScheme=Tomorrow): Metal Beam with Text
-//   beam(l=2, section=[100, 100], family="Metal", material="Steel", index="B1");
+//   beam(l=2, section=[100, 100], family=METAL, material="Steel", index="B1");
 // Example(3D,Small,ColorScheme=Tomorrow): Concrete Beam with Info
-//   beam(l=2, section=[100, 100], family="Masonry", material="Concrete", info=true, cubic_price=300);
+//   beam(l=2, section=[100, 100], family=MASONRY, material="Concrete", info=true, cubic_price=300);
 module beam(
     l             = first_defined([is_undef(l)          ? undef : l,         is_undef($beam_length)         ? 2      : $beam_length]),
     section       = first_defined([is_undef(section)    ? undef : section,   is_undef($beam_section)   ? [100, 100]  : $beam_section]),
-    family 		  = "wood",
+    family 		  = WOOD,
     material      = undef,
     index         = undef,
     rounding      = first_defined([is_undef(rounding)   ? undef : rounding,  is_undef($beam_rounding)  ? 5       : $beam_rounding]),
@@ -70,7 +70,7 @@ module beam(
     // Validate inputs
     assert(is_meters(l), 										"[beam] l must be a plausible positive number in meters");
     assert(is_dim_pair(section), 								"[beam] section must be a valid [width, thickness] pair in millimeters");
-    assert(isValidMaterialFamilies(family),					"[beam] family must be 'Wood', 'Metal', or 'Masonry'");
+    assert(isValidMaterialFamilies(family),						"[beam] family must be 'Wood', 'Metal', or 'Masonry'");
     assert(is_between(rounding, 0, min(section) / 2, min_inc=true, max_inc=true), 
            "[beam] rounding must be between 0 and half the smallest section dimension (inclusive) in millimeters");
     assert(is_undef(index) || is_string(index) || is_num(index), "[beam] index must be a string or number");
@@ -92,7 +92,7 @@ module beam(
     );
     // Metadata for BIM/IFC
     if (provideMeta(info)) {
-		_ifc_type = family == "Masonry" ? "CONCRETE" : "BEAM";
+		_ifc_type = family == MASONRY ? "CONCRETE" : "BEAM";
 		_density  = materialSpec(family, _material, MATERIAL_DENSITY);
         volume = l * width * thickness / 1000000; // m³ (length in meters, width/thickness in mm)
         cost = is_def(cubic_price) ? cubic_price * volume : undef;
@@ -146,7 +146,7 @@ module beam(
 //   l             = Length of the pillar (z-axis) in meters. Default: $pillar_l or 3
 //   section       = Cross-sectional dimensions [width, thickness] in millimeters for rectangular pillars. Default: $pillar_section or undef
 //   diameter      = Diameter in millimeters for circular pillars. Default: $pillar_diameter or undef
-//   family 	   = Material type ("Wood", "Metal", "Masonry"). Default: "Wood"
+//   family 	   = Material type (WOOD, METAL, MASONRY). Default: WOOD
 //   material      = Specific material name (e.g., "Oak", "Steel", "Concrete")
 //   index         = Index number or string to display as text. Default: undef (no text)
 //   rounding      = Radius for edge rounding in millimeters. Default: $pillar_rounding or 5
@@ -159,16 +159,16 @@ module beam(
 //   spin          = Rotation around Z-axis in degrees. Default: 0
 //   orient        = Orientation vector. Default: UP
 // Example(3D,Big,ColorScheme=Tomorrow):
-//   pillar(l=3, section=[200, 200], family="Wood", material="Oak", info=true, cubic_price=600);
+//   pillar(l=3, section=[200, 200], family=WOOD, material="Oak", info=true, cubic_price=600);
 // Example(3D,Big,ColorScheme=Tomorrow): Circular Pillar with Text
-//   pillar(l=3, diameter=200, family="Metal", material="Steel", index="P1", info=true, cubic_price=2000);
+//   pillar(l=3, diameter=200, family=METAL, material="Steel", index="P1", info=true, cubic_price=2000);
 // Example(3D,Big,ColorScheme=Tomorrow): Concrete Pillar
-//   pillar(l=3, section=[200, 300], family="Masonry", material="Concrete", info=true, cubic_price=300);
+//   pillar(l=3, section=[200, 300], family=MASONRY, material="Concrete", info=true, cubic_price=300);
 module pillar(
     l             = first_defined([is_undef(l)          ? undef : l,         is_undef($pillar_l)         ? 3       : $pillar_l]),
     section       = first_defined([is_undef(section)    ? undef : section,   is_undef($pillar_section)   ? undef   : $pillar_section]),
     diameter      = first_defined([is_undef(diameter)   ? undef : diameter,  is_undef($pillar_diameter)  ? undef   : $pillar_diameter]),
-    family 		  = "Wood",
+    family 		  = WOOD,
     material      = undef,
     index         = undef,
     rounding      = first_defined([is_undef(rounding)   ? undef : rounding,  is_undef($pillar_rounding)  ? 5       : $pillar_rounding]),
@@ -207,7 +207,7 @@ module pillar(
     );
     // Metadata for BIM/IFC
     if (provideMeta(info)) {
-		_ifc_type = family == "Masonry" ? "CONCRETE" : "COLUMN";
+		_ifc_type = family == MASONRY ? "CONCRETE" : "COLUMN";
 		_density = materialSpec(family, _material, MATERIAL_DENSITY);		   
         volume = section != undef
             ? l * width * thickness / 1000000 // m³ (rectangular: length in meters, width/thickness in mm)
@@ -269,7 +269,7 @@ module pillar(
 //   oSize      = Outer dimensions [width, depth] in meters (optional; takes precedence over iSize).
 //   section    = Beam cross-section [width, height] in millimeters.
 //   prioritize = Axis to prioritize for beam length (X=[1,0,0] or Y=[0,1,0]) [default: X].
-//   material   = Beam material (e.g., "Wood", "Steel") [default: "Wood"].
+//   material   = Beam material (e.g., WOOD, "Steel") [default: WOOD].
 //   anchor     = Anchor point for positioning (used by attachable) [default: undef].
 //   spin       = Rotation angle in degrees around Z-axis (used by attachable) [default: undef].
 //   debug      = If true, renders a ghosted bounding box [default: true].
@@ -292,15 +292,15 @@ module pillar(
 // Example(3D,ColorScheme=Tomorrow): Beam reactangular frame with default priorization on X axis
 //   include <structure.scad>
 //   rectangularFrame(oSize=[.4, .4], section=[50, 80]) 
-//       beam(l=$frame_length, section=$frame_section, family="Wood");
+//       beam(l=$frame_length, section=$frame_section, family=WOOD);
 // Example(3D,ColorScheme=Tomorrow): Beam reactangular frame with priorization on Y axis
 //   include <structure.scad>
 //   rectangularFrame(oSize=[.4, .4], section=[50, 80],prioritize = Y) 
-//       beam(l=$frame_length, section=$frame_section, family="Wood");
+//       beam(l=$frame_length, section=$frame_section, family=WOOD);
 // Example(3D,ColorScheme=Tomorrow): Beam reactangular with assembly anchors
 //   include <structure.scad>
 //   diff() rectangularFrame(oSize=[.4, .4], section=[50, 80], prioritize = Y) {
-//      beam(l=$frame_length, section=$frame_section, family="Wood");
+//      beam(l=$frame_length, section=$frame_section, family=WOOD);
 //      attach(["left-back","left-fwd","right-back","right-fwd"],CTR,inside=true) cyl(d=20,l=15);
 //   }
 //
@@ -309,7 +309,7 @@ module rectangularFrame(
     oSize,
     prioritize = X,
     section,
-	family 			= "Wood",
+	family 			= WOOD,
     material   		= "Pine",
 	cubic_price		= 0,
     anchor,
@@ -325,7 +325,7 @@ module rectangularFrame(
 	assert(in_list(prioritize, [X, Y]), 			"[rectangularFrame] prioritize must be X or Y");
     assert(is_vector(section) && len(section) == 2 && all_positive(section), "[rectangularFrame] section must be a valid [width, height] in mm");
     assert(info == false || is_string(material), 	"[rectangularFrame] material must be a string");
-	assert(info == false || is_string(family), 		"[rectangularFrame] family must be a string");
+	assert(isValidMaterialFamilies(family), 		"[rectangularFrame] family must be a string");
 	
 	dw = 2*section.x; // Double width
 	hw = section.x/2; // Half width
@@ -335,8 +335,8 @@ module rectangularFrame(
     $frame_section = section;	// Set beam section for children
 
     // Calculate shortening for beam length (in mm) to avoid overlaps
-    shortening = prioritize == X ? [0,dw] : [dw, 0];
-    bounding = [outer_size.x, outer_size.y, section.y];
+    shortening	= prioritize == X ? [0,dw] : [dw, 0];
+    bounding 	= [outer_size.x, outer_size.y, section.y];
 	
 	
 	anchors = prioritize == X ? [

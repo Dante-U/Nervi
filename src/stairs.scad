@@ -26,6 +26,8 @@ FLUSH_MOUNT 	= 0;
 function mountTypes() = [ STANDARD_MOUNT, FLUSH_MOUNT ];
 
 // Bitwise constants for stair types
+
+
 // Constant: STRAIGHT
 // Description : Straight stairs type
 STRAIGHT = 1;  // 001
@@ -68,31 +70,73 @@ function isValidType(t) = t == STRAIGHT || t == L_SHAPED || t == U_SHAPED;
 //
 // DefineHeader:Returns:  
 //    A staircase model with defined dimensions and properties.
-// Example(3D,ColorScheme=Tomorrow): Simple Straight Staircase
-//   stairs(w=1, total_rise=2.8, handrails=[RIGHT]);
-// Example(3D,ColorScheme=Tomorrow): L-Shaped Staircase with 15 steps
-//   stairs(w=.9, total_rise=2.6, type=L_SHAPED, steps=15);
-// Example(3D,ColorScheme=Tomorrow): U-Shaped Staircase without handrails
-//   stairs(w=1.2, total_rise=3, type=U_SHAPED);
+// Example(3D,ColorScheme=Tomorrow;Huge): Simple Straight Staircase
+//   include <space.scad>
+//   include <masonry-structure.scad>
+//   space(l=5, w=1.2, h=2.8, except=[FRONT,LEFT],debug=true) {
+//      slab();
+//      position(RIGHT+TOP) primary()
+//         stairs(w=1, handrails=[RIGHT], anchor=RIGHT+TOP);
+//   }
+// Example(3D,ColorScheme=Tomorrow;Huge): Simple Straight Staircase in concrete with right handrail
+//   include <space.scad>
+//   include <masonry-structure.scad>
+//   zrot(90) space(l=5, w=1.2, h=2.8, except=[FRONT,LEFT],debug=true) {
+//      slab();
+//      position(RIGHT+TOP) primary()
+//         stairs(w=1, handrails=[RIGHT], family = MASONRY, anchor=RIGHT+TOP);
+//   }
+// Example(3D,ColorScheme=Tomorrow;Huge): L-Shaped Staircase 
+//   include <space.scad>
+//   include <masonry-structure.scad>
+//   zrot(90) space(l=4, w=2.7, h=2.8, except=[FRONT,LEFT],debug=true) {
+//      slab();
+//      position(RIGHT+FRONT+TOP) primary()
+//         stairs(w=1, type = L_SHAPED, handrails=[RIGHT], anchor=FRONT+RIGHT+TOP);
+//   }
+// Example(3D,ColorScheme=Tomorrow;Huge): L-Shaped Staircase in concrete 
+//   include <space.scad>
+//   include <masonry-structure.scad>
+//   zrot(90) space(l=4, w=2.7, h=2.8, except=[FRONT,LEFT],debug=true) {
+//      slab();
+//      position(RIGHT+FRONT+TOP) primary()
+//         stairs(w=1, type = L_SHAPED, family = MASONRY, handrails=[RIGHT], anchor=FRONT+RIGHT+TOP);
+//   }
+// Example(3D,ColorScheme=Tomorrow;Huge): U-Shaped Staircase 
+//   include <space.scad>
+//   include <masonry-structure.scad>
+//   zrot(90) space(l=4, w=2.7, h=2.8, except=[FRONT,LEFT],debug=true) {
+//      slab();
+//      position(RIGHT+FRONT+TOP) primary()
+//         stairs(w=1, type = U_SHAPED, handrails=[RIGHT], anchor=FRONT+RIGHT+TOP);
+//   }
+// Example(3D,ColorScheme=Tomorrow;Huge): U-Shaped Staircase in concrete 
+//   include <space.scad>
+//   include <masonry-structure.scad>
+//   zrot(90) space(l=4, w=2.7, h=2.8, except=[FRONT,LEFT],debug=true) {
+//      slab();
+//      position(RIGHT+BACK+TOP) primary()
+//         stairs(w=1, type = U_SHAPED, family = MASONRY, handrails=[RIGHT], anchor=RIGHT+BACK+TOP);
+//   }
 module stairs(
-    type 		= STRAIGHT,
-	w  			= first_defined([is_undef(w) 		  ? undef : w ,$thread_width			]),
-	total_rise  = first_defined([is_undef(total_rise) ? undef : total_rise ,is_undef($space_height) ? undef : $space_height	]),
+    type 			= STRAIGHT,
+	w  				= first_defined([is_undef(w) 		  ? undef : w ,$thread_width			]),
+	total_rise  	= first_defined([is_undef(total_rise) ? undef : total_rise ,is_undef($space_height) ? undef : $space_height	]),
     steps,
-	family		= WOOD,	
-    rise 		= 170,
-    run 		= 250,
-    thickness 	= 40,
-	slab_thickness, 
-    handrails 	= [],	/// Array: [RIGHT], [LEFT], or [RIGHT, LEFT]
-    rail_height = 900,
-    rail_width 	= 40,
+	family			= WOOD,	
+    rise 			= 170,
+    run 			= 250,
+    thickness 		= 40,
+	slab_thickness 	= 0, 
+    handrails 		= [],	/// Array: [RIGHT], [LEFT], or [RIGHT, LEFT]
+    rail_height 	= 900,
+    rail_width 		= 40,
     landing_size,
-    anchor 		= BOTTOM,
-	mount 		= STANDARD_MOUNT, // Could be standard or flush mount  
+    anchor 			= BOTTOM,
+	mount 			= STANDARD_MOUNT, // Could be standard or flush mount  
 	material,
-    spin 		= 0,
-	debug 		= false,
+    spin 			= 0,
+	debug 			= false,
 ) {
 
     assert(is_meters(total_rise), 				"[stairs] [total_rise] parameter is undefined. Provide height or $room_height");
@@ -362,37 +406,63 @@ module tread(
 //
 // DefineHeader:Returns:  
 //    A spiral staircase model with defined dimensions and properties.
-// Example(3D,ColorScheme=Tomorrow): Simple Spiral Staircase
-//   spiralStairs(radius=1200, total_rise=2800);
-// Example(3D,ColorScheme=Tomorrow): Tight Spiral With 1.5 Turns
-//   spiralStairs(radius=800, total_rise=3000, turns=1.5, steps=12);
+// Example(3D,ColorScheme=Tomorrow,Huge): Spiral Staircase in wood
+//   include <space.scad>
+//   include <masonry-structure.scad>
+//   space(l=2, w=2, h=2.8, except=[FRONT,LEFT],debug=true) {
+//      slab(); // Ground slab
+//      position(RIGHT+BACK+BOT) primary()
+//      spiralStairs(
+//          family				= WOOD,
+//          mount				= STANDARD_MOUNT,
+//          guard_diam			= 150,
+//          anchor				= RIGHT+BACK,
+//      );
+//      position(RIGHT+BACK+TOP)
+//         slab(l=0.75,w=0.75,anchor=RIGHT+BACK+TOP); // Top platform
+//   }
+// Example(3D,ColorScheme=Tomorrow,Huge): Spiral stairs in concreate with handlrail
+//   include <space.scad>
+//   include <masonry-structure.scad>
+//   space(l=2, w=2, h=2.8, except=[FRONT,LEFT],debug=true) {
+//      slab(); // Ground slab
+//      position(RIGHT+BACK+BOT) primary()
+//      spiralStairs(
+//          family				= MASONRY,
+//          mount				= STANDARD_MOUNT,
+//          guard_diam			= 150,
+//          anchor				= RIGHT+BACK,
+//      );
+//      position(RIGHT+BACK+TOP)
+//         slab(l=0.75,w=0.75,anchor=RIGHT+BACK+TOP); // Top platform
+//   }	
 
 
-
+/*
 include <space.scad>
 //include <Nervi/stairs.scad>
 include <masonry-structure.scad>
 
-//handrail( l = 5, total_rise = 2 ) show_anchors(200);
-
-//if (false) 
-space(l=2, w=2, h=2.8, wall=200, except=[FRONT,LEFT],debug=true) 
-{
-	slab();
+space(l=2, w=2, h=2.8, except=[FRONT,LEFT],debug=true) {
+	slab(); // Ground slab
 	position(RIGHT+BACK+BOT) 
-		//primary()
+		primary()
 		spiralStairs(
 			family				= WOOD,
+			//family				= MASONRY,
 			//mount=FLUSH_MOUNT,
 			mount				= STANDARD_MOUNT,
-			material_post 		= "Oak",
-			material_baluster	= "Pine",
+			//material_post 		= "Oak",
+			
+			guard_diam			= 150,
+			//material_baluster	= "Pine",
 			anchor				= RIGHT+BACK,
-			debug=true
+			//debug=true
 		);
 	position(RIGHT+BACK+TOP)
-		slab(l=0.6,w=0.6,anchor=RIGHT+BACK+TOP);
-};	
+		slab(l=0.75,w=0.75,anchor=RIGHT+BACK+TOP); // Top platform
+}
+*/	
 
 
 
@@ -420,19 +490,20 @@ module spiralStairs(
     assert(is_num_positive(total_rise), "[spiralStairs] total_rise is invalid");
     
 	mount_step 		= mount == FLUSH_MOUNT ? 0 : 1;
-    _steps			= ceil( steps * turns );
-    //step_angle 		= 360 / (steps + (mount == FLUSH_MOUNT ? 0 : -1 )) * (ccw ? -1 : 1);
+	iteration		= ceil( steps * turns );
+	_steps          = iteration - mount_step;
 	step_angle 		= 360 / (steps - mount_step ) * (ccw ? -1 : 1);
 	_h 				= meters(total_rise);
-    _rise 			= _h / _steps;
-	size 			= [radius*2, radius*2, _h];
-	thread_tickness	= family == WOOD ? thickness : _rise;
-	
-	$thread_rise 	= _rise;
+    _rise 			= _h / iteration;
+	size 			= [ (radius+guard_diam)*2 , (radius+guard_diam)*2 , _h ];
+	_tickness		= family == WOOD ? thickness : _rise;
+	precision 		= valueByRendering(simple=1, standard=0.5, detailed=0.8);
+	fn 				= valueByRendering(simple=16, standard=32, detailed=64);
+	da 				= 20;
     
     module tread( angle ) {
 		zrot(angle)
-			pieSlice(angle=360/steps+4, radius=radius, height=thickness,anchor=TOP);
+			pieSlice(angle=360/steps+4, radius=radius, height=_tickness, anchor=TOP );
     }
 
     attachable(anchor, spin, orient=UP, size=size) {
@@ -441,45 +512,69 @@ module spiralStairs(
 			material(material_post,family=family) cylinder(r=inner_radius, h=_h);
 			if ( is_in(family,[WOOD,METAL]) ) {	
 				material( material_tread, family = family )
-					//for (i = [0:_steps-(mount == FLUSH_MOUNT ? 1 : 2 )]) 
-					for (i = [ 0:_steps-1-mount_step ] ) 
+					for (i = [ 0:_steps-1 ] ) 
 						let ( 
-							z = (i+1 ) * _rise, 
+							z = ( i+1 ) * _rise, 
 							a = i * step_angle
 						)
 						up(z) tread( a );
                 // Handrail
                 if (handrail) {
                     // Vertical posts at regular intervals (steps)
-					post_interval 	= 1;
-					precision 		= valueByRendering(simple=1, standard=0.5, detailed=0.8);
-					//precision = 0.2; 
-					da = 20; //20;
 					material( material_tread, family = family )
-                    for (i = [ 0 : post_interval : _steps-mount_step ]) {
-                        angle = i * step_angle;
-                        z = i * _rise;
+					for (i = [ 0 : _steps ]) 
+						let (
+	                        angle = i * step_angle,
+							z = i * _rise,
+						)	
 						zrot(angle)
                             translate([radius-da, 0, z])
                                 cylinder( d = baluster_diam, h = rail_height );
-                    }
                     // Helical rail
-                    rail_points = [for (i = [0:precision:_steps-mount_step]) 
+					rail_points = [for (i = [ 0 : precision : _steps ]) 
 						let (
 							a  = i*step_angle,
 							r  = radius-da,
 							z  = i*_rise+rail_height
 						)
-                        [ cos(a)*r, sin(a)*r, z]
+                        [ cos(a)*r, sin(a)*r, z ]
 					];
 					material( material_baluster, family = family )
 						path_sweep( circle( d=guard_diam ), rail_points );
                 }
 			} 
 			else if (family == MASONRY)	{
-				material( material_post, default = "Concrete" )
-					cylinder(r=inner_radius, h=_h);
-			
+				material( material_post, family = family )
+					cylinder( r = inner_radius, h = _h );
+				material( material_tread, family = family )
+					for (i = [ 0:_steps-1 ] ) 
+						let ( 
+							z = ( i+1 ) * _rise, 
+							a = i * step_angle
+						)
+						up(z) tread( a );					
+				if (handrail) {
+					 // Helical rail
+					rail_points = [for (i = [ 0 : precision : _steps ]) 
+						let (
+							a  = i*step_angle,
+							r  = radius-da,
+							z  = i*_rise+rail_height/2
+						)
+                        [ cos(a)*r, sin(a)*r, z ]
+					];
+					material( material_baluster, family = family )
+						up(rail_height/2-_rise)
+							spiral_sweep(
+								rect( [guard_diam,rail_height+_rise ] ), 
+								h		= _h, 
+								r		= radius+guard_diam/2, 
+								turns	= turns, 
+								anchor	= BOT,
+								$fn		= fn
+							);
+						
+				}	
 			} 
         }
         children();
@@ -518,7 +613,7 @@ module spiralStairs(
 //    steps 		= Number of steps (required).
 //    rise 			= Height of each step (default: 170).
 //    run 			= Depth of each step (default: 250).
-//    sides 		= Sides to place handrails ("LEFT", "RIGHT", or ["LEFT", "RIGHT"]) [default: ["RIGHT"]].
+//    sides 		= Sides to place handrails (LEFT, RIGHT,CENTER or [LEFT,RIGHT]) [default: [RIGHT]].
 //    rail_height 	= Height of handrail above steps (default: 900).
 //    rail_width 	= Width/thickness of handrail and posts (default: 40).
 //    post_interval = Max step interval for vertical posts (default: 200 mm ).
@@ -526,23 +621,22 @@ module spiralStairs(
 //    spin 			= Rotation angle in degrees around Z-axis (BOSL2 style) [default: 0].
 // Usage:
 //    handrail( w,total_rise,[l],[rise],[run],[sides],mount,[rail_height],[rail_width],[post_diam],[post_interval],[material_rail],[material_post] );
-// Example(3D,ColorScheme=Tomorrow): Handrail on both side
+// Example(3D,ColorScheme=Tomorrow;Huge): Handrail on both side
 //    include <masonry-structure.scad>
-//    slab(l = 2.3, w = 1,anchor = TOP);
-//       handrail(w=1, total_rise=1.5, sides=[RIGHT,LEFT],debug = false);
-// Example(3D,ColorScheme=Tomorrow): Handrails on left side
+//    slab(l = 2, w = 1,anchor = TOP) 
+//       handrail(l=2, w=1, total_rise=0, sides=[RIGHT,LEFT],anchor=BOT);
+// Example(3D,ColorScheme=Tomorrow;Huge): Handrails on left side
 //    include <masonry-structure.scad>
-//	  slab(l = 2.3, w = 1,anchor = TOP);
-//	     handrail(w=1, total_rise=1.5, sides=[LEFT]);
-// Example(3D,ColorScheme=Tomorrow): Flat Handrail
-//    handrail( l = 2 );
+//    slab(l = 2, w = 1,anchor = TOP) 
+//       handrail(w=1, l=2, total_rise=0, sides=[LEFT] ,anchor=BOT);
+//
 module handrail(
     w 				= 0,
 	l				= is_undef($handrail_length) ? undef : $handrail_length,
 	total_rise 		= first_defined([is_undef($stairs_rise) ? undef : $stairs_rise, is_undef( $space_height ) ? 0 : $space_height ]),
     rise 			= first_defined([is_undef(rise) ? undef : rise , is_undef($thread_rise) ? 170 : $thread_rise	]),
     run 			= first_defined([is_undef(run) 	? undef : run  , is_undef($thread_run) 	? 250 : $thread_run		]),
-    sides 			= [CENTER],
+    sides 			= [RIGHT],
 	mount 			= first_defined([is_undef(mount) ? undef : mount , is_undef($stairs_mount) ? STANDARD_MOUNT : $stairs_mount	]),
     rail_height		= 900,
     rail_width 		= 80,
@@ -625,8 +719,6 @@ module handrail(
         children(); 
     }
 }
-
-
 
 
 module placeHandrails( sides ) {

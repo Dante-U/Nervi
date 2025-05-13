@@ -42,39 +42,27 @@ function placeFurniture(anchors, inset=[0, 0], vAlign=BOT) =
     assert(is_list(inset) && len(inset)==2 && all_nonnegative(inset), "[placeFurniture] inset must be a 2D list [x, y] with non-negative values")
     assert(is_vector(vAlign), "[placeFurniture] vAlign must be a vector")
     let (
-        orient = desc_dir(),
-        bounding = meters([$space_length, $space_width, $space_height]) / 2
+        orient 		= desc_dir(),
+        bounding 	= meters([$space_length, $space_width, $space_height]) / 2
     )
     [ for (anchor = list_wrap(anchors)) v_mul(bounding - point3d(inset), anchor + vAlign) ];
 	
 module placeFurniture(anchors, inset=[0, 0], debug=false, info=true ) {
     assert(is_def(anchors), "[placeFurniture] anchors must be defined (vector, string, or list)");
     assert(is_list(inset) && len(inset)==2 && all_nonnegative(inset), "[placeFurniture] inset must be a 2D list [x, y] with non-negative values");
-    assert(is_bool(debug), "[placeFurniture] debug must be a boolean");
-    assert(is_bool(info), "[placeFurniture] info must be a boolean");
+    assert(is_bool(debug), 	"[placeFurniture] debug must be a boolean");
+    assert(is_bool(info), 	"[placeFurniture] info must be a boolean");
 
     shifts = placeFurniture(anchors, inset);
-    unMutable()
-    for (shift = shifts) {
-        if (debug) translate(shift) sphere(r=50, $color="Red"); // Debug markers
-        translate(shift) children();
-    }
+	
+	//unMutable() {	
+		echo ("****** Render Unmutable *****");
+		for (shift = shifts) {
+			if (debug) translate(shift) sphere(r=50, $color="Red"); // Debug markers
+			translate(shift) children();
+		}
+	//}
 }
-
-/*	
-module place_furniture2(
-    furniture_type = "table",  // Type of furniture (e.g., "table")
-    x = 0,                    // X-coordinate in meters
-    y = 0,                    // Y-coordinate in meters
-    angle = 0,                // Rotation angle in degrees
-    material = "Oak",         // Wood material from wood.scad
-    length = 2,               // Length in meters (for table)
-    width = 0.85,             // Width in meters (for table)
-    anchor = "center"         // Anchor point (e.g., "center", "bottom-left")
-) {
-    // Implementation details
-}
-*/	
 	
 
 // Module: bed()

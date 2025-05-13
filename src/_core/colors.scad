@@ -9,7 +9,6 @@ include <constants.scad>
 //////////////////////////////////////////////////////////////////////
 
 function colorsData() = struct_set([], [
-//material_colors = struct_set([], [
     "Aluminium",   ["Linen",           [0.98, 0.941, 0.902], 1],
     "Bamboo",      ["Khaki",           [0.941, 0.902, 0.549], 1],
     "Brick",       ["IndianRed",       [0.804, 0.361, 0.361], 1],
@@ -43,6 +42,7 @@ function colorsData() = struct_set([], [
     "Plastic",     ["White",           [1, 1, 1], 1],
     "Plywood",     ["#D2B48C",         [0.824, 0.706, 0.549], 1],
     "Polyethylene",["LightGray",       [0.827, 0.827, 0.827], 1],
+	"Primary",     ["IndianRed",       [0.804, 0.361, 0.361], 1],
     "Sand",        ["Tan",             [0.824, 0.706, 0.549], 1],
     "Steel",       ["DimGray",         [0.412, 0.412, 0.412], 1],
     "Stone",       ["SlateGray",       [0.439, 0.502, 0.565], 1],
@@ -65,8 +65,9 @@ function colorsData() = struct_set([], [
 //    This module colors its child object based on the material name.
 // Arguments: 
 //    name 			= Material name (e.g., "Wood", "Metal", "Glass").
-//    transparency  = Transparency 
+//	  default		= Default material if name is not provided or wrong	
 //    deep  		= If false color at current level only 
+//    transparency  = Transparency 
 // Example(3D,Small,ColorScheme=Tomorrow,NoAxes): Wood
 //   material("Wood") cube([20,20,20]); 
 // Example(3D,Small,ColorScheme=Tomorrow): Clearing
@@ -74,16 +75,18 @@ function colorsData() = struct_set([], [
 // Example(3D,Small,ColorScheme=Tomorrow): Ghost
 //   material("Ghost") cube([20,20,20]); 
 //
-module material( name, transparency, deep= true ,default ) {
-	if (is_def(name) || is_def(default)) {
-		c = matColorSpec(name,fallBack = default);
+module material( name, default, family, deep= true ,transparency) {
+	assert(is_undef(transparency) || is_num(transparency),"[material] transparency could be undef or a number");
+	_default = first_defined([ default, is_def(family) ? materialFamilyToMaterial(family) : undef ]);
+	if (is_def(name) || is_def(_default)) {
+		c = matColorSpec(name,fallBack = _default);
 		newColor = flatten([c[1],c[2]]);
 		if ( deep ) {
 			$color=newColor;
 			children();	
 		}	
 		else {
-			$save_color=default($color,"default");
+			$save_color=default($color,_default);
 			$color=newColor;
 			children();	
 		}	

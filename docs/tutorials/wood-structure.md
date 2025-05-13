@@ -97,7 +97,7 @@ trunkPlatform(
     beam_dir = RIGHT,
     log_diam = 150,
     anchor = BOT,
-    material = "Wood",
+    material = WOOD,
     groundedMaterial = "Tar",
 );
 ```

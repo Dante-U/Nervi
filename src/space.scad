@@ -133,7 +133,7 @@ module space(
 						translate(s[1]) 
 							//ghost() 
 							material("Template")
-							cuboid(s[2]);
+								cuboid(s[2]);
 			}	
 			else if (isViewPlan()) {
 				down(_height/2) {

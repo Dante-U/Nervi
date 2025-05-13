@@ -45,6 +45,10 @@ run_docsgen() {
     flatten_wiki_structure "./wiki/_materials" "./wiki" "$verbose"
 }
 
+run_tests() {
+    ./scripts/tests.sh	
+}
+
 # Function to generate tutorial documentation
 tutorials_docgen() {
     local force=${1:-false}
@@ -126,6 +130,10 @@ parse_ini() {
             eval "export $var_name='$value'"
         fi
     done < "$ini_file"
+}
+
+check_coverage() {
+	python3 ./scripts/coverage.py
 }
 
 # Parse config.ini
@@ -268,9 +276,11 @@ display_menu() {
     echo -e "${GREEN}2. Generate Tutorials${NC}"
     echo -e "${GREEN}3. Toggle Force Mode${NC}"
     echo -e "${GREEN}4. Toggle Verbose Mode${NC}"
-    echo -e "${GREEN}5. Install Docgen${NC}"
-    echo -e "${GREEN}6. Uninstall Docgen${NC}"
-    echo -e "${GREEN}7. Open Docgen Session${NC}"
+    echo -e "${GREEN}c. Check coverage${NC}"
+    echo -e "${GREEN}t. Run tests${NC}"
+    echo -e "${GREEN}6. Install Docgen${NC}"
+    echo -e "${GREEN}7. Uninstall Docgen${NC}"
+    echo -e "${GREEN}8. Open Docgen Session${NC}"
     echo -e "${RED}q. Exit${NC}"
     echo -e "${BLUE}--------------------------------------${NC}"
     echo -e "${CYAN}Select an option (1-7, q):${NC} \c"
@@ -301,17 +311,27 @@ while true; do
         4)
             verbose=$([ "$verbose" = true ] && echo false || echo true)
             ;;
-        5)
-            install_docgen
+        c)
+	    check_coverage	
+            echo -e "${YELLOW}Press Enter to continue...${NC}"
+            read -r
+	    ;;	
+        t)
+            run_tests
             echo -e "${YELLOW}Press Enter to continue...${NC}"
             read -r
             ;;
         6)
+            install_docgen
+            echo -e "${YELLOW}Press Enter to continue...${NC}"
+            read -r
+            ;;
+        8)
             uninstall_docgen
             echo -e "${YELLOW}Press Enter to continue...${NC}"
             read -r
             ;;
-        7)
+        9)
             open_docgen_session
             echo -e "${YELLOW}Press Enter to continue...${NC}"
             read -r
