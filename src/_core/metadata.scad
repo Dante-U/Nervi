@@ -27,7 +27,7 @@ function metaSpecs() = struct_set([], [
 	"cost",    	 	 [ "Cost"		, 		function(v,u) formatCurrency(v,symbol=u)    ],
 	"orientation", 	 [ "Orientation"									],
 	"qty",        	 [ "Quantity"	, "Unit"							],
-	"units",         [ "Units"		, "pce"								],
+	"units",         [ "Units"		/*, "pce"*/								],
 	"material",      [ "Material"										],
 	"linear_meters", [ "Linear Meters", 	function(v,u) formatLength(v,u)	],
 	"diameter", 	 [ "Diameter"	, 		function(v,u) formatLength(v,u)	],

@@ -1,5 +1,6 @@
 include <../_core/constants.scad>
 use <../_core/2D.scad>
+use <../_core/geometry.scad>
 use <../_core/utils.scad>
 
 //////////////////////////////////////////////////////////////////////
@@ -120,11 +121,11 @@ function trace2Bezier(tracePath, resolution=3,meters = true) =
 //    height = Height of the parallelogram base. [default: 5]
 //    skew   = Horizontal offset (skew) applied to the top edge. [default: 5]
 //    depth  = Extrusion depth along the Z-axis.
-// Example(3D,ColorScheme=Tomorrow) :  Simple 
+// Example(3D) :  Simple 
 //    parallelepiped( width=20, height=10, skew=5, depth=8);
-// Example(3D,ColorScheme=Tomorrow) :  With bottom and top width
+// Example(3D) :  With bottom and top width
 //    parallelepiped( width1=25, width2=15, height=10, skew=5, depth=8);
-// Example(3D,ColorScheme=Tomorrow) :  Rounded
+// Example(3D) :  Rounded
 //    parallelepiped( width=20, height=10, skew=5, depth=8, rounding = 3);
 module parallelepiped( 
 	width,
@@ -151,11 +152,7 @@ module parallelepiped(
 			rounding = rounding
 		);	
 	bounding = boundingSize(path,z=depth);
-		echo (bounding);
-		
 	center = centroid(path);	
-	echo ("cp",center);
-
 	attachable(size=bounding, anchor=anchor, spin=spin, orient=orient, cp=[center[X],center[Y],depth/2]) {	
 		linear_extrude (height = depth)
 			polygon(path);	
@@ -184,11 +181,11 @@ module parallelepiped(
 //   orient    = Orientation of the gable [default: UP].
 // Usage:
 //   gableShape(length=10, width=8, pitch=30, thickness=1);
-// Example(3D,ColorScheme=Tomorrow): Gable shape closed
+// Example(3D): Gable shape closed
 //   gableShape(length=10, width=8, pitch=45, thickness=1, closed=true);
-// Example(3D,ColorScheme=Tomorrow): Open gable with height specified
+// Example(3D): Open gable with height specified
 //   gableShape(length=12, width=10, height=5, thickness=0.5, closed=false);
-// Example(3D,ColorScheme=Tomorrow): Gable spinned
+// Example(3D): Gable spinned
 //   gableShape(length=12, width=10, height=5, thickness=0.5, closed=true, spin=90 );
 module gableShape(
     length,
@@ -267,10 +264,10 @@ module gableShape(
 //   anchor 	= Position anchor for the slice. Default: CENTER
 //   spin   	= Rotation angle in degrees. Default: 0
 //
-// Example(3D,ColorScheme=Tomorrow): Quarter circle slice
+// Example(3D): Quarter circle slice
 //   pieSlice(radius=50, angle=90, height=20);  
 //
-// Example(3D,ColorScheme=Tomorrow): Third of a circle
+// Example(3D): Third of a circle
 //   pieSlice(radius=30, angle=120, height=15);  
 module pieSlice( radius,angle = 90, height=5 , anchor, spin ,orient ) {
 	bounding_size = [radius*2,radius*2,height];

@@ -77,9 +77,9 @@ function phi() = (1 + sqrt(5)) / 2;
 //    spin 			= Rotation angle in degrees around Z (BOSL2 style) [default: 0].
 // Usage:
 //    arc(radius=50, thickness=10, start_angle=0, end_angle=180);
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Half-circle arc
+// Example(3D,NoAxes): Half-circle arc
 //    linear_extrude(height=2) arc( radius=50, thickness=5, start_angle=0, end_angle=180);
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Quarter-circle arc
+// Example(3D,NoAxes): Quarter-circle arc
 //    linear_extrude(height=3) arc( radius=30, thickness=8, end_angle=90);
 module arc(radius, thickness, start_angle = 0, end_angle) {
     difference() {
@@ -98,83 +98,6 @@ module arc(radius, thickness, start_angle = 0, end_angle) {
     }
 }
 
-// Module: goldenRectangle()
-// 
-// Synopsis: Creates a golden rectangle with an inscribed Fibonacci spiral.
-// Topics: Geometry, Spirals, Mathematics
-// See Also: fibonacciSpiral()
-// Description:
-//    Generates a 3D object consisting of a golden spiral (based on fibonacciSpiral())
-//    inscribed within its bounding rectangle (from boundingRect()). The spiral and
-//    rectangle are rendered with separate thicknesses, using BOSL2 for efficient
-//    path generation and extrusion. Either max_width or max_height must be specified
-//    to define the spiral’s bounds.
-// Arguments:
-//    max_width = Maximum width of the rectangle and spiral (optional).
-//    max_height = Maximum height of the rectangle and spiral (optional).
-//    center = Center the spiral and rectangle at [0,0] [default: false].
-//    spiral_thickness = Diameter of the spiral extrusion [default: 2].
-//    rect_thickness = Height of the rectangle extrusion [default: 1].
-//    anchor = Anchor point (BOSL2 style) [default: BOTTOM].
-//    spin = Rotation angle in degrees around Z (BOSL2 style) [default: 0].
-// DefineHeader(Generic):Returns:
-//    A 3D object combining a golden spiral and its bounding rectangle, attachable to children.
-// Usage:
-//    goldenRectangle(max_width, max_height,[center],[spiral_thickness],[rect_thickness],[anchor],[spin]);
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Rectangle with spiral (max width)
-//    goldenRectangle(max_width=100, spiral_thickness=3, rect_thickness=2);
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Centered with max height
-//    goldenRectangle(max_height=61.8, center=true, spiral_thickness=2);	
-module goldenRectangle(
-    max_width,
-    max_height,
-    center 				= false,
-    spiral_thickness 	= 2,
-    rect_thickness 		= 1,
-    anchor 				= BOTTOM,
-    spin 				= 0
-) {
-    // Input validation
-    assert((is_num(max_width) || is_num(max_height)), "At least one of max_width or max_height must be specified");
-    assert(is_bool(center), "center must be a boolean");
-    assert(is_num(spiral_thickness) && spiral_thickness > 0, "spiral_thickness must be positive");
-    assert(is_num(rect_thickness) && rect_thickness > 0, "rect_thickness must be positive");
-
-    // Generate spiral points (using previously defined fibonacciSpiral)
-    spiral_points = fibonacciSpiral(max_width=max_width, max_height=max_height, center=center);
-
-    // Generate bounding rectangle points (using previously defined boundingRect)
-    rect_points = boundingRect(points=spiral_points);
-
-    // Calculate bounding box
-    bounds = pointlist_bounds(spiral_points); // Same for both spiral and rect
-    bounding = [
-        bounds[1][X] - bounds[0][X],
-        bounds[1][Y] - bounds[0][Y],
-        max(spiral_thickness, rect_thickness)
-    ];
-
-    // Render the combined object
-    attachable(size=bounding, anchor=anchor, spin=spin, cp=[bounding[0]/2, bounding[1]/2, 0]) {
-		union(){
-			// Rectangle
-			color("BurlyWood") // Pine color for ColorScheme=Tomorrow
-				linear_extrude(height=rect_thickness)
-					stroke(rect_points, closed=true, width=rect_thickness/2);
-
-			// Spiral
-			color("DarkOliveGreen") // Nature scheme color
-				path_sweep(
-					circle(d=spiral_thickness),
-					spiral_points,
-					closed=false
-			);
-		}
-        children();
-    }
-}
-
-
 // Module: vesicaPiscis()
 //
 // Synopsis: Creates a 2D Vesica Piscis shape.
@@ -189,9 +112,9 @@ module goldenRectangle(
 //   Optional 2D children to combine with the shape.
 // Usage:
 //   vesicaPiscis(r); 
-// Example(2D,ColorScheme=Tomorrow,NoAxes): Simple Vesica Piscis
+// Example(2D,NoAxes): Simple Vesica Piscis
 //   stroke(vesicaPiscis(r=20));
-// Example(2D,ColorScheme=Tomorrow,NoAxes): Vesica piscis with width 100  and height 50
+// Example(2D,NoAxes): Vesica piscis with width 100  and height 50
 //   stroke(vesicaPiscis(w=100,h=50));
 function vesicaPiscis(r,ratio = 2, w,h ,plain = false,fn=100) =
 	let(
@@ -219,7 +142,7 @@ function vesicaPiscis(r,ratio = 2, w,h ,plain = false,fn=100) =
 //    rounding = Radius for rounded corners, if defined and > 0. [default: undef]
 // Returns:
 //    A list of 2D points representing the closed parallelogram path.
-// Example(2D,ColorScheme=Tomorrow)
+// Example(2D)
 //    polygon(parallelogram(width=20, width1=25, width2=15, height=10, skew=5, rounding=2));
 function parallelogram(width,width1,width2, height=5, skew=5, rounding) = 
 	let (
@@ -310,7 +233,7 @@ function radiusFromLineDistance (chord,sagitta) =
 	pow(chord,2)/(8*sagitta)+(sagitta/2);
 	
 
-// Function: sheet_count()
+// Function: sheetCount()
 // 
 // Synopsis: Calculates the number of sheets needed to cover an area.
 // Topics: Construction, Material Planning
@@ -324,9 +247,9 @@ function radiusFromLineDistance (chord,sagitta) =
 // Example: Sheet count for an area of 4m x 3m
 //   area = [4000, 3000];
 //   sheet = [4 * FEET, 8 * FEET];
-//   count = sheet_count(area, sheet);
+//   count = sheetCount(area, sheet);
 //   echo(count); // Outputs: [4, 2]
-function sheet_count( area, sheet ) =
+function sheetCount( area, sheet ) =
     let (
         x_count = ceil(area.x / sheet.x),
         y_count = ceil(area.y / sheet.y)
@@ -344,7 +267,7 @@ function sheet_count( area, sheet ) =
 // Arguments:
 //   area = Vector [width, height] of the area to cover (in mm).
 //   sheet = Vector [width, height] of a single sheet (in mm).
-// Example(2D,ColorScheme=Tomorrow):
+// Example:
 //   area = [4000, 3000];
 //   sheet = [4 * FEET, 8 * FEET];
 //   waste = sheetWasteAreaByAxis(area, sheet);
@@ -371,7 +294,7 @@ function sheetWasteAreaByAxis(area, sheet) =
 // Arguments:
 //   area = Vector [width, height] of the area to cover (in mm).
 //   sheet = Vector [width, height] of a single sheet (in mm).
-// Example(2D,ColorScheme=Tomorrow):
+// Example:
 //   area = [4000, 3000];
 //   sheet = [8 * FEET, 4 * FEET];
 //   is_best = isSheetOrientedBest(area, sheet);
@@ -395,7 +318,7 @@ function isSheetOrientedBest(area, sheet) =
 //   across the Y-axis and concatenating them to the original path in reverse order.
 // Arguments:
 //   path = List of 2D points, where each point is a vector [x, y].
-// Example(2D,ColorScheme=Tomorrow):
+// Example:
 //   path = [[1, 0], [2, 1], [1, 2], [0, 1]];
 //   mirrored = yMirrorPath(path);
 //   echo(mirrored); // Outputs: [[1, 0], [2, 1], [1, 2], [0, 1], [-1, 2], [-2, 1], [-1, 0]]

@@ -87,13 +87,13 @@ function str_left_pad(str, length, char=" ") =
 //    regex = If true, treats replaced as a regular expression pattern. [default: false]
 // Returns:
 //    A new string with all occurrences of the replaced pattern substituted with the replacement string.
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = replace("Hello, World!", "World", "Universe");
 //    color("green")
 //    translate([0, 0, 0])
 //    linear_extrude(height=1)
 //    text(s, size=10);  // Outputs: Hello, Universe!
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = replace("HELLO hello HeLLo", "hello", "hi", ignore_case=true);
 //    color("green")
 //    translate([0, 20, 0])
@@ -131,7 +131,7 @@ function replace_at_indices(string, replacement, indices, i=0) =
 // Returns:
 //    An array [start, end] containing the start (inclusive) and end (exclusive) indices of the first match,
 //    or an empty array [] if no match is found or if the pattern is empty.
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    result = index_of("Hello, World!", "World");
 //    if (result != []) {
 //        color("green")
@@ -139,7 +139,7 @@ function replace_at_indices(string, replacement, indices, i=0) =
 //        linear_extrude(height=1)
 //        text(str("Found at: ", result), size=10);  // Outputs: Found at: [7, 12]
 //    }
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    result = index_of("Hello, WORLD!", "world", ignore_case=true);
 //    if (result != []) {
 //        color("green")
@@ -147,7 +147,7 @@ function replace_at_indices(string, replacement, indices, i=0) =
 //        linear_extrude(height=1)
 //        text(str("Found at: ", result), size=10);  // Outputs: Found at: [7, 12]
 //    }
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    result = index_of("Hello, World!", "");
 //    if (result == []) {
 //        color("red")
@@ -248,14 +248,14 @@ function fallback_if(value, error, fallback) =
 //    regex 		= If true, treats start as a regular expression pattern. [default: false]
 // Returns:
 //    true if the string starts with the specified substring or matches the pattern, false otherwise.
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    if (starts_with("Hello, World!", "Hello")) {
 //        color("green")
 //        translate([0, 0, 0])
 //        linear_extrude(height=1)
 //        text("Match!", size=10);
 //    }
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    if (starts_with("Hello, World!", "HELLO", ignore_case=true)) {
 //        color("green")
 //        translate([0, 20, 0])
@@ -293,14 +293,14 @@ function starts_with( string, start, pos=0, ignore_case=false, regex=false ) =
 //    ignore_case = If true, performs a case-insensitive comparison. [default: false]
 // Returns:
 //    true if the string ends with the specified substring, false otherwise.
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    if (ends_with("Hello, World!", "World!")) {
 //        color("green")
 //        translate([0, 0, 0])
 //        linear_extrude(height=1)
 //        text("Match!", size=10);
 //    }
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    if (ends_with("Hello, WORLD!", "WORLD!", ignore_case=true)) {
 //        color("green")
 //        translate([0, 20, 0])
@@ -324,13 +324,13 @@ function ends_with(string, end, ignore_case=false) =
 //    string = The input string to convert to uppercase.
 // Returns:
 //    A new string with all lowercase characters converted to uppercase.
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = upper("Hello, World!");
 //    color("green")
 //    translate([0, 0, 0])
 //    linear_extrude(height=1)
 //    text(s, size=10);  // Outputs: HELLO, WORLD!
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = upper("Mixed123Case");
 //    color("green")
 //    translate([0, 20, 0])
@@ -353,13 +353,13 @@ function upper(string) =
 //    string = The input string to convert to lowercase.
 // Returns:
 //    A new string with all uppercase characters converted to lowercase.
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = lower("Hello, WORLD!");
 //    color("green")
 //    translate([0, 0, 0])
 //    linear_extrude(height=1)
 //    text(s, size=10);  // Outputs: hello, world!
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = lower("MIXED123CASE");
 //    color("green")
 //    translate([0, 20, 0])
@@ -403,13 +403,13 @@ function ascii_code(string) =
 // Returns:
 //    The extracted substring, or an empty string if the start index is beyond the string length,
 //    or undef if the input is invalid.
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = substring("Hello, World!", 0, 5);
 //    color("green")
 //    translate([0, 0, 0])
 //    linear_extrude(height=1)
 //    text(s, size=10);  // Outputs: Hello
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = substring("Hello, World!", 7);
 //    color("green")
 //    translate([0, 20, 0])
@@ -433,14 +433,14 @@ function substring(string, start, length=undef) =
 //    ignore_case = If true, performs a case-insensitive comparison. [default: false]
 // Returns:
 //    true if the strings are equal (considering case sensitivity based on ignore_case), false otherwise.
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    if (equals("Hello", "Hello")) {
 //        color("green")
 //        translate([0, 0, 0])
 //        linear_extrude(height=1)
 //        text("Equal!", size=10);
 //    }
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    if (equals("Hello", "HELLO", ignore_case=true)) {
 //        color("green")
 //        translate([0, 20, 0])
@@ -467,13 +467,13 @@ function equals(this, that, ignore_case=false) =
 // Returns:
 //    The substring before the specified index, the full string if index exceeds length, an empty string if
 //    index is 0 or negative, or undef if the input string or index is undefined.
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = before("Hello, World!", 5);
 //    color("green")
 //    translate([0, 0, 0])
 //    linear_extrude(height=1)
 //    text(s, size=10);  // Outputs: Hello
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = before("Hello, World!", 12);
 //    color("green")
 //    translate([0, 20, 0])
@@ -501,13 +501,13 @@ function after(string, index=0) =
 //    end = The ending index (exclusive). If greater than string length, extracts from start to the end.
 // Returns:
 //    The extracted substring, or undef if the input is invalid.
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = between("Hello, World!", 0, 5);
 //    color("green")
 //    translate([0, 0, 0])
 //    linear_extrude(height=1)
 //    text(s, size=10);  // Outputs: Hello
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    s = between("Hello, World!", 7, 12);
 //    color("green")
 //    translate([0, 20, 0])

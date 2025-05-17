@@ -70,7 +70,7 @@ function isValidType(t) = t == STRAIGHT || t == L_SHAPED || t == U_SHAPED;
 //
 // DefineHeader:Returns:  
 //    A staircase model with defined dimensions and properties.
-// Example(3D,ColorScheme=Tomorrow;Huge): Simple Straight Staircase
+// Example(3D;Huge): Simple Straight Staircase
 //   include <space.scad>
 //   include <masonry-structure.scad>
 //   space(l=5, w=1.2, h=2.8, except=[FRONT,LEFT],debug=true) {
@@ -78,7 +78,7 @@ function isValidType(t) = t == STRAIGHT || t == L_SHAPED || t == U_SHAPED;
 //      position(RIGHT+TOP) primary()
 //         stairs(w=1, handrails=[RIGHT], anchor=RIGHT+TOP);
 //   }
-// Example(3D,ColorScheme=Tomorrow;Huge): Simple Straight Staircase in concrete with right handrail
+// Example(3D;Huge): Simple Straight Staircase in concrete with right handrail
 //   include <space.scad>
 //   include <masonry-structure.scad>
 //   zrot(90) space(l=5, w=1.2, h=2.8, except=[FRONT,LEFT],debug=true) {
@@ -86,7 +86,7 @@ function isValidType(t) = t == STRAIGHT || t == L_SHAPED || t == U_SHAPED;
 //      position(RIGHT+TOP) primary()
 //         stairs(w=1, handrails=[RIGHT], family = MASONRY, anchor=RIGHT+TOP);
 //   }
-// Example(3D,ColorScheme=Tomorrow;Huge): L-Shaped Staircase 
+// Example(3D;Huge): L-Shaped Staircase 
 //   include <space.scad>
 //   include <masonry-structure.scad>
 //   zrot(90) space(l=4, w=2.7, h=2.8, except=[FRONT,LEFT],debug=true) {
@@ -94,7 +94,7 @@ function isValidType(t) = t == STRAIGHT || t == L_SHAPED || t == U_SHAPED;
 //      position(RIGHT+FRONT+TOP) primary()
 //         stairs(w=1, type = L_SHAPED, handrails=[RIGHT], anchor=FRONT+RIGHT+TOP);
 //   }
-// Example(3D,ColorScheme=Tomorrow;Huge): L-Shaped Staircase in concrete 
+// Example(3D;Huge): L-Shaped Staircase in concrete 
 //   include <space.scad>
 //   include <masonry-structure.scad>
 //   zrot(90) space(l=4, w=2.7, h=2.8, except=[FRONT,LEFT],debug=true) {
@@ -102,7 +102,7 @@ function isValidType(t) = t == STRAIGHT || t == L_SHAPED || t == U_SHAPED;
 //      position(RIGHT+FRONT+TOP) primary()
 //         stairs(w=1, type = L_SHAPED, family = MASONRY, handrails=[RIGHT], anchor=FRONT+RIGHT+TOP);
 //   }
-// Example(3D,ColorScheme=Tomorrow;Huge): U-Shaped Staircase 
+// Example(3D;Huge): U-Shaped Staircase 
 //   include <space.scad>
 //   include <masonry-structure.scad>
 //   zrot(90) space(l=4, w=2.7, h=2.8, except=[FRONT,LEFT],debug=true) {
@@ -110,7 +110,7 @@ function isValidType(t) = t == STRAIGHT || t == L_SHAPED || t == U_SHAPED;
 //      position(RIGHT+FRONT+TOP) primary()
 //         stairs(w=1, type = U_SHAPED, handrails=[RIGHT], anchor=FRONT+RIGHT+TOP);
 //   }
-// Example(3D,ColorScheme=Tomorrow;Huge): U-Shaped Staircase in concrete 
+// Example(3D;Huge): U-Shaped Staircase in concrete 
 //   include <space.scad>
 //   include <masonry-structure.scad>
 //   zrot(90) space(l=4, w=2.7, h=2.8, except=[FRONT,LEFT],debug=true) {
@@ -393,7 +393,7 @@ module tread(
 // Arguments:  
 //    radius       = Outer radius of the staircase (default: 1000).
 //    inner_radius = Inner radius/column radius (default: 150).
-//    total_rise   = Total height of the staircase (required or uses $space_height).
+//    total_rise   = Total height of the staircase in meters (required or uses $space_height).
 //    steps        = Number of steps for a full 360° rotation (default: 16).
 //    turns        = Number of turns/rotations (default: 1).
 //    ccw          = Counter-clockwise rotation if true (default: false).
@@ -406,7 +406,7 @@ module tread(
 //
 // DefineHeader:Returns:  
 //    A spiral staircase model with defined dimensions and properties.
-// Example(3D,ColorScheme=Tomorrow,Huge): Spiral Staircase in wood
+// Example(3D,Huge): Spiral Staircase in wood
 //   include <space.scad>
 //   include <masonry-structure.scad>
 //   space(l=2, w=2, h=2.8, except=[FRONT,LEFT],debug=true) {
@@ -421,7 +421,7 @@ module tread(
 //      position(RIGHT+BACK+TOP)
 //         slab(l=0.75,w=0.75,anchor=RIGHT+BACK+TOP); // Top platform
 //   }
-// Example(3D,ColorScheme=Tomorrow,Huge): Spiral stairs in concreate with handlrail
+// Example(3D,Huge): Spiral stairs in concreate with handlrail
 //   include <space.scad>
 //   include <masonry-structure.scad>
 //   space(l=2, w=2, h=2.8, except=[FRONT,LEFT],debug=true) {
@@ -436,36 +436,6 @@ module tread(
 //      position(RIGHT+BACK+TOP)
 //         slab(l=0.75,w=0.75,anchor=RIGHT+BACK+TOP); // Top platform
 //   }	
-
-
-/*
-include <space.scad>
-//include <Nervi/stairs.scad>
-include <masonry-structure.scad>
-
-space(l=2, w=2, h=2.8, except=[FRONT,LEFT],debug=true) {
-	slab(); // Ground slab
-	position(RIGHT+BACK+BOT) 
-		primary()
-		spiralStairs(
-			family				= WOOD,
-			//family				= MASONRY,
-			//mount=FLUSH_MOUNT,
-			mount				= STANDARD_MOUNT,
-			//material_post 		= "Oak",
-			
-			guard_diam			= 150,
-			//material_baluster	= "Pine",
-			anchor				= RIGHT+BACK,
-			//debug=true
-		);
-	position(RIGHT+BACK+TOP)
-		slab(l=0.75,w=0.75,anchor=RIGHT+BACK+TOP); // Top platform
-}
-*/	
-
-
-
 module spiralStairs(
     radius 			= 1000,
     inner_radius 	= 100,
@@ -478,16 +448,18 @@ module spiralStairs(
 	family			= WOOD,
     handrail 		= true,
 	baluster_diam	= 60,
-	guard_diam		= 80,
+	guard_diam		= 60,
     rail_height 	= 900,
     anchor 			= BOTTOM,
+	material_column,  
 	material_tread,  
-	material_post ,  
+	material_guard ,  
 	material_baluster,
     spin 			= 0,
 	debug 			= false,
 ) {
-    assert(is_num_positive(total_rise), "[spiralStairs] total_rise is invalid");
+    //assert(is_num_positive(total_rise), "[spiralStairs] total_rise is invalid");
+	assert(is_meters(total_rise), "[spiralStairs] total_rise is invalid");
     
 	mount_step 		= mount == FLUSH_MOUNT ? 0 : 1;
 	iteration		= ceil( steps * turns );
@@ -509,7 +481,7 @@ module spiralStairs(
     attachable(anchor, spin, orient=UP, size=size) {
         union() {
 			// Central column
-			material(material_post,family=family) cylinder(r=inner_radius, h=_h);
+			material(material_column,family=family) cylinder(r=inner_radius, h=_h);
 			if ( is_in(family,[WOOD,METAL]) ) {	
 				material( material_tread, family = family )
 					for (i = [ 0:_steps-1 ] ) 
@@ -521,7 +493,7 @@ module spiralStairs(
                 // Handrail
                 if (handrail) {
                     // Vertical posts at regular intervals (steps)
-					material( material_tread, family = family )
+					material( material_baluster, family = family )
 					for (i = [ 0 : _steps ]) 
 						let (
 	                        angle = i * step_angle,
@@ -539,12 +511,12 @@ module spiralStairs(
 						)
                         [ cos(a)*r, sin(a)*r, z ]
 					];
-					material( material_baluster, family = family )
+					material( material_guard, family = family )
 						path_sweep( circle( d=guard_diam ), rail_points );
                 }
 			} 
 			else if (family == MASONRY)	{
-				material( material_post, family = family )
+				material( material_column, family = family )
 					cylinder( r = inner_radius, h = _h );
 				material( material_tread, family = family )
 					for (i = [ 0:_steps-1 ] ) 
@@ -621,11 +593,11 @@ module spiralStairs(
 //    spin 			= Rotation angle in degrees around Z-axis (BOSL2 style) [default: 0].
 // Usage:
 //    handrail( w,total_rise,[l],[rise],[run],[sides],mount,[rail_height],[rail_width],[post_diam],[post_interval],[material_rail],[material_post] );
-// Example(3D,ColorScheme=Tomorrow;Huge): Handrail on both side
+// Example(3D;Huge): Handrail on both side
 //    include <masonry-structure.scad>
 //    slab(l = 2, w = 1,anchor = TOP) 
 //       handrail(l=2, w=1, total_rise=0, sides=[RIGHT,LEFT],anchor=BOT);
-// Example(3D,ColorScheme=Tomorrow;Huge): Handrails on left side
+// Example(3D;Huge): Handrails on left side
 //    include <masonry-structure.scad>
 //    slab(l = 2, w = 1,anchor = TOP) 
 //       handrail(w=1, l=2, total_rise=0, sides=[LEFT] ,anchor=BOT);

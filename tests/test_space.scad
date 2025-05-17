@@ -3,7 +3,6 @@ include <../src/space.scad>
 
 
 xdistribute(meters(6)) {
-
 	test_space_with_variables();
 	test_space_setting_variables();
 	test_space();
@@ -11,6 +10,22 @@ xdistribute(meters(6)) {
 	test_space_opening();
 	test_wall_geometry();
 }
+
+test_hasSpaceParent();
+
+module test_hasSpaceParent() {
+
+	cuboid(300) {
+		assert(!hasSpaceParent(),"Fail to find space parent");
+	}
+
+	space(l=3, w=3, h=2) {
+		assert(hasSpaceParent(),"Fail to find space parent");
+	}
+
+}
+
+
 
 module test_space_with_variables() {
 	

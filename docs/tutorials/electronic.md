@@ -25,7 +25,7 @@ Parameters :
 
 Create a 55-inch television with a 1600 mm stand.
 
-```openscad-3D;ColorScheme=Tomorrow
+```openscad-3D
 include <Nervi/electronic.scad>
 television(size=55, height=1600);
 ```
@@ -37,7 +37,7 @@ television(size=55, height=1600);
 
 Place a 75-inch television on the back wall of a space
 
-```openscad-3D;ColorScheme=Tomorrow
+```openscad-3D
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
 include <Nervi/electronic.scad>

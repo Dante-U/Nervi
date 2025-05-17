@@ -36,7 +36,7 @@ WALL_DEFAULT 	= 180;
 //    Supports custom anchors, exclusions, and IFC metadata for architectural modeling.
 //    Renders walls in 3D views or outlines in 2D plan views, with optional room name
 //    and area text. Uses context variables for defaults and supports attachments.
-//    ifcWall 
+//    ifcWall. More information on the [Space tutorial page](./Tutorial-space.md). 
 // Arguments:
 //    l      = Length of the space (m) [default: $space_length].
 //    w      = Width of the space (m) [default: $space_width].
@@ -55,8 +55,10 @@ WALL_DEFAULT 	= 180;
 //    $space_width  = Default width (m). Optional.
 //    $space_height = Default height (m). Optional.
 //    $space_wall   = Default wall thickness (m). Optional.
-// Example(3D,ColorScheme=Tomorrow):
+// Example(3D):
 //    space(l=3, w=2, h=2.5, wall=200, name="Room", except=[FRONT],debug=true);
+// Log: Space metadata 
+//    space(l=3, w=2, h=2.5, wall=200, name="Room", except=[FRONT],info=true);
 module space( 
 		l       = first_defined([is_undef(l) 	? undef : l ,$space_length]),
 		w       = first_defined([is_undef(w) 	? undef : w ,$space_width]),
@@ -94,10 +96,10 @@ module space(
 		// Generate a GUID if not provided
 		_ifc_guid = is_undef(ifc_guid) ? generate_guid() : ifc_guid;
 		$meta = info ?  [
+			if (name) 
+				["name",		name		]	,
 			["volume",		l * w * h	]	,
 			["area",		l * w		]	,
-			if (name) 
-			["name",		name		]	,
 			// Add IFC metadata
             ["ifc_class",   "IfcSpace"   ],
             ["ifc_type",    "SPACE"    ],
@@ -155,6 +157,46 @@ module space(
 	}
 }
 
+// Module: divider()
+// 
+// Synopsis: Creates a divider wall within a space.
+// Topics: Architecture, Geometry, Walls
+// Description:
+//    Generates a rectangular divider wall with specified length, thickness, and height,
+//    typically used within a space to partition areas. Aligns with the space module's
+//    context for wall thickness and supports BOSL2-style attachments. Applies a material
+//    tag for rendering and positions the divider relative to a specified anchor.
+// Arguments:
+//    l    		= Divider length (mm).
+//    h    		= Divider height (mm).
+//    wall 		= Divider thickness (mm) [default: $space_wall or WALL_DEFAULT].
+//    anchor    = Anchor point for positioning [default: BOTTOM].
+//    spin      = Rotation angle (degrees) [default: 0].
+// Context Variables:
+//    $space_wall = Wall thickness (mm) from space module. Optional.
+// Example(3D,NoAxis,Huge):
+//    include <masonry-structure.scad>
+//    space(4,3,2.2,debug=true,except=[FRONT,LEFT]){
+//       slab();
+//       align(BACK+BOT,inside=true)
+//          divider( l=2, h=1.5, wall=200,spin=-90,material="Brick" );
+//    }
+module divider( 
+		l, 		
+		h,
+		wall	= is_undef( $space_wall ) ? WALL_DEFAULT : $space_wall,
+		anchor	= BOT,
+		material = "plaster",
+		spin
+	) {
+	size = meters([l,wall/1000, h ]); 
+	tag("keep") attachable( size = size/* ,cp = [0,0,size.z/2*0]*/, spin = spin, anchor = anchor ) {
+		material(material)
+			cuboid([size.x,size.y,size.z]/* ,anchor=BOT*/);
+		children();
+	}
+}
+
 // Module: attachWalls()
 // 
 // Synopsis: Attaches geometry to walls of a space defined by the space module.
@@ -178,14 +220,14 @@ module space(
 //    $space_width  = Space width (m). Required.
 //    $space_height = Space height (m). Required.
 //    $space_wall   = Wall thickness (m). Required.
-// Example(3D,ColorScheme=Tomorrow):
+// Example(3D): Attach to FRONT and RIGHT outside walls
 //    space(3,2,2.5,debug=true)
-//       attachWalls(faces=[LEFT,FRONT], placement="outside")
+//       attachWalls(faces=[RIGHT,FRONT], placement="outside")
 //          material("Brick") cuboid(500,anchor=DOWN);
-// Example(3D,ColorScheme=Tomorrow):
+// Example(3D): Attach to BACK and RIGHT wall on the inside
 //    space(3,2,2.5,debug=true,except=[FRONT,LEFT]) 
 //       attachWalls(faces=[BACK,RIGHT], placement="inside")
-//          material("Brick") cuboid(500,anchor=DOWN);
+//          primary() cuboid(500,anchor=DOWN);
 // See Also: space(), wallAnchor()
 module attachWalls( faces = SIDES , child, placement = "outside", force = false ) {
 	sides = placement == "outside" ? [false] : placement == "inside" ? [true] : [false,true];
@@ -205,6 +247,187 @@ module attachWalls( faces = SIDES , child, placement = "outside", force = false 
 			if ($children > 1) children([1:$children-1]);
 		}	
 	}	
+}
+
+// Module: spaceWrapper()
+// 
+// Synopsis: Wraps a space with attachment capabilities.
+// Topics: Architecture, Attachment, Geometry
+// Description:
+//    Wraps a space defined by the space module, providing a bounding box for
+//    attachments and passing children for further processing. Ensures context
+//    variables are set and positions children at the space's center height.
+//    Used to encapsulate architectural elements like walls, furniture, or openings.
+// Arguments:
+//    None.
+// Context Variables:
+//    $space_length = Space length (m). Required.
+//    $space_width  = Space width (m). Required.
+//    $space_height = Space height (m). Required.
+// See Also: space(), attachWalls(), wallAnchor()
+module spaceWrapper() {
+    assert(is_num($space_length), 	"Missing $space_length");
+    assert(is_num($space_width), 	"Missing $space_width");
+    assert(is_num($space_height), 	"Missing $space_height");
+    assert($children > 0, "At least one child is required");
+    let (
+        size	= meters([$space_length, $space_width, $space_height]),
+        cp 		= [0, 0, size.z / 2]
+    ) attachable( size = size, cp = cp) {
+        children(0);
+        if ($children > 1) children([1:$children-1]);
+    }
+}
+
+// Module: placeOpening()
+// 
+// Synopsis: Places openings (e.g., doors, windows) on space walls.
+// Topics: Architecture, Geometry, Openings
+// Description:
+//    Positions a cuboidal opening (e.g., for doors or windows) on specified wall anchors
+//    of a space, with optional inset and debug visualization. Applies a boolean difference
+//    to cut the opening from the wall and supports child geometry (e.g., door frames).
+//    Requires space module's context variables and works with attachWalls.
+//    ifcOpening
+// Arguments:
+//    anchors = Wall anchor(s) for placement (LEFT, RIGHT, CENTER, or list). No default.
+//    w       = Opening width (m). No default.
+//    h       = Opening height (m). No default.
+//    inset   = [x, y] inset from wall edge and bottom (m) [default: [0, 0]].
+//    debug   = Enable debug visualization [default: false].
+//    opening = Opening thickness ratio [default: 1].
+// Context Variables:
+//    $wall_length = Wall length (m). Required.
+//    $wall_height = Wall height (m). Required.
+//    $wall_orient = Wall orientation vector. Required.
+// Example(3D,Huge,NoAxis):
+//    space(3,3,2.3,debug=true) 
+//       attachWalls(faces=[FRONT], placement="both") 
+//          cuboid(meters([$wall_length,$wall_height,0.10]))
+//             placeOpening(anchors=[CENTER], w=1.2, h=1.8, opening=0.5);
+// See Also: space(), attachWalls(), wallAnchor()
+module placeOpening(anchors,w,h,inset=[ 0,0 ],debug = false, opening = 1) {
+    assert(is_def(anchors),	"[placeOpening] anchors must be defined (vector, string, or list)");
+    assert(is_meters(w), 	"[placeOpening] w must be a positive number (meters)");
+    assert(is_meters(h), 	"[placeOpening] h must be a positive number (meters)");
+    // Restrict anchors to LEFT, RIGHT, CENTER
+    valid_anchors 	= [LEFT, RIGHT, CENTER];
+    anchor_list 	= is_list(anchors) ? anchors : [anchors];
+    assert(all([for (a = anchor_list) any([for (v = valid_anchors) a == v])]),
+           "anchors must be LEFT, RIGHT, CENTER, or a list of these");	
+	
+	_w = meters(w);
+	_h = meters(h);
+	$opening_width = w;
+	$opening_height = h;
+	$opening_ratio  = opening;
+	clearance = 0.01;
+	
+	for ( anchor = anchors ) {
+		orient = -desc_dir();
+		bottomShift	= orient[Y] * (meters($wall_height) / 2 -inset[Y] -_h/2 ) -CLEARANCE ;
+		sideShift 	= orient[Y] * (meters($wall_length) / 2 -inset[X] - OFFSET ) ;
+	
+		translate([
+			anchor[X] * ( meters( $wall_length 	/ 2  ) ) -anchor[X] * (inset[X]+_w/2) , 
+			bottomShift,
+			-meters( $wall_height ) / 2 *0 
+		]){	
+			if (debug) frame_ref(1500);
+			tag(debug ? "keep" : "opening")
+				cuboid([_w,_h,600]);
+			tag("keep")	
+				children();
+		}
+	}
+}
+
+		
+// Function: hasSpaceParent()
+//
+// Synopsis: Checks if the space module is a direct parent in the call stack.
+// Topics: Architecture, Utilities
+// Description:
+//   Returns true if the space module is the parent module 6 levels up in the call stack.
+//   Useful for context-aware behavior in modules nested within a space.
+// Returns: Boolean indicating if space is the parent.
+// Example(NORENDER,Big):
+//   space(l=3, w=3, h=2, debug=true, except=[FRONT, RIGHT]) {
+//     if (hasSpaceParent()) cuboid([1000, 1000, 100], anchor=BOT);
+//   }
+function hasSpaceParent()  = 
+		( $parent_modules > 6 && parent_module(6) == "space") 
+		|| 
+		( $parent_modules > 5 && parent_module(5) == "space");
+
+// Function: roomBound()
+// 
+// Synopsis: Calculates the bounding box of a room including wall thickness.
+// Topics: Architecture, Geometry
+// Description:
+//    Returns a 3D vector representing the bounding box dimensions of a room, 
+//    including the wall thickness added to length and width, based on the space 
+//    module's context variables. Used to define the external dimensions of a space 
+//    for positioning or attachment purposes.
+// Arguments:
+//    length = Room length (m) [default: $space_length].
+//    width  = Room width (m) [default: $space_width].
+//    height = Room height (m) [default: $space_height].
+//    wall   = Wall thickness (m) [default: $space_wall].
+// Context Variables:
+//    $space_length = Default room length (m). Optional.
+//    $space_width  = Default room width (m). Optional.
+//    $space_height = Default room height (m). Optional.
+//    $space_wall   = Default wall thickness (m). Optional.
+// Example:
+//    $space_length = 3;
+//    $space_width  = 2;
+//    $space_height = 2.5;
+//    $space_wall   = 200;
+//    bounds = roomBound();
+//    echo(bounds); // Outputs: [3.2, 2.2, 2.5]
+// See Also: space(), spaceWrapper()
+function roomBound(length=$space_length, width=$space_width, height=$space_height, wall=$space_wall) =
+	assert(is_num(length), 	"[roomBound] length must be a number (m)")
+    assert(is_num(width), 	"[roomBound] width must be a number (m)")
+    assert(is_num(height), 	"[roomBound] height must be a number (m)")
+    assert(is_num(wall), 	"[roomBound] wall must be a number (m)")
+    [length + wall/1000, width + wall/1000, height];
+	
+
+// Module: graduatedWall()
+// 
+// Synopsis: Creates a wall with alternating colored segments.
+// Topics: Architecture, Geometry, Visualization
+// Description:
+//    Constructs a wall of specified length, height, and thickness, divided into segments of
+//    a given mark height. Segments alternate between two colors (default: Black and White).
+//    If the remaining height after full segments is non-zero, a final segment is added with
+//    the remaining height, continuing the color alternation. All dimensions are in millimeters.
+// Arguments:
+//    h         = Height of the wall (m).
+//    l         = Length of the wall (m).
+//    mark      = Height of each segment (mm) [default: 170].
+//    thickness = Thickness of the wall (mm) [default: 200].
+// Example(3D):
+//    graduatedWall(h=1, l=0.8, mark=200, thickness=100);
+module graduatedWall(h, l, mark =170, thickness = 200) {
+    _h = assert(is_num(h) && h > 0, 			"[graduatedWall] h must be a positive number (mm)") meters(h);
+    _l = assert(is_num(l) && l > 0, 			"[graduatedWall] l must be a positive number (mm)") meters(l);
+    assert(is_num(mark) && mark > 0, 			"[graduatedWall] mark must be a positive number (mm)");
+    assert(is_num(thickness) && thickness > 0, 	"[graduatedWall] thickness must be a positive number (mm)");
+	count = floor(_h / mark);
+	remain = _h- mark * count;
+	for ( i = [0 : count-1] ) {
+		color = (i % 2) == 1 ? "White" : "Black";
+		up(i * mark)
+			cuboid([_l,thickness,mark],anchor=BOT,$color = color );
+	}	
+	if (remain > 0 ) {
+		color = (count % 2) == 1 ? "White" : "Black";
+		up(count*mark)
+			cuboid([_l,thickness,remain],anchor=BOT,$color = color );
+	}
 }
 
 // Function: wallAnchor()
@@ -273,221 +496,3 @@ function wallGeometry(side, inside = false) =
         ]
     )
     points;	
-
-// Module: spaceWrapper()
-// 
-// Synopsis: Wraps a space with attachment capabilities.
-// Topics: Architecture, Attachment, Geometry
-// Description:
-//    Wraps a space defined by the space module, providing a bounding box for
-//    attachments and passing children for further processing. Ensures context
-//    variables are set and positions children at the space's center height.
-//    Used to encapsulate architectural elements like walls, furniture, or openings.
-// Arguments:
-//    None.
-// Context Variables:
-//    $space_length = Space length (m). Required.
-//    $space_width  = Space width (m). Required.
-//    $space_height = Space height (m). Required.
-// See Also: space(), attachWalls(), wallAnchor()
-module spaceWrapper() {
-    assert(is_num($space_length), 	"Missing $space_length");
-    assert(is_num($space_width), 	"Missing $space_width");
-    assert(is_num($space_height), 	"Missing $space_height");
-    assert($children > 0, "At least one child is required");
-    let (
-        size	= meters([$space_length, $space_width, $space_height]),
-        cp 		= [0, 0, size.z / 2]
-    ) attachable( size = size, cp = cp) {
-        children(0);
-        if ($children > 1) children([1:$children-1]);
-    }
-}
-
-// Module: placeOpening()
-// 
-// Synopsis: Places openings (e.g., doors, windows) on space walls.
-// Topics: Architecture, Geometry, Openings
-// Description:
-//    Positions a cuboidal opening (e.g., for doors or windows) on specified wall anchors
-//    of a space, with optional inset and debug visualization. Applies a boolean difference
-//    to cut the opening from the wall and supports child geometry (e.g., door frames).
-//    Requires space module's context variables and works with attachWalls.
-//    ifcOpening
-// Arguments:
-//    anchors = Wall anchor(s) for placement (LEFT, RIGHT, CENTER, or list). No default.
-//    w       = Opening width (m). No default.
-//    h       = Opening height (m). No default.
-//    inset   = [x, y] inset from wall edge and bottom (m) [default: [0, 0]].
-//    debug   = Enable debug visualization [default: false].
-//    opening = Opening thickness ratio [default: 1].
-// Context Variables:
-//    $wall_length = Wall length (m). Required.
-//    $wall_height = Wall height (m). Required.
-//    $wall_orient = Wall orientation vector. Required.
-// Example(3D,ColorScheme=Tomorrow,NoAxis):
-//    space(3,3,2.3,debug=true) 
-//       attachWalls(faces=[FRONT], placement="both") 
-//          cuboid(meters([$wall_length,$wall_height,0.10]))
-//             placeOpening(anchors=[CENTER], w=1.2, h=1.8, opening=0.5);
-// See Also: space(), attachWalls(), wallAnchor()
-module placeOpening(anchors,w,h,inset=[ 0,0 ],debug = false, opening = 1) {
-    assert(is_def(anchors),	"[placeOpening] anchors must be defined (vector, string, or list)");
-    assert(is_meters(w), 	"[placeOpening] w must be a positive number (meters)");
-    assert(is_meters(h), 	"[placeOpening] h must be a positive number (meters)");
-    // Restrict anchors to LEFT, RIGHT, CENTER
-    valid_anchors 	= [LEFT, RIGHT, CENTER];
-    anchor_list 	= is_list(anchors) ? anchors : [anchors];
-    assert(all([for (a = anchor_list) any([for (v = valid_anchors) a == v])]),
-           "anchors must be LEFT, RIGHT, CENTER, or a list of these");	
-	
-	_w = meters(w);
-	_h = meters(h);
-	$opening_width = w;
-	$opening_height = h;
-	$opening_ratio  = opening;
-	clearance = 0.01;
-	
-	for ( anchor = anchors ) {
-		orient = -desc_dir();
-		bottomShift	= orient[Y] * (meters($wall_height) / 2 -inset[Y] -_h/2 ) -CLEARANCE ;
-		sideShift 	= orient[Y] * (meters($wall_length) / 2 -inset[X] - OFFSET ) ;
-	
-		translate([
-			anchor[X] * ( meters( $wall_length 	/ 2  ) ) -anchor[X] * (inset[X]+_w/2) , 
-			bottomShift,
-			-meters( $wall_height ) / 2 *0 
-		]){	
-			if (debug) frame_ref(1500);
-			tag(debug ? "keep" : "opening")
-				cuboid([_w,_h,600]);
-			tag("keep")	
-				children();
-		}
-	}
-}
-
-		
-// Function: hasSpaceParent()
-//
-// Synopsis: Checks if the space module is a direct parent in the call stack.
-// Topics: Architecture, Utilities
-// Description:
-//   Returns true if the space module is the parent module 6 levels up in the call stack.
-//   Useful for context-aware behavior in modules nested within a space.
-// Returns: Boolean indicating if space is the parent.
-// Example(3D,Big,ColorScheme=Tomorrow):
-//   space(l=3, w=3, h=2, debug=true, except=[FRONT, RIGHT]) {
-//     if (hasSpaceParent()) cuboid([1000, 1000, 100], anchor=BOT);
-//   }
-function hasSpaceParent()  = $parent_modules > 6 && parent_module(6) == "space";
-
-// Module: divider()
-// 
-// Synopsis: Creates a divider wall within a space.
-// Topics: Architecture, Geometry, Walls
-// Description:
-//    Generates a rectangular divider wall with specified length, thickness, and height,
-//    typically used within a space to partition areas. Aligns with the space module's
-//    context for wall thickness and supports BOSL2-style attachments. Applies a material
-//    tag for rendering and positions the divider relative to a specified anchor.
-// Arguments:
-//    l    		= Divider length (mm).
-//    h    		= Divider height (mm).
-//    wall 		= Divider thickness (mm) [default: $space_wall or WALL_DEFAULT].
-//    anchor    = Anchor point for positioning [default: BOTTOM].
-//    spin      = Rotation angle (degrees) [default: 0].
-// Context Variables:
-//    $space_wall = Wall thickness (mm) from space module. Optional.
-// Example(3D,ColorScheme=Tomorrow,NoAxis):
-//    include <masonry-structure.scad>
-//    space(4,3,2.2,debug=true,except=[FRONT,LEFT]){
-//       slab();
-//       align(BACK+BOT,inside=true)
-//          divider( l=2, h=1.5, wall=200,spin=-90,material="Brick" );
-//    }
-module divider( 
-		l, 		
-		h,
-		wall	= is_undef( $space_wall ) ? WALL_DEFAULT : $space_wall,
-		anchor	= BOT,
-		material = "plaster",
-		spin
-	) {
-	size = meters([l,wall/1000, h ]); 
-	tag("keep") attachable( size = size/* ,cp = [0,0,size.z/2*0]*/, spin = spin, anchor = anchor ) {
-		material(material)
-			cuboid([size.x,size.y,size.z]/* ,anchor=BOT*/);
-		children();
-	}
-}
-
-// Function: roomBound()
-// 
-// Synopsis: Calculates the bounding box of a room including wall thickness.
-// Topics: Architecture, Geometry
-// Description:
-//    Returns a 3D vector representing the bounding box dimensions of a room, 
-//    including the wall thickness added to length and width, based on the space 
-//    module's context variables. Used to define the external dimensions of a space 
-//    for positioning or attachment purposes.
-// Arguments:
-//    length = Room length (m) [default: $space_length].
-//    width  = Room width (m) [default: $space_width].
-//    height = Room height (m) [default: $space_height].
-//    wall   = Wall thickness (m) [default: $space_wall].
-// Context Variables:
-//    $space_length = Default room length (m). Optional.
-//    $space_width  = Default room width (m). Optional.
-//    $space_height = Default room height (m). Optional.
-//    $space_wall   = Default wall thickness (m). Optional.
-// Example:
-//    $space_length = 3;
-//    $space_width  = 2;
-//    $space_height = 2.5;
-//    $space_wall   = 200;
-//    bounds = roomBound();
-//    echo(bounds); // Outputs: [3.2, 2.2, 2.5]
-// See Also: space(), spaceWrapper()
-function roomBound(length=$space_length, width=$space_width, height=$space_height, wall=$space_wall) =
-	assert(is_num(length), 	"[roomBound] length must be a number (m)")
-    assert(is_num(width), 	"[roomBound] width must be a number (m)")
-    assert(is_num(height), 	"[roomBound] height must be a number (m)")
-    assert(is_num(wall), 	"[roomBound] wall must be a number (m)")
-    [length + wall/1000, width + wall/1000, height];
-	
-
-// Module: graduatedWall()
-// 
-// Synopsis: Creates a wall with alternating colored segments.
-// Topics: Architecture, Geometry, Visualization
-// Description:
-//    Constructs a wall of specified length, height, and thickness, divided into segments of
-//    a given mark height. Segments alternate between two colors (default: Black and White).
-//    If the remaining height after full segments is non-zero, a final segment is added with
-//    the remaining height, continuing the color alternation. All dimensions are in millimeters.
-// Arguments:
-//    h         = Height of the wall (m).
-//    l         = Length of the wall (m).
-//    mark      = Height of each segment (mm) [default: 170].
-//    thickness = Thickness of the wall (mm) [default: 200].
-// Example(3D,ColorScheme=Tomorrow):
-//    graduatedWall(h=1, l=0.8, mark=200, thickness=100);
-module graduatedWall(h, l, mark =170, thickness = 200) {
-    _h = assert(is_num(h) && h > 0, 			"[graduatedWall] h must be a positive number (mm)") meters(h);
-    _l = assert(is_num(l) && l > 0, 			"[graduatedWall] l must be a positive number (mm)") meters(l);
-    assert(is_num(mark) && mark > 0, 			"[graduatedWall] mark must be a positive number (mm)");
-    assert(is_num(thickness) && thickness > 0, 	"[graduatedWall] thickness must be a positive number (mm)");
-	count = floor(_h / mark);
-	remain = _h- mark * count;
-	for ( i = [0 : count-1] ) {
-		color = (i % 2) == 1 ? "White" : "Black";
-		up(i * mark)
-			cuboid([_l,thickness,mark],anchor=BOT,$color = color );
-	}	
-	if (remain > 0 ) {
-		color = (count % 2) == 1 ? "White" : "Black";
-		up(count*mark)
-			cuboid([_l,thickness,remain],anchor=BOT,$color = color );
-	}
-}

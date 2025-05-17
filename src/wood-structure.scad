@@ -12,6 +12,7 @@ include <_core/main.scad>
 // FileSummary: Architecture, Building, Project, Wood
 //////////////////////////////////////////////////////////////////////
 include <_materials/wood.scad>
+use <_extra/3D.scad>
 
 // Module: studWallFrame()
 // 
@@ -30,9 +31,9 @@ include <_materials/wood.scad>
 //    plate_size  	= Plate dimensions [width, depth] in mm [default: [38.1, 88.9] (2x4)].
 //
 // See Also: stack()
-// Example(3D,ColorScheme=Tomorrow): 
+// Example(3D): 
 //    studWallFrame(l=4, h=2.438, stud_spacing=16*INCH);
-// Example(3D,ColorScheme=Tomorrow): Wood framed attached to space wall
+// Example(3D): Wood framed attached to space wall
 //    include <space.scad>	
 //    space (3,1,2,debug=true)
 //       attachWalls([FWD],placement="outside") 
@@ -157,7 +158,7 @@ module studWallFrame(
 // Side Effects:
 //    `$floor_length` is set to the floor length in meters.
 //    `$floor_width` is set to the floor width in meters.
-// Example(3D,Big,ColorScheme=Tomorrow): Simple 3x2 trunk platform
+// Example(3D,Big): Simple 3x2 trunk platform
 //   trunkPlatform( l=2, w =3 , h = 0.5, spacing= [1,1], log_diam = 200 );
 module trunkPlatform( 
     l	= 3,    
@@ -248,9 +249,9 @@ module trunkPlatform(
 //    spin = Rotation angle in degrees around Z-axis (BOSL2 style) [default: undef].
 // Usage:
 //    joist(l=2, w=1, spacing=400, dir=BACK);
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Joists along length
+// Example(3D,NoAxes): Joists along length
 //    joist(l=2, w=1, spacing=400, section=[120, 40], dir=BACK);
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Joists along width
+// Example(3D,NoAxes): Joists along width
 //    joist(l=2, w=1, spacing=400, section=[150, 50], dir=RIGHT);
 module joist(
     l 		= is_undef($floor_length) ? undef : $floor_length,
@@ -325,9 +326,9 @@ module joist(
 // See Also: trunkPlatform()
 // Usage:
 //    deck(l=1, w=1.5, section=[100, 10], gap=10, dir=BACK);
-// Example(3D,ColorScheme=Tomorrow): Deck with planks along length
+// Example(3D): Deck with planks along length
 //    deck(l=0.6, w=0.3, section=[120, 15], gap=25, dir=BACK, material="Wood");
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Deck with planks along width
+// Example(3D,NoAxes): Deck with planks along width
 //    deck(l=0.6, w=0.3, section=[150, 20], gap=20, dir=RIGHT);
 module deck(
     l 		= is_undef( $floor_length ) ? undef : $floor_length,
@@ -396,7 +397,7 @@ module deck(
 //    spin 			= Rotation angle in degrees (BOSL2 style) [default: undef].
 //    debug 		= If true, renders ghost geometry [default: false].
 
-// Example(3D,ColorScheme=Tomorrow,NoAxes,Huge): Space with front cladding
+// Example(3D,NoAxes,Huge): Space with front cladding
 //   include <space.scad>
 //   space(3,2,2.4,debug=true)
 //   	attachWalls([FWD],placement="outside") 
@@ -511,7 +512,7 @@ module cladding(
 //   anchor 		= Anchor point for positioning. [default: BOT]
 //   orient 		= Orientation of the structure. [default: UP]
 //   spin 			= Rotation around the orientation axis. [default: 0]
-// Example(3D,ColorScheme=Tomorrow): 
+// Example(3D): 
 //   vPanels(l=6, h=4, grid=[5,3]);
 module vPanels( 
 		l          		= is_def($wall_length) ? $wall_length : undef,    
@@ -589,12 +590,14 @@ module vPanels(
 //   indexed 		= If true, uses unique indices for panels. Default: false
 //   orient 		= Orientation of the sheathing. Default: undef
 //   spin 			= Rotation of the sheathing. Default: undef
-// Example(ColorScheme=Tomorrow): Sheathing with indexed panels
+// Example: Sheathing with indexed panels
 //   woodSheathing(l=3, h=2, indexed=true);  
-// Example(ColorScheme=Tomorrow): Plywood with panels of 1x1m
+// Example: Plywood with panels of 1x1m
 //   woodSheathing(l=2, h=1.220,panel=[1000,1000], material="Plywood"); 
-// Example(ColorScheme=Tomorrow): Sheathing with metadata output
-//   woodSheathing(l=2, h=1.5, info=true);  
+// Log: Info for a 10x5m wall with panels of (8x4 feet) in OSB  for unit price of 50$ 
+//   woodSheathing(l=10, h=5, panel=[ 8*FEET, 4*FEET ], material="OSB",unit_price=50, info = true);  
+// Log: Info for a 10x5m wall with panels of (8x4 feet) in OSB  for square price of 30$ 
+//   woodSheathing(l=10, h=5, panel=[ 8*FEET, 4*FEET ], material="OSB",square_price=30, info = true);  
 module woodSheathing(
 	l       		= first_defined([is_undef(l) ? undef: l ,$wall_length]),
 	h       		= first_defined([is_undef(h) ? undef: w ,$wall_height]),
@@ -604,8 +607,9 @@ module woodSheathing(
 	direction       = LEFT,
 	material  		= "OSB",
 	info 			= false,	
-	square_price	= 55,
+	square_price	,
 	unit_price		,//= 160,
+	nails_unit_price= 0.1,
 	anchor	        = BOT,
 	numbering 		= true, 
 	indexed			= false,
@@ -622,19 +626,20 @@ module woodSheathing(
 	_panel 	= isSheetOrientedBest ([_l,_h],panel) ? panel : [panel.y,panel.x];
 	$plank_thickness = thickness;
 	
-	sheet_count = sheet_count([_l,_h],_panel);
-	rows = sheet_count.x;
-	cols = sheet_count.y;
-	spacing = 10; //Sheet joint spacing 
+	sheet_count		= sheetCount([_l,_h],_panel);
+	rows 			= sheet_count.x;
+	cols 			= sheet_count.y;
+	spacing 		= 10; //Sheet joint spacing 
 	
-	num_planks = _l / panel.y ;
-	bounding_size = [_l,_h,thickness];  
+	num_planks 		= _l / panel.y ;
+	bounding_size 	= [_l,_h,thickness];  
 	
 	shortened_length = _panel.x - ( _panel.x * rows - _l );
 	shortened_height = _panel.y - ( _panel.y * cols - _h );
 	
 	attachable( anchor = anchor, spin=spin, orient = orient,size = bounding_size /*,cp=[0,_h/2,thickness/2] */)  {
-		material( material ) for (u = [0:rows-1]) 
+		//material( material ) 
+		for (u = [0:rows-1]) 
 			let (
 				y0      = -_h/2 + _panel.y/2,
 				x0 		= _dir * _l/2 -_dir* _panel.x/2,
@@ -645,7 +650,7 @@ module woodSheathing(
 				idx 	= numbering ? u+1 : undef
 			)
 			translate([ x, y0, thickness ]) { // Horizontal Sheathing
-				plank(length-spacing, _panel.y-spacing, index = indexed ? idx : undef);
+				plank(length-spacing, _panel.y-spacing, index = indexed ? idx : undef,material = material);
 				for (v = [ 1 : cols - 1 ]) 
 					let (
 						lastY  = v == cols-1,
@@ -658,16 +663,17 @@ module woodSheathing(
 								v * _panel.y - ( !lastY ? 0 : (_panel.y-height)/2  ), 
 						idx = v * rows + u +1		
 					)
-				back( y ) plank(length-spacing,height-spacing,index = indexed ? idx : undef);
+				back( y ) plank(length-spacing,height-spacing,index = indexed ? idx : undef, material = material);
 			}
 		children();
 	}
-	if (provideMeta(info)) {
-		assert(num_defined([square_price,unit_price]) == 1, "[woodSheathing] You should define ONE price per unit or sqm2 ");
+	if ( provideMeta(info) ) {
+		assert(num_defined([square_price,unit_price]) == 1, "[woodSheathing] You should define ONE cost per unit or sqm2 ");
 		density = woodSpecs(material,MATERIAL_DENSITY);
 		planks 	= rows * cols;
 		price	= first_defined([ unit_price, square_price ]);
 		qty 	= is_def( unit_price ) ? planks : mm2_to_m2(panel) * planks;
+		units	= is_def( unit_price ) ? "Planks" : "m2";	
 		value 	= price * qty;
 		volume  = mm3_to_m3( [panel.x,panel.y,thickness]) * planks; 
 		nails_distance = 600;
@@ -680,6 +686,8 @@ module woodSheathing(
 		$meta = [
 			["name"				, "Wood Sheating"],
 			["orientation"		, is_undef ($wall_orient) ? "N/A" : dirAsName($wall_orient)],
+			["volume"	, volume ],
+			["weight"	, volume * density ],
 			["Materials"		,
 				[
 					materialSpecs( 
@@ -687,21 +695,18 @@ module woodSheathing(
 						price	= price,
 						qty		= qty ,
 						type	= material,
-						units	= planks
+						units	= units
 						),
 					materialSpecs( 
 						"Nails",
-						units	= nails
+						price 	= nails_unit_price,
+						qty		= nails,
 						)						
 				]	
 			],
-			["cost"	, value ],
-			["volume"	, volume ],
-			["weight"	, volume * density ]
 		];
 		info();
 	}	
-
 }
 
 // Module: plank()
@@ -725,7 +730,7 @@ module woodSheathing(
 //   thickness  = Thickness of the plank (z-axis) in mm. Default: $plank_thickness or 20
 //   index      = Index number or string to display as text. Default: undef (no text)
 //   rounding   = Radius for edge rounding in mm. Default: $plank_rounding or 5
-//   material   = Color or material name (e.g., "Pine"). Default: undef (uses $color or "SaddleBrown")
+//   material   = Color or material name (e.g., "Pine").
 //   textSize   = Size of the text in mm. Default: 0.75 * width
 //   textDepth  = Extrusion depth of the text in mm. Default: 1
 //   textColor  = Color of the text. Default: "White"
@@ -734,10 +739,12 @@ module woodSheathing(
 //   spin       = Rotation around Z-axis in degrees. Default: 0
 //   orient     = Orientation vector. Default: UP
 //
-// Example(3D,ColorScheme=Tomorrow):
+// Example(3D):
 //   plank(length=1000, width=200, thickness=30, material="Pine");
-// Example(3D,ColorScheme=Tomorrow): Provide Info  
-//   plank(length=1000, width=200, thickness=20, material="Pine", info = true,cubic_price=600  );
+// Example(3D): Plank with index number
+//   plank(length=1000, width=200, thickness=20, index = 20 );
+// Log : Plank of 1x0.2 in Pine with a cubic price of 1200
+//      plank(length=1000, width=200, thickness=30, material="Pine",info=true,cubic_price=1200);
 module plank(
 	length		= first_defined([is_undef(length) 	 ? undef: length, 	is_undef($plank_length) 	? undef : $plank_length]),
 	width		= first_defined([is_undef(width) 	 ? undef: width, 	is_undef($plank_width) 		? undef : $plank_width]),
@@ -747,36 +754,36 @@ module plank(
     material    = undef,
     textSize    = undef,
     textDepth   = 1,
-    textColor   = "White",
+    textColor   = "Black",
     info        ,
 	cubic_price,
 	ifc_type	= "FLOORING",
     anchor      = BOTTOM,
-    spin        = 0,
-    orient      = UP
+    spin,
+    orient
 	
 ) {
-    assert(is_num_positive(length), 			"[plank] length must be a positive number");
-    assert(is_num_positive(width), 				"[plank] width must be a positive number");
-    assert(is_num_positive(thickness), 			"[plank] thickness must be a positive number");
-    assert(rounding <= min(length, width, thickness) / 2, "[plank] rounding too large for plank dimensions");
-    assert(is_undef(index) || is_string(index) || is_num(index), "[plank] index must be a string or number");
-    assert(is_num_positive(textSize) || is_undef(textSize), "[plank] textSize must be positive");
-    assert(is_num_positive(textDepth), "[plank] textDepth must be positive");
+    assert(is_num_positive(length), 								"[plank] length must be a positive number");
+    assert(is_num_positive(width), 									"[plank] width must be a positive number");
+    assert(is_num_positive(thickness), 								"[plank] thickness must be a positive number");
+    assert(rounding <= min(length, width, thickness) / 2, 			"[plank] rounding too large for plank dimensions");
+    assert(is_undef(index) || is_string(index) || is_num(index), 	"[plank] index must be a string or number");
+    assert(is_num_positive(textSize) || is_undef(textSize), 		"[plank] textSize must be positive");
+    assert(is_num_positive(textDepth), 								"[plank] textDepth must be positive");
 
     size = [length, width, thickness];
-    _material = first_defined([material, $color, "SaddleBrown"]);
+    _material = first_defined([material,"Pine"]);
     _textSize = clamp(
         is_undef(textSize) ? 0.75 * width : textSize,
-        0.1 * width,
-        0.9 * width
+		max(0.2 * width,0.2*length),
+		min(0.8 * width,0.8*length),
     );
 
     if (provideMeta(info)) {
-        volume 	= mm3_to_m3(length * width * thickness);
-        density = woodSpecs(_material, MATERIAL_DENSITY);
-		cost = is_def(cubic_price) ? cubic_price * volume : undef;
-        _ifc_guid = generate_guid();
+        volume 		= mm3_to_m3(size);
+        density 	= woodSpecs(_material, MATERIAL_DENSITY);
+		cost 		= is_def(cubic_price) ? cubic_price * volume : undef;
+        _ifc_guid 	= generate_guid();
         $meta = [
             ["name", str("Plank (", _material, ")")	],
             ["volume", volume						],
@@ -791,13 +798,12 @@ module plank(
 
     attachable(size=size, anchor=anchor, spin=spin, orient=orient) {
 		union(){
-			material(_material,default="Wood")
-				cuboid(size, rounding=rounding);
-			if (index)
-				color(textColor)
-					up(thickness/2)
-					linear_extrude(textDepth)
-						text(str(index), size=_textSize, valign="center", halign="center", $fn=32);
+			material(_material,family=WOOD) 
+			cuboid(size, rounding=rounding) 
+					if (index) attach(TOP) 
+						color(textColor)
+							linear_extrude(textDepth)
+								text(str(index), size=_textSize, valign="center", halign="center", $fn=32);
 		}			
         children();
     }
@@ -824,7 +830,7 @@ module plank(
 //   Objects to attach to the pillar.
 // Usage:
 //   rectPillar(l,section); 
-// Example(3D,ColorScheme=Tomorrow): Simple pillar with rounding
+// Example(3D): Simple pillar with rounding
 //   rectPillar(l=1, section=[150, 200], rounding=5);
 module rectPillar(l,section,material= "Wood",rounding = 0,anchor,spin) {
 	assert( is_meters(l),			"[rectPillar] [l] is undefined.");
@@ -866,13 +872,13 @@ module rectPillar(l,section,material= "Wood",rounding = 0,anchor,spin) {
 //   Objects to attach to the pillar.
 // Usage:
 //   obliquePillar(l, section1,section2,angle,offset); 
-// Example(3D,ColorScheme=Tomorrow): Oblique pillar using angleX
+// Example(3D): Oblique pillar using angleX
 //   obliquePillar(l=1, section1=[100, 100], angleX=20);
-// Example(3D,ColorScheme=Tomorrow): Oblique pillar using offsetX
+// Example(3D): Oblique pillar using offsetX
 //   obliquePillar(l=1, section1=[100, 100], offsetX=300);
-// Example(3D,ColorScheme=Tomorrow): Oblique pillar using angleY and different sections
+// Example(3D): Oblique pillar using angleY and different sections
 //   obliquePillar(l=1, section1=[200, 200], section2=[150, 150],angleY=25);
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Test with TOP attachments
+// Example(3D,NoAxes): Test with TOP attachments
 //   cuboid([800,800,100])
 //      attach(TOP,BOT,align=corners(BOT))
 //         obliquePillar(
@@ -882,7 +888,7 @@ module rectPillar(l,section,material= "Wood",rounding = 0,anchor,spin) {
 //            offsetY=$align[Y] * 300,
 //            anchor=BOT+$align
 //         );
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Test with BOTTOM attachments
+// Example(3D,NoAxes): Test with BOTTOM attachments
 //   cuboid([800,800,100])
 //      attach(BOT,TOP,align=corners(BOT))
 //         obliquePillar(

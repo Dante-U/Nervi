@@ -41,17 +41,17 @@ function is_num_positive(x) = is_num(x) && x > 0;
 //   plausible = If true, checks if x is less than 1000 meters. Default: true
 // Returns:
 //   Boolean: true if x is a positive number (and less than 1000 if plausible=true), false otherwise.
-// Example(ColorScheme=Tomorrow)
+// Example
 //   length = 500;
 //   if (is_meters(length)) {
 //     cuboid([length, 100, 50]);  // Creates cuboid with valid length
 //   }
-// Example(ColorScheme=Tomorrow)
+// Example
 //   length = 1500;
 //   if (is_meters(length, plausible=false)) {
 //     cuboid([length, 100, 50]);  // Creates cuboid, bypassing plausible check
 //   }
-// Example(ColorScheme=Tomorrow)
+// Example
 //   length = undef;
 //   if (is_meters(length)) {
 //     cuboid([100, 100, 50]);  // No cuboid created since undef returns false
@@ -90,19 +90,19 @@ function is_meters(x,plausible = true)  =
 //   max_inc = Whether the maximum bound is inclusive. Default: true
 // Returns:
 //   Boolean: true if x is within the range, false otherwise.
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Inclusive range [1, 5]
 //   value = 3;
 //   if (is_between(value, 1, 5)) {
 //     cube([value, 2, 1]);  // Creates a cube for value in [1, 5]
 //   }
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Exclusive range (2, 5)
 //   value = 2;
 //   if (is_between(value, 2, 5, min_inc=false, max_inc=false)) {
 //     cube([value, 2, 1]);  // No cube created since 2 is not in (2, 5)
 //   }
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Inclusive min, exclusive max [0, 10)
 //   value = 10;
 //   if (is_between(value, 0, 10, max_inc=false)) {
@@ -140,19 +140,19 @@ function is_between(x, min, max, min_inc=true, max_inc=true) =
 //   inclusive = Whether the comparison is inclusive (>=). Default: true
 // Returns:
 //   Boolean: true if x is a number and greater than (or equal to, if inclusive) the threshold, false otherwise.
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Inclusive comparison (>= 5)
 //   value = 5;
 //   if (is_greater_than(value, 5)) {
 //     cube([value, 2, 1]);  // Creates a cube since 5 >= 5
 //   }
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Exclusive comparison (> 5)
 //   value = 5;
 //   if (is_greater_than(value, 5, inclusive=false)) {
 //     cube([value, 2, 1]);  // No cube created since 5 is not > 5
 //   }
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Undefined input
 //   value = undef;
 //   if (is_greater_than(value, 0)) {
@@ -181,19 +181,19 @@ function is_greater_than(x, threshold, inclusive=true) =
 //   inclusive = Whether the comparison is inclusive (<=). Default: true
 // Returns:
 //   Boolean: true if x is a number and less than (or equal to, if inclusive) the threshold, false otherwise.
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Inclusive comparison (<= 5)
 //   value = 5;
 //   if (is_less_than(value, 5)) {
 //     cube([value, 2, 1]);  // Creates a cube since 5 <= 5
 //   }
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Exclusive comparison (< 5)
 //   value = 5;
 //   if (is_less_than(value, 5, inclusive=false)) {
 //     cube([value, 2, 1]);  // No cube created since 5 is not < 5
 //   }
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Undefined input
 //   value = undef;
 //   if (is_less_than(value, 10)) {
@@ -220,19 +220,19 @@ function is_less_than(x, threshold, inclusive=true) =
 //   dims = The array to check, expected to be [dim1, dim2]. No default.
 // Returns:
 //   Boolean: true if dims is a two-element array of positive numbers, false otherwise.
-// Example(ColorScheme=Tomorrow):
+// Example:
 //   // Valid dimension pair
 //   dims = [10, 20];
 //   if (is_dim_pair(dims)) {
 //     cuboid([dims[1], 5, dims[0]]);  // Creates a cuboid with width=20, height=10
 //   }
-// Example(ColorScheme=Tomorrow):
+// Example:
 //   // Invalid dimension pair (negative value)
 //   dims = [10, -5];
 //   if (is_dim_pair(dims)) {
 //     cuboid([dims[1], 5, dims[0]]);  // No cuboid created
 //   }
-// Example(ColorScheme=Tomorrow):
+// Example:
 //   // Undefined input
 //   dims = undef;
 //   if (is_dim_pair(dims)) {

@@ -68,11 +68,11 @@ function colorsData() = struct_set([], [
 //	  default		= Default material if name is not provided or wrong	
 //    deep  		= If false color at current level only 
 //    transparency  = Transparency 
-// Example(3D,Small,ColorScheme=Tomorrow,NoAxes): Wood
+// Example(3D,Small,NoAxes): Wood
 //   material("Wood") cube([20,20,20]); 
-// Example(3D,Small,ColorScheme=Tomorrow): Clearing
+// Example(3D,Small): Clearing
 //   material("Clearing",0.2) cube([20,20,20]); 
-// Example(3D,Small,ColorScheme=Tomorrow): Ghost
+// Example(3D,Small): Ghost
 //   material("Ghost") cube([20,20,20]); 
 //
 module material( name, default, family, deep= true ,transparency) {
@@ -106,7 +106,7 @@ module material( name, default, family, deep= true ,transparency) {
 //    If the material is not found, it returns "default" as a default color.
 // Arguments: 
 //    material = A string representing the material name (e.g., "Wood", "Metal").
-// Example(3D,Small,ColorScheme=Tomorrow,NoAxes): 
+// Example(3D,Small,NoAxes): 
 //   cuboid(600,$color=matColor("Sand"));
 //
 function matColor( material ) =
@@ -152,13 +152,13 @@ function matColorSpec( material, fallBack ) =
 //   If $color is undef, the geometry is rendered with the default color.
 //   Useful for ensuring consistent color application across BOSL2 and native OpenSCAD modules.
 //   Especially usefull with linear_extrude
-// Example(ColorScheme=Tomorrow)
+// Example
 //   $color = "Blue";
 //   applyColor() cuboid(20);  // Blue cuboid
-// Example(ColorScheme=Tomorrow)
+// Example
 //   $color = "Blue";
 //   applyColor() linear_extrude(50) rect(60);  // Blue extruded rectangle
-// Example(ColorScheme=Tomorrow)
+// Example
 //   applyColor() cuboid(20);  // Default color (no $color defined)
 module applyColor() {
   if (is_def($color) && $color != "default") {
@@ -192,8 +192,11 @@ module reddish() {
 	color("IndianRed") children(); 	
 }	
 module primary() {
-	color("IndianRed") children(); 	
+	color_this("IndianRed") children(); 	
 }	
+
+function primary() = "IndianRed";  
+
 module secondary() {
 	color("IndianRed") children(); 	
 }	

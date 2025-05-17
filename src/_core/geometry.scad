@@ -33,7 +33,7 @@ use <assert.scad>
 //    path = [[0, 0, 0], [10, 0, 0], [5, 10, 5]];
 //    centered = centerPath(path);
 //    echo(centered);  // Outputs: shifted to center at [0, 0, 0]
-// Example(2D,ColorScheme=Tomorrow): Centering red square and green triangle
+// Example(2D): Centering red square and green triangle
 //    triangle_path 	= [[5, 5], [15, 5], [10, 15]];       // Green triangle offset
 //    triangle_centered 	= centerPath(triangle_path);
 //    %stroke(triangle_path, $color="red", $ls="--",closed=true);
@@ -60,7 +60,7 @@ function centerPath( path ) =
 // Arguments:
 //   p1 = First point (or a pre-formed line if p2 is undefined).
 //   p2 = Second point [default: undef].
-// Example(2D,ColorScheme=Tomorrow)
+// Example(2D)
 //   line = line([-10, -10], [10, 10]);
 //   mid = midpoint(line);
 //   stroke(line, width=1, color="green");
@@ -109,7 +109,7 @@ function midpoint(p1, p2=undef) = let(
 //    path = [[1, 2, 3], [4, 5, 6], [-1, -2, -3]];
 //    size = boundingSize(path);
 //    echo("Bounding Size: ", size);
-// Example(2D,ColorScheme=Tomorrow): Centering triangle
+// Example(2D): Centering triangle
 //    triangle_path 	= [[5, 5], [15, 5], [10, 15]];       // Green triangle offset
 //    triangle_centered 	= centerPath(triangle_path);
 //    %stroke(triangle_path, $color="red", $ls="--",closed=true);
@@ -130,7 +130,7 @@ function boundingSize( path, z ) =
 // Function: circleArea() 	
 //
 // Synopsis: Computes circle area using  radius or diameter
-// Example(2D,ColorScheme=Tomorrow):
+// Example(2D):
 //   r=50;	   
 //   stroke(circle(r=r),closed=true);
 //   text(str(circleArea(r=r)," mm2"),halign ="center");	   
@@ -151,7 +151,7 @@ function circleArea(r,d) =
 // Arguments:
 //   p1 = First point (or a pre-formed line if p2 is undefined).
 //   p2 = Second point [default: undef].
-// Example(2D,ColorScheme=Tomorrow)
+// Example(2D)
 //   line = line([-10, -10], [10, 10]);
 //   stroke(line, width=1, color="green");
 //   move(line[0]) circle(r=2, $fn=32);
@@ -189,7 +189,7 @@ function line(p1, p2=undef) =
 //   extending along the X-axis from -length/2 to +length/2.
 // Arguments:
 //   length = Total length of the line segment (in mm).
-// Example(2D,ColorScheme=Tomorrow)
+// Example(2D)
 //   path = xLine(length=10);
 //   stroke(path); // Renders a horizontal line from [-5, 0] to [5, 0]	
 function xLine( length ) = 	line ([-length/2,0],[+length/2,0]);
@@ -203,7 +203,7 @@ function xLine( length ) = 	line ([-length/2,0],[+length/2,0]);
 //   extending along the Y-axis from -length/2 to +length/2.
 // Arguments:
 //   length = Total length of the line segment (in mm).
-// Example(2D,ColorScheme=Tomorrow)
+// Example(2D)
 //   path = yLine(length=10);
 //   stroke(path); // Renders a vertical line from [0, -5] to [0, 5]
 function yLine( length ) = 	line ([0,-length/2],[0,+length/2]);	
@@ -219,7 +219,7 @@ function yLine( length ) = 	line ([0,-length/2],[0,+length/2]);
 //   Euclidean distance formula. Works for both 2D and 3D lines.
 // Arguments:
 //   line = Line segment as a list of two 2D or 3D points.
-// Example(2D,ColorScheme=Tomorrow)
+// Example(2D)
 //   line_seg = line([-10, -10], [10, 10]);  // Diagonal line
 //   length = lineLength(line_seg);  // Should be ~28.28
 //   stroke(line_seg, width=1, color="green");
@@ -260,7 +260,7 @@ function lineLength( line ) =
 //   l1  = First line segment as a list of two 2D points.
 //   l2  = Second line segment as a list of two 2D points.
 //   eps = Tolerance for parallel line checks [default: 1e-6].
-// Example(2D,ColorScheme=Tomorrow)
+// Example(2D)
 //   l1 = [[-50, -30], [30, 40]];
 //   l2 = [[-50, 0], [50, 0]];
 //   inter = lineIntersection(l1, l2);
@@ -311,7 +311,7 @@ function lineIntersection(l1, l2, eps=1e-6,check=true) =
 //   line 	= Line segment as a list of two 2D points.
 //   path 	= List of 2D points defining a closed polygon.
 //   eps  	= Tolerance for point comparison to remove duplicates [default: 1e-6].
-// Example(2D,ColorScheme=Tomorrow)
+// Example(2D)
 //   path = [[-50, 0], [50, 0], [30, 40], [-30, 40]];  // Trapezoid
 //   line = [[-50, -30], [30, 40]];
 //   inters = linePolygonIntersection(line, path);
@@ -356,7 +356,7 @@ function linePolygonIntersection(line, path, eps=1e-6) =
 //   line = Line segment as a list of two 2D points.
 //   path = List of 2D points defining a closed polygon.
 //   eps  = Tolerance for point comparison in intersection checks [default: 1e-6].
-// Example(2D,ColorScheme=Tomorrow)
+// Example(2D)
 //   path = [[-50, 0], [50, 0], [30, 40], [-30, 40]];  // Trapezoid
 //   line1 = [[-50, -30], [30, 40]];  // Intersects
 //   line2 = [[0, 50], [10, 50]];     // Does not intersect

@@ -76,6 +76,8 @@ module extrude(height, dir=UP, path, center=false, path_centering = true, anchor
 //    dir = Direction vector or constant (e.g., RIGHT, [1,0,0]) [required].
 // DefineHeader(Generic):Returns:
 //    A string representing the direction name, or "Unknown" if not recognized.
+// Example: 
+//    echo(dirAsName(TOP));	
 function dirAsName( dir ) =
 	is_path(dir ) ? join([for ( d = dir) dirAsName(d)],",") : 
     assert(is_def(dir), "dir must be defined")
@@ -100,12 +102,15 @@ function dirAsName( dir ) =
                      components = [
                          for (d = dirs)
                              if (dot(dir, d[0]) > 0) // Positive contribution only
+							 //if ( dir * d[0] ) > 0) // Positive contribution only
                              d[1]
                      ]
                  )
                  len(components) > 0 ? str_join(components, "+") : "Unknown"
     )
     result;	
+
+function dot(v1, v2) = v1 * v2;
 	
 // Module: booleanDiff()
 // 

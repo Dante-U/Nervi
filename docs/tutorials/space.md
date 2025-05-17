@@ -6,14 +6,14 @@ Nervi introduce the concept of [space](./space.scad). Space allow you to define 
 > By default a space is not visible. To view a space you need to set debug to **True**
 
 
-```openscad-3D;ColorScheme=Tomorrow
+```openscad-3D
 include <Nervi/space.scad>
 space(l=3,w=2,h=2.3,debug=true);
 ```
 
 Space can be defined using scoped variables : 
 
-```openscad-3D;ColorScheme=Tomorrow
+```openscad-3D
 include <Nervi/space.scad>
 $space_length = 4;
 $space_width  = 3;
@@ -22,9 +22,9 @@ $space_wall   = 300;
 space( debug=true );
 ```
 
-Space can exclude walls using exclude arguments. To exclude wall provide direction to except like **FRONT** and **RIGHT** in the following example :   
+Space can exclude walls using exclude arguments. To exclude wall provide directions to exclude like **FRONT** and **RIGHT** in the following example :   
 
-```openscad-3D;ColorScheme=Tomorrow
+```openscad-3D
 include <Nervi/space.scad>
 space(l=3,w=2,h=2.3,debug=true,except=[FRONT,RIGHT]);
 ```
@@ -53,7 +53,7 @@ Nervi provide a way to attach any kind of objects to walls.
 
 You can attach any children to wall using [`attachWalls()`](./space.scad#module-attachwalls).
 
-```openscad-3D;ColorScheme=Tomorrow;Huge
+```openscad-3D;Huge
 include <Nervi/space.scad>
 space(3,3,3,debug=true)
 	attachWalls( faces = FRONT)
@@ -62,11 +62,11 @@ space(3,3,3,debug=true)
 
 If you don't provide faces it will take all wall excluding the sides defined in space **except** argument. You can force to attach to all walls by switching argument **force** to true.
 
-```openscad-3D;ColorScheme=Tomorrow;Huge
+```openscad-3D;Huge
 include <Nervi/space.scad>
 space(3,3,3,debug=true,except=[FRONT])
 	attachWalls()
-		color("IndianRed")
+		primary()
 		linear_extrude(100)
 		text("OK",halign="center",valign="center",size=1200,$color="Red");
 ```
@@ -81,7 +81,7 @@ space(3,3,3,debug=true,except=[FRONT])
 |$wall_orient| Normal vector of the face|
 
 
-```openscad-3D;ColorScheme=Tomorrow;Big
+```openscad-3D;Big
 include <Nervi/space.scad>
 $space_length = 4;
 $space_width = 3;
@@ -100,7 +100,7 @@ space(debug=true)
 
 Wall surface is provided by [space()](./space.scad#module-space) and [`attachWalls()`](./space.scad#module-attachwalls).  You can retrieve the geometry using [`anchorInfo()`](./utils.scad#function-anchorInfo).
 
-```openscad-3D;ColorScheme=Tomorrow;Huge
+```openscad-3D;Huge
 include <Nervi/space.scad>
 $space_length = 4;
 $space_width = 3;
@@ -108,7 +108,7 @@ $space_height = 2;
 $space_wall = 500;
 space(debug=true,except=[FRONT,RIGHT])
 	attachWalls( placement="inside" )
-		color("indianRed")
+		primary()
 		linear_extrude(200)	polygon(anchorInfo("geom"));
 ```
 
@@ -134,12 +134,11 @@ Creates a monolithic [slab()](./masonry-structure.scad#module-slab) with dimensi
 
 Create a slab under a space with cost informations.
 
-```openscad-3D;ColorScheme=Tomorrow;Small
+```openscad-3D;Huge
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
 space(l=3, w=3, h=2, debug=true, except=[FRONT, RIGHT]) { 
-    primary() 
-       slab(thickness=200, material="Concrete", unit_price=120,info=true);
+       slab(thickness=200, material="Concrete", unit_price=120,info=true,$color=primary());
 }
 ```
 
@@ -181,3 +180,4 @@ Maps to IfcSlab with PredefinedType=BASESLAB. Material properties (e.g., "Concre
 
 
 
+	

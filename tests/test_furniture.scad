@@ -26,7 +26,7 @@ xdistribute(meters(3)) {
 //   Verifies that the placeFurniture() function computes correct translation vectors and the module positions
 //   child geometry accurately based on anchor points, inset, and vertical alignment within a space.
 //   Tests typical usage, edge cases, and context variables.
-// Example(3D,ColorScheme=Tomorrow):
+// Example(3D):
 //   test_placeFurniture();
 module test_placeFurniture() {
 
@@ -92,7 +92,7 @@ module test_placeFurniture() {
 //   with proper cushion placement and headboard options. Tests typical usage and edge cases.
 // Context Variables:
 //   $color = Color applied to bed components (e.g., "Wood", "Fabric").
-// Example(3D,ColorScheme=Tomorrow):
+// Example(3D):
 //   test_bed();
 module test_bed() {
 
@@ -120,7 +120,7 @@ module test_bed() {
 //   seat counts and custom sizes. Tests typical usage and edge cases.
 // Context Variables:
 //   $color = Color applied to table components (e.g., "Silver").
-// Example(3D,ColorScheme=Tomorrow):
+// Example(3D):
 //   test_squareTable();
 module test_squareTable() {
 

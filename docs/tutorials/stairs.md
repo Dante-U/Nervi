@@ -70,7 +70,7 @@ With [stairs.scad](./stairs.scad), designing parametric staircases is both intui
 
 In the following example we will use a [space](./space.scad) module to define the room using debug true to show the limit of the space as wall. We will add a slab then position our [stairs](./stairs.scad) at on the right wall. When the **total_rise** is not provided the stairs module will try to check if a **\$space_height** has been defined which is the case when parent is a [space](./space.scad) module.
 
-```openscad-3D;ColorScheme=Tomorrow;Huge
+```openscad-3D;Huge
 include <Nervi/space.scad>
 include <Nervi/stairs.scad>
 include <Nervi/masonry-structure.scad>
@@ -94,7 +94,7 @@ space(l=5, w=1.2, h=2.8, except=[FRONT,LEFT],debug=true)
 
 This example with demonstrate how to align and spin a stairs in wood or metal.
 
-```openscad-3D;ColorScheme=Tomorrow;Big
+```openscad-3D;Big
 include <Nervi/stairs.scad>
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
@@ -132,7 +132,7 @@ The staircase is divided into a lower section (first set of steps), a landing, a
 
 Let's create a basic L-shaped staircase with a width of 1.2 meter, a total rise of 2.8 meters, and handrails on the right side.
 
-```openscad-3D;ColorScheme=Tomorrow;Big
+```openscad-3D;Big
 include <Nervi/stairs.scad>
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
@@ -164,7 +164,7 @@ A flush mount stair connection sits directly against the deck or flooring, creat
 
 <!--
 
-```openscad-3D;Hide;ColorScheme=Tomorrow;Med;NoAxes
+```openscad-3D;Hide;Med;NoAxes
 include <Nervi/stairs.scad>
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
@@ -190,7 +190,7 @@ space(except=[FRONT,RIGHT],debug=true)
 };
 ```
 
-```openscad-3D;Hide;ColorScheme=Tomorrow;Med;NoAxes
+```openscad-3D;Hide;Med;NoAxes
 include <Nervi/stairs.scad>
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
@@ -239,7 +239,7 @@ stairs(w=1, total_rise=2.8, handrails=[RIGHT], family=WOOD, rail_height=900, rai
 
 This creates a straight staircase with a right-side wooden handrail. Adjust rail_height for ergonomic designs (e.g., 850-1000 mm). Experiment with mount=FLUSH_MOUNT for seamless floor integration. 
 
-```openscad-3D;ColorScheme=Tomorrow;Huge
+```openscad-3D;Huge
 include <Nervi/space.scad>
 include <Nervi/stairs.scad>
 include <Nervi/masonry-structure.scad>
@@ -273,7 +273,7 @@ stairs(w=0.9, total_rise=2.6, type=L_SHAPED, steps=15, handrails=[LEFT, RIGHT], 
 
 This generates an L-shaped staircase with metal handrails on both sides. Use rail_width=50 for sturdier rails or family=MASONRY for a concrete aesthetic, adjusting slab_thickness for durability. Beginners can start with default settings, while advanced users can customize landings or integrate with BOSL2’s attachable() for modular designs. Experiment with debug=true to visualize construction logic.
 
-```openscad-3D;ColorScheme=Tomorrow;Huge
+```openscad-3D;Huge
 include <Nervi/stairs.scad>
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
@@ -293,8 +293,6 @@ zrot(90) space(l=5, w=1.2, h=2.8, except=[FRONT,LEFT],debug=true) {
 };  
 ```
 
-
-
 ### Handrails with U-Shaped Stairs
 
 **U-shaped** staircases, with two landings, demand robust handrail configurations, and Nervi’s stairs() module excels here. Set type=U_SHAPED and use handrails to place rails across all sections. The library automatically calculates landing sizes and rail continuity. For a 1.2-meter-wide, 3-meter-high staircase:
@@ -303,9 +301,9 @@ zrot(90) space(l=5, w=1.2, h=2.8, except=[FRONT,LEFT],debug=true) {
 stairs(w=1.2, total_rise=3, type=U_SHAPED, handrails=[RIGHT], family=MASONRY, slab_thickness=150);
 ```
 
-This creates a U-shaped masonry staircase with a right-side handrail. Adjust rail_height for accessibility or post_interval in handrail() for denser post placement. The material system supports realistic textures, enhancing rendering. Beginners can rely on defaults, while experts can use $stairs_landing to tweak landing sizes or combine with BOSL2 utilities for complex assemblies. Dive into Nervi on GitHub to customize handrails and share your designs!
+This creates a U-shaped masonry staircase with a right-side handrail. Adjust rail_height for accessibility or post_interval in handrail() for denser post placement. The material system supports realistic textures, enhancing rendering. Beginners can rely on defaults, while experts can use \$stairs_landing to tweak landing sizes or combine with BOSL2 utilities for complex assemblies. Dive into Nervi on GitHub to customize handrails and share your designs!
 
-```openscad-3D;ColorScheme=Tomorrow;Huge
+```openscad-3D;Huge
 include <Nervi/stairs.scad>
 include <Nervi/space.scad>
 include <Nervi/masonry-structure.scad>
@@ -326,6 +324,71 @@ zrot(90) space(l=5, w=4, h=2.8, except=[FRONT,LEFT],debug=true)
 }	
 ```
 
+## Spiral Stairs with Nervi
+
+Spiral staircases are a stylish, space-saving option for vertical movement, and Nervi’s spiralStairs() module makes them easy to design in OpenSCAD. This module creates parametric spiral staircases with customizable radius, height, steps, and turns, integrating BOSL2 for geometry and Nervi’s material system for wood, metal, or masonry finishes. Add helical handrails and central columns for functionality and flair.
+
+### Key Features
+
+- Parametric Control: Set radius, inner_radius, total_rise, steps, and turns.
+- Materials: Use WOOD, METAL, or MASONRY via the family parameter.
+- Handrails: Enable with handrail=true, adjusting rail_height and guard_diam.
+- Mounting: Choose STANDARD_MOUNT or FLUSH_MOUNT for floor alignment.
+
+
+### Basic Example
+
+Create a wooden spiral staircase with a 1-meter radius and 2.8-meter height:
+
+```openscad-3D;Huge
+include <Nervi/stairs.scad>
+spiralStairs(
+	radius			= 1000, 
+	total_rise	= 2.8, 
+	family			= WOOD, 
+	handrail		= true,
+	material_column	  = "Concrete",	
+	material_tread 	  = "Teak",
+	material_baluster = "Oak",	
+	material_guard 	  = "Pine",	
+);
+```
+
+### Advanced Customization
+
+- Materials: Try family=MASONRY for a solid look or family=METAL for sleekness, with material_tread for specific textures.
+- Handrails: Tweak baluster_diam and guard_diam for style and safety.
+- Turns: Increase turns for a tighter spiral or adjust steps for comfort.
+
+### Visual Example
+
+A wooden spiral in a defined space:
+
+```openscad-3D;Huge
+include <Nervi/space.scad>
+include <Nervi/stairs.scad>
+include <Nervi/masonry-structure.scad>
+
+space(l=2, w=2, h=2.8, except=[FRONT,LEFT],debug=true) {
+    slab();
+    position(RIGHT+BACK+BOT) primary()
+        spiralStairs(
+            family=WOOD,
+            mount=STANDARD_MOUNT,
+            guard_diam=150,
+            anchor=RIGHT+BACK
+        );
+    position(RIGHT+BACK+TOP)
+        slab(l=0.75, w=0.75, anchor=RIGHT+BACK+TOP);
+}
+```
+
+> [!TIP]
+> Ensure total_rise or $space_height is defined.
+> Use debug=true to check step angles and rise.
+> Pair with handrail() for custom rail designs.
+
+Experiment with parameters and share your creations with the Nervi community!
 
 
 

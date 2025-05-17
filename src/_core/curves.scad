@@ -23,7 +23,7 @@ use <2D.scad>
 //   resolution = Distance between consecutive points along the X-axis (in mm). Default: 1.
 //   phase_shift = Horizontal shift of the wave (in mm). Default: 0.
 //   y_move = Vertical shift of the wave (in mm). Default: 0.
-// Example(2D,ColorScheme=Tomorrow): Renders a sinusoidal wave
+// Example(2D): Renders a sinusoidal wave
 //   path = sineWave( length=100, amplitude=10, wavelength=25, period=5 );
 //   stroke(path);
 function sineWave(
@@ -99,11 +99,11 @@ function sine_formula(x, m, p) = m * sin(2 * PI * p * x);
 // Usage:
 //    points = sawtoothWave(total_length=100, amplitude=10, wavelength=20);
 //    sawtoothWave(total_length=50, amplitude=5, wavelength=15, render=true);
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Rendered sawtooth wave
+// Example(3D,NoAxes): Rendered sawtooth wave
 //    stroke(sawtoothWave( total_length=100, amplitude=30, wavelength=15,interval=10 ));	
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Sawtooth wave with phase shift
+// Example(3D,NoAxes): Sawtooth wave with phase shift
 //    stroke(sawtoothWave( total_length=100, amplitude=30, wavelength=15,interval=10,phase_shift=10 ));	
-// Example(3D,ColorScheme=Tomorrow,NoAxes): Sawtooth wave with y move
+// Example(3D,NoAxes): Sawtooth wave with y move
 //    stroke(sawtoothWave( total_length=100, amplitude=30, wavelength=15,interval=10,y_move=10 ));	
 function sawtoothWave(total_length, amplitude, wavelength, interval, phase_shift = 0, y_move = 0) = 
     let(
@@ -155,9 +155,9 @@ function sawtoothWave(total_length, amplitude, wavelength, interval, phase_shift
 // Usage:
 //    points = fibonacciSpiral(max_width=100);
 //    fibonacciSpiral(max_height=80, render=true);
-// Example(2D,ColorScheme=Tomorrow): Centered spiral with max width
+// Example(2D): Centered spiral with max width
 //    stroke(fibonacciSpiral(max_width=100, center=true));
-// Example(2D,ColorScheme=Tomorrow): Uncentered spiral with max height
+// Example(2D): Uncentered spiral with max height
 //    stroke(fibonacciSpiral(max_height=61.8, points=540 ));
 function fibonacciSpiral( max_width, max_height, points=360, angle_step=1, center = false ) = 
     let (
@@ -219,7 +219,7 @@ function fibonacciSpiral( max_width, max_height, points=360, angle_step=1, cente
 //    damping   = Damping factor to reduce amplitude over distance [default: 0.5].
 // Returns:
 //    The wave height at the specified distance and time, or 0 if the wave hasn't arrived.
-// Example(3D,ColorScheme=Tomorrow)
+// Example(3D)
 //    // Simple wave at a fixed time
 //    t=1;
 //    points = [
@@ -249,7 +249,7 @@ function dropletWave( r, t, amplitude = 1, length = 10, speed = 5, damping = 0.5
 //   t = Scalar parameter along the curve, typically in the range [0, 1].
 //   r = Radius of curvature at the start of the clothoid (in mm).
 //   l = Length of the clothoid curve (in mm).
-// Example(2D,ColorScheme=Tomorrow)
+// Example(2D)
 //   path = [for (t = [0:0.1:1]) clothoid(t, 10, 50)];
 //   stroke(path); // Renders a clothoid curve
 function clothoid(t, r, l) = 
@@ -282,7 +282,7 @@ function clothoid(t, r, l) =
 //   kappa_0 		= Initial curvature at the start of the curve (in 1/mm).
 //   theta_0 		= Initial orientation angle of the curve (in radians).
 //   num_points 	= Number of points to generate along the curve.
-// Example(2D,ColorScheme=Tomorrow)
+// Example(2D)
 //   path = generalizedClothoid(s_max=50, kappa_prime=0.01, kappa_0=0, theta_0=0, num_points=100);
 //   stroke(path); // Renders a generalized clothoid curve
 function generalizedClothoid(s_max, kappa_prime, kappa_0, theta_0, num_points) =
@@ -330,7 +330,7 @@ function generalizedClothoid(s_max, kappa_prime, kappa_0, theta_0, num_points) =
  *   height    = Maximum height of the trajectory at x=0 (mm) [default: 1000].
  * Returns:
  *   A 3D vector [x, 0, z] representing a point on the ballistic curve.
- * Example(3D,ColorScheme=Tomorrow):
+ * Example(3D):
  *   path = [for (x = [-2000:100:2000]) ballistic(x, 4000, 1000)];
  *   stroke(path, width=30);
  */
@@ -340,7 +340,79 @@ function ballistic(	x, range  = 4000, height = 1000	) =
 	) 
 	[x ,0, height * (1 - pow(x / half_range, 2) ) ];		
 	
+// Module: goldenRectangle()
+// 
+// Synopsis: Creates a golden rectangle with an inscribed Fibonacci spiral.
+// Topics: Geometry, Spirals, Mathematics
+// See Also: fibonacciSpiral()
+// Description:
+//    Generates a 3D object consisting of a golden spiral (based on fibonacciSpiral())
+//    inscribed within its bounding rectangle (from boundingRect()). The spiral and
+//    rectangle are rendered with separate thicknesses, using BOSL2 for efficient
+//    path generation and extrusion. Either max_width or max_height must be specified
+//    to define the spiral’s bounds.
+// Arguments:
+//    max_width = Maximum width of the rectangle and spiral (optional).
+//    max_height = Maximum height of the rectangle and spiral (optional).
+//    center = Center the spiral and rectangle at [0,0] [default: false].
+//    spiral_thickness = Diameter of the spiral extrusion [default: 2].
+//    rect_thickness = Height of the rectangle extrusion [default: 1].
+//    anchor = Anchor point (BOSL2 style) [default: BOTTOM].
+//    spin = Rotation angle in degrees around Z (BOSL2 style) [default: 0].
+// DefineHeader(Generic):Returns:
+//    A 3D object combining a golden spiral and its bounding rectangle, attachable to children.
+// Usage:
+//    goldenRectangle(max_width, max_height,[center],[spiral_thickness],[rect_thickness],[anchor],[spin]);
+// Example(3D,NoAxes): Rectangle with spiral (max width)
+//    goldenRectangle(max_width=100, spiral_thickness=3, rect_thickness=2);
+// Example(3D,NoAxes): Centered with max height
+//    goldenRectangle(max_height=61.8, center=true, spiral_thickness=2);	
+module goldenRectangle(
+    max_width,
+    max_height,
+    center 				= false,
+    spiral_thickness 	= 2,
+    rect_thickness 		= 1,
+    anchor 				= BOTTOM,
+    spin 				= 0
+) {
+    // Input validation
+    assert((is_num(max_width) || is_num(max_height)), "At least one of max_width or max_height must be specified");
+    assert(is_bool(center), "center must be a boolean");
+    assert(is_num(spiral_thickness) && spiral_thickness > 0, "spiral_thickness must be positive");
+    assert(is_num(rect_thickness) && rect_thickness > 0, "rect_thickness must be positive");
 
+    // Generate spiral points (using previously defined fibonacciSpiral)
+    spiral_points = fibonacciSpiral(max_width=max_width, max_height=max_height, center=center);
+
+    // Generate bounding rectangle points (using previously defined boundingRect)
+    rect_points = boundingRect(points=spiral_points);
+
+    // Calculate bounding box
+    bounds = pointlist_bounds(spiral_points); // Same for both spiral and rect
+    bounding = [
+        bounds[1][X] - bounds[0][X],
+        bounds[1][Y] - bounds[0][Y],
+        max(spiral_thickness, rect_thickness)
+    ];
+   // Render the combined object
+    attachable(size=bounding, anchor=anchor, spin=spin, cp=[bounding[0]/2, bounding[1]/2, 0]) {
+		union(){
+			// Rectangle
+			color("BurlyWood") // Pine color for ColorScheme=Tomorrow
+				linear_extrude(height=rect_thickness)
+					stroke(rect_points, closed=true, width=rect_thickness/2);
+			// Spiral
+			color("DarkOliveGreen") // Nature scheme color
+				path_sweep(
+					circle(d=spiral_thickness),
+					spiral_points,
+					closed=false
+			);
+		}
+        children();
+    }
+}
 	
 
 	

@@ -146,21 +146,21 @@ function bipolar(b) = b ? 1 : -1;
 //   max_val = The maximum value of the range. No default.
 // Returns:
 //   Number or undef: The clamped value if inputs are valid, undef if any input is non-numeric or undef.
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Clamp value to [0, 10]
 //   value = 15;
 //   clamped = clamp(value, 0, 10);
 //   if (is_num(clamped)) {
 //     cuboid([clamped, 5, 5]);  // Creates cuboid with width=10
 //   }
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Clamp negative value
 //   value = -5;
 //   clamped = clamp(value, 0, 10);
 //   if (is_num(clamped)) {
 //     cuboid([clamped, 5, 5]);  // Creates cuboid with width=0
 //   }
-// Example(ColorScheme=Tomorrow)
+// Example
 //   // Undefined input
 //   value = undef;
 //   clamped = clamp(value, 0, 10);

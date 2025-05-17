@@ -1,3 +1,2 @@
-#ColorScheme=BeforeDawn
-ColorScheme=cornfield
 source_files: "docs/tutorials/*.md"
+ColorScheme: Tomorrow

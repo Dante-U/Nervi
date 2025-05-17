@@ -2,6 +2,7 @@ DocsDirectory: ../wiki
 TargetProfile: githubwiki
 ProjectName: Nervi Architecture Openscad Library
 GenerateDocs: Files, TOC, Index, Topics, CheatSheet, Sidebar
+ColorScheme: Tomorrow
 SidebarHeader:
   ## Indices
   .
